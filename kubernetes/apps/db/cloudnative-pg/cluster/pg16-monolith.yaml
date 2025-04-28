@@ -1,0 +1,108 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/postgresql.cnpg.io/cluster_v1.json
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: &clusterName postgres16
+spec:
+  instances: 2
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.8
+  primaryUpdateStrategy: unsupervised
+  primaryUpdateMethod: switchover
+  storage:
+    size: 20Gi
+    storageClass: longhorn-cluster
+  enableSuperuserAccess: true
+  postgresql:
+    parameters:
+      max_connections: "300"
+      shared_buffers: "128MB"
+      pg_stat_statements.max: "10000"
+      pg_stat_statements.track: all
+  nodeMaintenanceWindow:
+    inProgress: false
+    reusePVC: true
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      memory: 2Gi
+  monitoring:
+    enablePodMonitor: true
+
+  backup:
+    retentionPolicy: 30d
+    barmanObjectStore: &barmanObjectStore
+      data:
+        compression: bzip2
+      wal:
+        compression: bzip2
+        maxParallel: 1
+      destinationPath: s3://cloudnative-pg/
+      endpointURL: "http://blackhole2.${SECRET_DOMAIN_INT}:3900"
+      # Note: serverName version needs to be incremented
+      # when recovering from an existing cnpg cluster
+      serverName: *clusterName
+      s3Credentials:
+        region:
+          name: cloudnative-pg-garage-secret
+          key: CNPG_S3_REGION
+        accessKeyId:
+          name: cloudnative-pg-garage-secret
+          key: CNPG_S3_ACCESS_KEY_ID
+        secretAccessKey:
+          name: cloudnative-pg-garage-secret
+          key: CNPG_S3_SECRET_ACCESS_KEY
+
+  # Note: previousCluster needs to be set to the name of the previous
+  # cluster when recovering from an existing cnpg cluster
+  bootstrap:
+    initdb:
+      import:
+        schemaOnly: true
+        type: monolith
+        databases: ["*"]
+        roles: ["*"]
+        source:
+          externalCluster: &sourceCluster vacuum2
+  # Note: externalClusters is needed when recovering from an existing cnpg cluster
+  externalClusters:
+    - name: *sourceCluster
+      connectionParameters:
+        host: vacuum2.x.${SECRET_DOMAIN_INT}
+        user: postgres
+        dbname: postgres
+        port: "5432"
+        sslmode: prefer
+      password:
+        key: password
+        name: pgsql-vacuum-postgres
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/postgresql.cnpg.io/scheduledbackup_v1.json
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: postgres16-daily
+  namespace: db
+spec:
+  schedule: "@daily"
+  immediate: true
+  backupOwnerReference: self
+  cluster:
+    name: postgres16
+---
+# decided to handle this imperatively as it's a one-time operation
+# # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/postgresql.cnpg.io/subscription_v1.json
+# apiVersion: postgresql.cnpg.io/v1
+# kind: Subscription
+# metadata:
+#   name: vacuum2-k8s-miniflux
+# spec:
+#   name: subscriber
+#   dbname: miniflux
+#   cluster:
+#     name: postgres16
+#   externalClusterName: vacuum2
+#   publicationName: publisher
+

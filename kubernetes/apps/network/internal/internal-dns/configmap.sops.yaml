@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: krb5.conf
+data:
+    krb5.conf: ENC[AES256_GCM,data:1RCVHQNdsx5evcfNYGPKqxeI2ZrA3R/fZZXqteEghzxTG6jNfZFlt6l5+ewiCYp/XM+iQeMe7zXy/ShXKRAu6uUAO6WHb7+AxkK9rpFQ7dzigU066Ei0ZIWNtEDV8Ve86kBdx8I2EC+EDg/hE9WDIZ/1nDG6JFvONWLRu42O+IYcgGB4TtWibaNj5huoiDzGoQISq9CARiV1C/I/Cvr+ReIBTcqYSv9vBe4RAUZMAmCUiCOWWEjAX5DGdyULx15X4h+YsrVNBoC9ymRBbACwcjYdQNB7Rngde1l7pdQXzTsFa4QKjy9OOPtScaTCDRoV7l9wnR93EqcdkRqLVWLb4qUwHEflgPK+chU/oZeptLTCd9nwSaSpTgBV8mOXEHG8t6mlMtU7BvTamRthWz81Wx5jFfR7i5d7O9q0xM0HMu/Tqaju5MAw3SsQVzFbtX93SAGilU78CP50gnX2c7abzG2wI6zHqfjck+2ln25kY07eaSdEldzIpPj1lSjjaPG8saPIaMD2lLvtYECkXkwsZeCITOfev4+60dZMv5TXz+aeXsa+gLChHfWm4SsPoi/LzUyCue1k3v2mi+hbCf6883mtwmEp2wnQDA/biC8ei9GmAGbUF/e3ipBlc53GhfXSzR41hjYBWj0h1kmdZGfZzBQ3O6zNVFpEf6F34L74qcsQTh14BDSA3XeqkbLXKbP7oehnFPjAk6C+UdQ=,iv:aP7x8AJlRO+T1UBq8XjegVOc9LVlL05r2FGzgl5EF+o=,tag:Z+a6fB4dX0wsnyqRR1n1gQ==,type:str]
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age1a68j5zasa55y39u5ecus7g4dzl3rqp0u6h6jwpuw3743cdf9dd4sykfhr4
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBLa2RDdXB4ZDgxdUtMdlda
+            aUhQTUNqZGtaTWR6SFZGWExZbloxaUtRTENRCm85bXlHbUg5SU1iaVp4d1dmaWNW
+            MFVpTXJZT0E3cnhXSWFGcElXU05FM2cKLS0tIDVTNjhhTm5oSlZETENFTVdMOVI3
+            T1U1SXljNUV5SzNjSU80Vm8rK3U2SlUKo1CVT/LOpXHT3ZAzMbCIh/N1SK6SBwSR
+            7lOA8sonpcfT5cucZ47MJVQ2gESYlkU75FNMM6j+8qb5m+MIoMe2Ww==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2025-03-18T22:36:54Z"
+    mac: ENC[AES256_GCM,data:jYsIMxLonha1/LsrIZoNCqmv7Ry4iNApxPrznFComwZUeV+jHliQSz0/OHeQUqz02CC7xvjW5o2lt7fAyYcc5NVVpeFHUpzvGnJSTj+sfBPx3vJp1dk0RFWp+rVDICaNflFLnnq4u/2QGnNOMTgRTyReLptzJj9OfCOwvQ5Iwaw=,iv:FZ0dmQ6bhESfX/lm1OfDv5Ha38WJ4Fo9AS+FJamtQwY=,tag:kTTG1hCrhC95TLN1PajMEw==,type:str]
+    pgp: []
+    encrypted_regex: ^(data|stringData)$
+    mac_only_encrypted: true
+    version: 3.9.4

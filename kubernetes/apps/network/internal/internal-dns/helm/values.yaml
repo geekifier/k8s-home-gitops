@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/kubernetes-sigs/external-dns/refs/heads/master/charts/external-dns/values.schema.json
+# https://github.com/kubernetes-sigs/external-dns/blob/master/docs/tutorials/rfc2136.md#microsoft-dns
+---
+extraVolumeMounts:
+  - mountPath: /etc/krb5.conf
+    name: kerberos-config-volume
+    subPath: krb5.conf
+extraVolumes:
+  - configMap:
+      defaultMode: 420
+      name: krb5.conf
+    name: kerberos-config-volume
+domainFilters:
+  - ${SECRET_DOMAIN_INT}
+policy: sync
+# need to template this
+txtOwnerId: tinykube01
+txtPrefix: "k8s"
+provider:
+  name: rfc2136
+
+extraArgs:
+  - "--rfc2136-gss-tsig"
+  # needs to be actual FQDN for Kerberos to work
+  - "--rfc2136-host=sambadc03.${SECRET_DOMAIN_INT}"
+  # needs vs v0.16+
+  # - '--rfc2136-host=192.168.1.31'
+  # - '--rfc2136-load-balancing-strategy="round-robin"'
+  - "--rfc2136-port=53"
+  - "--rfc2136-zone=${SECRET_DOMAIN_INT}"
+  - "--rfc2136-tsig-axfr"
+serviceMonitor:
+  enabled: true
+podAnnotations:
+  secret.reloader.stakater.com/reload: internal-dns-secret

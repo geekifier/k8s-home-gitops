@@ -1,0 +1,68 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app spoolman
+spec:
+  interval: 5m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      spoolman:
+        containers:
+          app:
+            image:
+              repository: ghcr.io/donkie/spoolman
+              tag: 0.22.1
+            env:
+              TZ: "${CLUSTER_TZ}"
+            envFrom:
+              - secretRef:
+                  name: spoolman-secret
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 5
+            resources:
+              requests:
+                cpu: 25m
+                memory: 256Mi
+
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: &port 8000
+    ingress:
+      app:
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Home
+          gethomepage.dev/icon: spoolman
+          gethomepage.dev/description: Filament Manager
+        className: internal
+        hosts:
+          # TODO: parameterize this
+          - host: &url "spoolman.${SECRET_DOMAIN_INT}"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http

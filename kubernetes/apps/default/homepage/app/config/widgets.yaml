@@ -1,0 +1,10 @@
+- search:
+    provider: [brave, duckduckgo, google]
+
+- openweathermap:
+    label: Carmel
+    latitude: "{{HOMEPAGE_VAR_OPENWEATHERMAP_LATITUDE}}"
+    longitude: "{{HOMEPAGE_VAR_OPENWEATHERMAP_LONGITUDE}}"
+    units: imperial
+    provider: openweathermap
+    cache: 5

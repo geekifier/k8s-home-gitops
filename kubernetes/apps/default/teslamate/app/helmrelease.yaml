@@ -1,0 +1,74 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app teslamate
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      teslamate:
+        replicas: 1
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: teslamate/teslamate
+              tag: 1.33.0
+            env:
+              TZ: "${CLUSTER_TZ}"
+            envFrom:
+              - secretRef:
+                  name: teslamate-secret
+              - secretRef:
+                  name: pgsql-teslamate
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 5
+            resources:
+              requests:
+                cpu: 25m
+                memory: 256Mi
+
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: &port 4000
+    ingress:
+      app:
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Home
+          gethomepage.dev/icon: teslamate
+          gethomepage.dev/description: Vehicle Stats
+          wud.link.template: https://github.com/teslamate-org/teslamate/releases/tag/v$${major}.$${minor}.$${patch}
+        className: internal
+        hosts:
+          # TODO: parameterize this
+          - host: &url "teslamate.${SECRET_DOMAIN_INT}"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http

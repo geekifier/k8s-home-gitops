@@ -1,0 +1,14 @@
+- Home:
+    - BlueIris:
+        icon: blue-iris.png
+        href: http://bi.${SECRET_DOMAIN_INT}
+        description: Cameras
+- Games:
+    - Minecraft Maps:
+        icon: minecraft.png
+        href: http://blocky2.${SECRET_DOMAIN_INT}/
+        description: BlueMap
+    - File Share:
+        icon: files.png
+        href: smb://blackhole2.${SECRET_DOMAIN_INT}/Public/Software/Games/
+        description: Game Files

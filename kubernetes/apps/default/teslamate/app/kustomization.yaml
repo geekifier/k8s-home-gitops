@@ -1,0 +1,49 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./helmrelease.yaml
+  - ./secret.sops.yaml
+configMapGenerator:
+  - name: teslamate-dashboards
+    files:
+      - ./dashboards/battery-health.json
+      - ./dashboards/charge-level.json
+      - ./dashboards/charges.json
+      - ./dashboards/charging-stats.json
+      - ./dashboards/database-info.json
+      - ./dashboards/drive-stats.json
+      - ./dashboards/drives.json
+      - ./dashboards/efficiency.json
+      - ./dashboards/locations.json
+      - ./dashboards/mileage.json
+      - ./dashboards/overview.json
+      - ./dashboards/projected-range.json
+      - ./dashboards/states.json
+      - ./dashboards/statistics.json
+      - ./dashboards/timeline.json
+      - ./dashboards/trip.json
+      - ./dashboards/updates.json
+      - ./dashboards/vampire-drain.json
+      - ./dashboards/visited.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+      annotations:
+        grafana_folder: "Teslamate"
+  - name: teslamate-int-dashboards
+    files:
+      - ./dashboards/internal/drive-details.json
+      - ./dashboards/internal/charge-details.json
+      - ./dashboards/internal/home.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+      annotations:
+        grafana_folder: "Internal"
+# generatorOptions:
+#   labels:
+#     grafana_dashboard: "1"
+#   annotations:
+#     grafana_folder: "Teslamate"

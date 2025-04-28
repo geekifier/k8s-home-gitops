@@ -1,0 +1,70 @@
+---
+apiVersion: db.movetokube.com/v1alpha1
+kind: Postgres
+metadata:
+  name: &dbName teslamate
+  # the operator is limited to managing resources in the same namespace only
+  namespace: db
+spec:
+  database: *dbName
+  dropOnDelete: false
+  extensions:
+    - cube
+    - earthdistance
+  schemas:
+    - public
+---
+apiVersion: db.movetokube.com/v1alpha1
+kind: PostgresUser
+metadata:
+  name: &dbName teslamate
+  # the operator is limited to managing resources in the same namespace only
+  namespace: db
+spec:
+  role: *dbName
+  database: *dbName
+  secretName: pgsql
+  privileges: OWNER
+  annotations:
+    reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+    reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+    reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "default,observability"
+  secretTemplate:
+    DATABASE_HOST: "{{ .Host }}.db.svc.cluster.local"
+    DATABASE_USER: "{{.Role}}"
+    DATABASE_PASS: "{{.Password}}"
+    DATABASE_NAME: "{{.Database}}"
+---
+apiVersion: db.movetokube.com/v1alpha1
+kind: PostgresUser
+metadata:
+  name: teslamate-grafana
+  # the operator is limited to managing resources in the same namespace only
+  namespace: db
+spec:
+  role: teslamate-grafana
+  database: teslamate
+  secretName: pgsql
+  privileges: READ
+  labels:
+    grafana_datasource: "1"
+    test: foo
+  annotations:
+    reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+    reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+    reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "default,observability"
+
+  # formatted data for Grafana sidecar consumption
+  secretTemplate:
+    pg-db.yaml: |-
+      apiVersion: 1
+      datasources:
+        - name: TeslaMate
+          type: postgres
+          url: {{ .Host }}.db.svc.cluster.local:5432
+          user: {{ .Role }}
+          secureJsonData:
+            password: '{{ .Password }}'
+          jsonData:
+            database: {{ .Database }}
+            sslmode: 'require'

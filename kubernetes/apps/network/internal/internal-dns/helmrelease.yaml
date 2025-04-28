@@ -1,0 +1,47 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app internal-dns
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: external-dns
+      version: 1.15.2
+      sourceRef:
+        kind: HelmRepository
+        name: external-dns
+        namespace: flux-system
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    crds: CreateReplace
+    remediation:
+      strategy: rollback
+      retries: 3
+  valuesFrom:
+    - kind: ConfigMap
+      name: internal-dns-values
+  values:
+    fullnameOverride: *app
+    env:
+      - name: EXTERNAL_DNS_RFC2136_KERBEROS_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: internal-dns-secret
+            key: EXTERNAL_DNS_RFC2136_KERBEROS_USERNAME
+      - name: EXTERNAL_DNS_RFC2136_KERBEROS_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: internal-dns-secret
+            key: EXTERNAL_DNS_RFC2136_KERBEROS_PASSWORD
+      - name: EXTERNAL_DNS_RFC2136_KERBEROS_REALM
+        valueFrom:
+          secretKeyRef:
+            name: internal-dns-secret
+            key: EXTERNAL_DNS_RFC2136_KERBEROS_REALM

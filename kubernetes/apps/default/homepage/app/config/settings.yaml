@@ -1,0 +1,21 @@
+title: Xenu Dashboard
+statusStyle: "dot"
+disableCollapse: true
+headerStyle: clean
+hideErrors: false
+useEqualHeights: true
+#background: https://images.unsplash.com/photo-1701143917332-4639dbfeaa29?auto=format&fit=crop&w=1920
+layout:
+  Home:
+    tab: Home
+  Media:
+    tab: Home
+  Arrr:
+    tab: Home
+  Games:
+    tab: Home
+    style: row
+  Admin:
+    tab: Admin
+providers:
+  openweathermap: "{{HOMEPAGE_VAR_OPENWEATHERMAP_API_KEY}}"

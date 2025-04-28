@@ -1,0 +1,11 @@
+controllers:
+  miniflux:
+    containers:
+      app:
+        env:
+          - name: CREATE_ADMIN
+            value: 1
+          - name: RUN_MIGRATIONS
+            value: 1
+          - name: BASE_URL
+            value: https://rss.${SECRET_DOMAIN_INT}

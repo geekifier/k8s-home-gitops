@@ -1,0 +1,65 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.18b.haus/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app ext-postgres-operator
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: *app
+      version: 1.2.7-test
+      sourceRef:
+        kind: HelmRepository
+        name: ext-postgres-operator-repo-forked
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: -1
+  upgrade:
+    crds: CreateReplace
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  valuesFrom:
+    - kind: Secret
+      name: &pgSecretName postgres16-superuser
+      valuesKey: username
+      targetPath: postgres.user
+    - kind: Secret
+      name: &pgSecretName postgres16-superuser
+      valuesKey: password
+      targetPath: postgres.password
+    - kind: Secret
+      name: &pgSecretName postgres16-superuser
+      valuesKey: host
+      targetPath: postgres.host
+
+  values:
+    image:
+      repository: ghcr.io/geekifier/postgres-operator
+      tag: "1.3.5-test"
+    replicaCount: 1
+    fullnameOverride: *app
+    # empty string means all namespaces
+    watchNamespace: ""
+    # postgres:
+    #   host: ""
+    #   user: ""
+    #   password: ""
+    #   url_args: ""
+    #   default_database: "postgres"
+    # # Existing secret where values to connect to Postgres are defined.
+    # # If not set a new secret will be created, filled with information under the postgres key above.
+    # existingSecret: ""
+    podAnnotations:
+      secret.reloader.stakater.com/reload: *pgSecretName
+    resources:
+      requests:
+        cpu: 10m
+        memory: 50Mi
+      limits:
+        memory: 256Mi

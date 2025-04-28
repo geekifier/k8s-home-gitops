@@ -1,0 +1,18 @@
+---
+instance:
+  distribution:
+    # renovate: datasource=github-releases depName=controlplaneio-fluxcd/distribution
+    version: 2.5.1
+  cluster:
+    networkPolicy: false
+  components:
+    - source-controller
+    - kustomize-controller
+    - helm-controller
+    - notification-controller
+  sync:
+    kind: GitRepository
+    url: "ssh://git@github.com/geekifier/xenu-ng.git"
+    pullSecret: github-deploy-key
+    ref: "refs/heads/master"
+    path: kubernetes/flux/cluster

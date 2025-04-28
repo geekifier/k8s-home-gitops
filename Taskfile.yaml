@@ -1,0 +1,67 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+set: [pipefail]
+shopt: [globstar]
+
+vars:
+  BOOTSTRAP_DIR: "{{.ROOT_DIR}}/bootstrap"
+  KUBERNETES_DIR: "{{.ROOT_DIR}}/kubernetes"
+  SCRIPTS_DIR: "{{.ROOT_DIR}}/scripts"
+  TALOS_DIR: "{{.ROOT_DIR}}/talos"
+  PRIVATE_DIR: "{{.ROOT_DIR}}/.private"
+  TALOSCONFIG: "{{.ROOT_DIR}}/talos/clusterconfig/talosconfig"
+
+env:
+  KUBECONFIG: "{{.ROOT_DIR}}/kubeconfig"
+  SOPS_AGE_KEY_FILE: "{{.ROOT_DIR}}/age.key"
+  TALOSCONFIG: "{{.TALOSCONFIG}}"
+
+includes:
+  bootstrap: .taskfiles/bootstrap
+  talos: .taskfiles/talos
+
+tasks:
+  default: task --list
+
+  reconcile:
+    desc: Force Flux to pull in changes from your Git repository
+    cmd: flux --namespace flux-system reconcile kustomization flux-system --with-source
+    preconditions:
+      - test -f {{.KUBECONFIG}}
+      - which flux
+
+  test:
+    desc: Use flux-local to validate the workdir configuration
+    cmd: flux-local test --enable-helm --all-namespaces --path kubernetes/flux/cluster -v
+    preconditions:
+      - which flux-local
+
+  build-all:
+    desc: Use flux-local to build all KS and HR resources
+    cmd: flux-local build all ./kubernetes --enable-helm --skip-secrets
+    preconditions:
+      - which flux-local
+
+  dashboard-prep:
+    desc: Escape vars in Grafana dashboard JSON and build a YAML list for processing by ConfigMapGenerator
+    preconditions:
+      - sh: test -d '{{.JSON_PATH }}'
+        msg: "Directory {{ .JSON_PATH }} does not exist"
+      - sh: '[ "{{ OS }}" != "darwin" ] || command -v gsed'
+        msg: gsed is required when running on macOS
+    vars:
+      JSON_PATH: '{{.CLI_ARGS | default "./kubernetes/apps/default/teslamate/app/dashboards"}}'
+    cmds:
+      - for: { var: JSON_PATH }
+        cmd: |
+          [[ "{{ OS }}" == "darwin" ]] && SEDCMD="gsed" || SEDCMD="sed"
+          echo "Running in dir: {{ .ITEM }}"
+          echo "files:"
+          for f in $(find {{ .ITEM }} -type f -name '*.json'); do
+            "$SEDCMD" -i -r \
+              '/\$\{[^\}]+\}/ s/([^$])\$\{([^}]+)\}/\1\$\${\2}/g' \
+              "$f"
+            echo "  - ./dashboards/$(basename "$f")"
+          done

@@ -1,0 +1,78 @@
+---
+# yaml-language-server: $schema=https://www.authelia.com/schemas/v4.39/json-schema/configuration.json
+theme: light
+
+server:
+  address: "tcp://0.0.0.0:9091"
+
+telemetry:
+  metrics:
+    enabled: true
+    address: "tcp://:9959/metrics"
+
+log:
+  level: info
+
+authentication_backend:
+  ldap:
+    implementation: activedirectory
+    address: ldaps://${SECRET_AD_ENDPOINT}:636
+    timeout: 5s
+    start_tls: false
+    base_dn: ${SECRET_AD_BASEDN}
+    tls:
+      skip_verify: true
+
+access_control:
+  default_policy: deny
+  rules:
+    - domain: "music.${SECRET_DOMAIN_INT}"
+      resources:
+        - "^.*/rest.*$"
+        - "^.*/share.*$"
+      policy: bypass
+    - domain: "*.${SECRET_DOMAIN_INT}"
+      resources:
+        - "^.*/api([/?].*)?$"
+        - '^.*\/health.?$'
+        - '^.*\/.\/download.*$'
+      policy: bypass
+    - domain: "*.${SECRET_DOMAIN_INT}"
+      policy: one_factor
+
+regulation:
+  max_retries: 5
+  find_time: 5m
+  ban_time: 15m
+
+session:
+  redis:
+    host: dragonfly-shared.db.svc.cluster.local
+  cookies:
+    - domain: "${SECRET_DOMAIN_INT}"
+      name: "authelia_session"
+      authelia_url: https://auth-k8s.${SECRET_DOMAIN_INT}
+  name: authelia_session
+  expiration: 8h
+  remember_me: 7d
+
+# session:
+#   name: authelia_session
+#   domain: ${SECRET_DOMAIN_INT}
+#   expiration: 8h
+#   remember_me: 7d
+
+storage:
+  postgres:
+    address: 'tcp://{{ secret "/config/pgsqlsecret/PGSQL_HOST"}}.db.svc.cluster.local:5432'
+    database: '{{ secret "/config/pgsqlsecret/PGSQL_DB"}}'
+    username: '{{ secret "/config/pgsqlsecret/PGSQL_USER"}}'
+    password: '{{ secret "/config/pgsqlsecret/PGSQL_PASSWORD"}}'
+    tls:
+      skip_verify: true
+
+# TODO: configure this
+notifier:
+  disable_startup_check: true
+  filesystem:
+    filename: /tmp/notify.txt

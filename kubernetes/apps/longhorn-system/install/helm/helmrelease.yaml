@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: longhorn-release
+  namespace: longhorn-system
+spec:
+  chart:
+    spec:
+      chart: longhorn
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: longhorn-repo
+      version: v1.8.1
+  values:
+    # debug hr uinstall issue
+    ingress:
+      enabled: true
+      ingressClassName: internal
+      host: "longhorn.${SECRET_DOMAIN_INT}"
+    metrics:
+      serviceMonitor:
+        enabled: true
+    defaultSettings:
+      # for apps with replication, override with `strict-local`
+      defaultDataLocality: best-effort
+      defaultReplicaCount: 2
+      replicaAutoBalance: least-effort
+      allowVolumeCreationWithDegradedAvailability: false
+    persistence:
+      defaultClassReplicaCount: 2
+    storageReservedPercentageForDefaultDisk: 0
+  interval: 60m
+  # upgrade:
+  #   remediation:
+  #     strategy: rollback
+  #     retries: 5

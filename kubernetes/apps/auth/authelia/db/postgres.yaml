@@ -1,0 +1,23 @@
+---
+apiVersion: db.movetokube.com/v1alpha1
+kind: Postgres
+metadata:
+  name: &dbName authelia
+spec:
+  database: *dbName
+  dropOnDelete: false
+---
+apiVersion: db.movetokube.com/v1alpha1
+kind: PostgresUser
+metadata:
+  name: &dbName authelia
+spec:
+  role: *dbName
+  database: *dbName
+  secretName: pgsql
+  privileges: OWNER
+  secretTemplate:
+    PGSQL_HOST: "{{ .Host }}"
+    PGSQL_USER: "{{.Role}}"
+    PGSQL_PASSWORD: "{{.Password}}"
+    PGSQL_DB: "{{.Database}}"

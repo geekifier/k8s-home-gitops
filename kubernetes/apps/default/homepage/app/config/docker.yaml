@@ -1,0 +1,7 @@
+rpi2:
+  host: rpi2.x.${SECRET_DOMAIN_INT}
+  port: 2375
+
+vacuum2:
+  host: vacuum2.x.${SECRET_DOMAIN_INT}
+  port: 2375
