@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mumble-config-cm
+  namespace: default
+stringData:
+  # reference: https://github.com/mumble-voip/mumble/blob/master/auxiliary_files/mumble-server.ini
+  # leave empty to force logging to console
+  MUMBLE_CONFIG_LOGFILE: ""
+  MUMBLE_CONFIG_WELCOMETEXT: |
+    "<br />Welcome to this server running <b>Mumble</b>.<br />Enjoy your stay!<br />"
+  # Port to bind TCP and UDP sockets to.
+  MUMBLE_CONFIG_PORT: 64738
+  # Password to join server.
+  MUMBLE_CONFIG_SERVERPASSWORD: ""
+  # Maximum bandwidth (in bits per second) clients are allowed
+  # to send speech at.
+  MUMBLE_CONFIG_BANDWIDTH: 558000
+  # Maximum number of concurrent clients allowed.
+  MUMBLE_CONFIG_USERS: 30
+  MUMBLE_CONFIG_MESSAGEBURST: 5
+  MUMBLE_CONFIG_MESSAGELIMIT: 1
+  MUMBLE_CONFIG_ALLOWPING: true
+  MUMBLE_CONFIG_CHANNELCOUNTLIMIT: 100
+  MUMBLE_CONFIG_LEGACYPASSWORDHASH: false

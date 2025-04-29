@@ -13,3 +13,4 @@ resources:
   - ./homepage/ks.yaml
   - ./spoolman/ks.yaml
   - ./teslamate/ks.yaml
+  - ./mumble-server/ks.yaml

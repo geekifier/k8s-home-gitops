@@ -1,0 +1,32 @@
+---
+apiVersion: db.movetokube.com/v1alpha1
+kind: Postgres
+metadata:
+  name: &dbName mumble
+  # the operator is limited to managing resources in the same namespace only
+  namespace: db
+spec:
+  database: *dbName
+  dropOnDelete: false
+---
+apiVersion: db.movetokube.com/v1alpha1
+kind: PostgresUser
+metadata:
+  name: &dbName mumble
+  # the operator is limited to managing resources in the same namespace only
+  namespace: db
+spec:
+  role: *dbName
+  database: *dbName
+  secretName: pgsql
+  privileges: OWNER
+  annotations:
+    reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+    reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+    reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "default"
+  secretTemplate:
+    MUMBLE_CONFIG_DBUSERNAME: "{{ .Role }}"
+    MUMBLE_CONFIG_DBPASSWORD: "{{ .Password }}"
+    MUMBLE_CONFIG_DBHOST: "{{ .Host }}.db.svc.cluster.local"
+    MUMBLE_CONFIG_DBPORT: "5432"
+    MUMBLE_CONFIG_DATABASE: "{{ .Database }}"
