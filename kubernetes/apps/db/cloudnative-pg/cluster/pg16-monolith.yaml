@@ -70,7 +70,7 @@ spec:
   externalClusters:
     - name: *sourceCluster
       connectionParameters:
-        host: vacuum2.x.${SECRET_DOMAIN_INT}
+        host: vacuum2.${SECRET_DOMAIN_INT}
         user: postgres
         dbname: postgres
         port: "5432"
