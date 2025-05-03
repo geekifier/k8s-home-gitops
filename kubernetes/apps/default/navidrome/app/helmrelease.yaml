@@ -26,7 +26,7 @@ spec:
             fsGroup: 1000
             fsGroupChangePolicy: "OnRootMismatch"
         replicas: 1
-        strategy: RollingUpdate
+        strategy: Recreate
         annotations:
           # reloader.stakater.com/auto: "true"
         containers:
@@ -39,8 +39,11 @@ spec:
               ND_LOGLEVEL: info
               ND_REVERSEPROXYWHITELIST: "100.64.0.0/16" # replace with interpolated value
               ND_ENABLEUSEREDITING: false
-              ND_BASEURL: "https://music-k8s.${SECRET_DOMAIN_INT}"
+              ND_BASEURL: "https://music.${SECRET_DOMAIN_INT}"
               ND_PORT: &port 4533
+              ND_MUSICFOLDER: /public/Media/Music
+              ND_IMAGECACHESIZE: "500MB"
+              ND_SCANNER_SCHEDULE: "@every 4h"
             resources:
               requests:
                 cpu: 50m
@@ -68,7 +71,7 @@ spec:
         enabled: true
         className: internal
         hosts:
-          - host: &host music-k8s.${SECRET_DOMAIN_INT}
+          - host: &host music.${SECRET_DOMAIN_INT}
             paths:
               - path: /
                 service:
@@ -77,10 +80,10 @@ spec:
     persistence:
       data:
         enabled: true
-        size: 1Gi
+        size: 2Gi
         storageClass: longhorn-standard
         accessMode: ReadWriteOnce
-      music:
+      public:
         enabled: true
         existingClaim: smb-public-pvc
         type: persistentVolumeClaim
