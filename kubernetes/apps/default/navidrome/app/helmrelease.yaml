@@ -1,0 +1,75 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app navidrome
+spec:
+  interval: 5m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    controllers:
+      navidrome:
+        pod:
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+            fsGroupChangePolicy: "OnRootMismatch"
+        replicas: 1
+        strategy: RollingUpdate
+        annotations:
+          # reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: deluan/navidrome
+              tag: "0.55.2"
+            env:
+              TZ: ${CLUSTER_TZ}
+              ND_LOGLEVEL: info
+              ND_REVERSEPROXYWHITELIST: "100.64.0.0/16" # replace with interpolated value
+              ND_BASEURL: "https://music-k8s.${SECRET_DOMAIN_INT}"
+              ND_PORT: &port 4533
+            resources:
+              requests:
+                cpu: 50m
+                memory: 64Mi
+              limits:
+                memory: 256Mi
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: *port
+    ingress:
+      app:
+        enabled: true
+        className: internal
+        hosts:
+          - host: &host music-k8s.${SECRET_DOMAIN_INT}
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+    persistence:
+      data:
+        enabled: true
+        size: 1Gi
+        storageClass: longhorn-standard
+        accessMode: ReadWriteOnce
+      music:
+        enabled: true
+        existingClaim: smb-public-pvc
+        type: persistentVolumeClaim
