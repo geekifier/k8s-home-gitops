@@ -12,3 +12,4 @@ resources:
   - ./reloader/ks.yaml
   - ./spegel/ks.yaml
   - ./reflector/ks.yaml
+  - ./csi-driver-smb/ks.yaml
