@@ -9,10 +9,10 @@ spec:
   chart:
     spec:
       chart: *app
-      version: 1.2.7-test
+      version: 1.2.7
       sourceRef:
         kind: HelmRepository
-        name: ext-postgres-operator-repo-forked
+        name: ext-postgres-operator-repo
   install:
     crds: CreateReplace
     remediation:
@@ -40,8 +40,8 @@ spec:
 
   values:
     image:
-      repository: ghcr.io/geekifier/postgres-operator
-      tag: "1.3.5-test"
+      repository: ghcr.io/movetokube/postgres-operator
+      tag: "1.3.5"
     replicaCount: 1
     fullnameOverride: *app
     # empty string means all namespaces
