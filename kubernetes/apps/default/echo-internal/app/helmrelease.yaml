@@ -79,8 +79,11 @@ spec:
     ingress:
       app:
         className: internal
-        #annotations:
-        #  external-dns.alpha.kubernetes.io/target: "${SECRET_DOMAIN_INT}"
+        annotations:
+          nginx.ingress.kubernetes.io/auth-method: "GET"
+          nginx.ingress.kubernetes.io/auth-url: "http://authelia.auth.svc.cluster.local:9091/api/authz/auth-request"
+          nginx.ingress.kubernetes.io/auth-signin: "https://auth-k8s.${SECRET_DOMAIN_INT}?rm=$request_method"
+          nginx.ingress.kubernetes.io/auth-response-headers: "Remote-User,Remote-Name,Remote-Groups,Remote-Email"
         hosts:
           - host: "{{ .Release.Name }}.${SECRET_DOMAIN_INT}"
             paths:
