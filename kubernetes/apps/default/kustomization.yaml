@@ -16,3 +16,4 @@ resources:
   - ./teslamate/ks.yaml
   - ./mumble-server/ks.yaml
   - ./navidrome/ks.yaml
+  - ./calibre-web-automated/ks.yaml
