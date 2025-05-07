@@ -19,6 +19,16 @@ spec:
   values:
     ingress:
       app:
+        annotations:
+          nginx.ingress.kubernetes.io/auth-method: "GET"
+          nginx.ingress.kubernetes.io/auth-url: "http://authelia.auth.svc.cluster.local:9091/api/authz/auth-request"
+          nginx.ingress.kubernetes.io/auth-signin: "https://auth-k8s.${SECRET_DOMAIN_INT}?rm=$request_method"
+          nginx.ingress.kubernetes.io/auth-response-headers: "Remote-User,Remote-Name,Remote-Groups,Remote-Email"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/pod-selector: app.kubernetes.io/name=calibre-web-automated
+          gethomepage.dev/group: Media
+          gethomepage.dev/name: Calibre Web Automated
+          gethomepage.dev/icon: calibre-web-automated-book-downloader
         enabled: true
         className: internal
         hosts:
@@ -53,8 +63,10 @@ spec:
                 enabled: true
             resources:
               requests:
-                cpu: 50m
-                memory: 128Mi
+                cpu: 5m
+                memory: 192Mi
+              limits:
+                memory: 348Mi
     service:
       app:
         controller: *app
