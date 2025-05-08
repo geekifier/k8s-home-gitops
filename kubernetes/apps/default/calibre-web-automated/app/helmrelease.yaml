@@ -53,6 +53,8 @@ spec:
               tag: V3.0.4
             env:
               TZ: ${CLUSTER_TZ}
+              # cache book covers in pv
+              CACHE_DIR: /config/cache
               APP_SERVICE_PORT: &containerPort 8083
               PUID: 1000
               PGID: 1000
