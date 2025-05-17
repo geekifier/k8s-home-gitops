@@ -919,7 +919,7 @@ spec:
         spec:
           endpoints:
             - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
-              interval: 2m
+              interval: 5m
               # bearerTokenSecret:
               #   key: ""
               port: https
