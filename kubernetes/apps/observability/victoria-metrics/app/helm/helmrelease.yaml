@@ -809,8 +809,9 @@ spec:
               app.kubernetes.io/name: '{{ include "prometheus-node-exporter.name" (index .Subcharts "prometheus-node-exporter") }}'
           endpoints:
             - port: metrics
+              interval: 1m
               relabelConfigs:
-                # These is set at the target level rather than the metric level,
+                # These are set at the target level rather than the metric level,
                 # so it should be replaced once here instead of on every single metric.
                 # Replace the instance name (something like 10.3.1.1:9100) with the node name
                 # (something like talos-k8s-mixed-01).
@@ -824,7 +825,7 @@ spec:
                 # by each pod.
                 - action: replace
                   target_label: pod
-                  # This is uses VM-specific features.
+                  # This uses VM-specific features.
                   # Helm is templating this which is why `printf` is needed
                   replacement: '{{ printf "{{service}}-{{__meta_kubernetes_pod_node_name}}" }}'
               metricRelabelConfigs:
@@ -847,6 +848,7 @@ spec:
           endpoints:
             - port: http
               honorLabels: true
+              interval: 1m
               metricRelabelConfigs:
                 - action: labeldrop
                   regex: (uid|container_id|image_id)
