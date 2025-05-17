@@ -32,7 +32,7 @@ spec:
         enabled: true
         className: internal
         hosts:
-          - host: &host "books-k8s.${SECRET_DOMAIN_INT}"
+          - host: &host "books.${SECRET_DOMAIN_INT}"
             paths:
               - path: /
                 service:
