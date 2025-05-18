@@ -29,6 +29,8 @@ spec:
       podMonitorEnabled: true
       grafanaDashboard:
         create: true
+        annotations:
+          grafana_folder: "database"
     resources:
       requests:
         cpu: 10m
