@@ -78,9 +78,7 @@ spec:
     persistence:
       config:
         enabled: true
-        size: 1Gi
-        storageClass: longhorn-standard
-        accessMode: ReadWriteOnce
+        existingClaim: calibre-web-automated-config
       public:
         enabled: true
         existingClaim: smb-public-pvc
