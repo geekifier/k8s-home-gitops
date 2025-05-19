@@ -2,7 +2,7 @@
 apiVersion: operator.victoriametrics.com/v1beta1
 kind: VMAuth
 metadata:
-  name: vmauth-external
+  name: external
   namespace: observability
 spec:
   replicaCount: 2
@@ -10,7 +10,7 @@ spec:
   ingress:
     class_name: internal
     host: vme.${SECRET_DOMAIN_INT}
-  unauthorized_user:
+  unauthorizedUserAccessSpec:
     # keeping it simple for now
     # url_map:
     #   - src_paths:
