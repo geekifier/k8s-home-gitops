@@ -7,6 +7,9 @@ metadata:
 spec:
   extraArgs:
     vmalert.proxyURL: http://vmalert-victoria-metrics.observability.svc.cluster.local.:8080
+    # disabled for time series backfiling per
+    # https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/#backfilling
+    search.disableCache: "true"
   port: "8429"
   replicaCount: 1
   resources:
