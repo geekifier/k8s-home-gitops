@@ -1,0 +1,25 @@
+---
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMSingle
+metadata:
+  name: vmsingle-external
+  namespace: observability
+spec:
+  extraArgs:
+    vmalert.proxyURL: http://vmalert-victoria-metrics.observability.svc.cluster.local.:8080
+  port: "8429"
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  retentionPeriod: 10y
+  storage:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 40Gi
+    storageClassName: longhorn-standard
