@@ -44,6 +44,19 @@ spec:
               ND_MUSICFOLDER: /public/Media/Music
               ND_IMAGECACHESIZE: "500MB"
               ND_SCANNER_SCHEDULE: "@every 4h"
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /ping
+                    port: *port
+                  initialDelaySeconds: 10
+                  periodSeconds: 15
+                  timeoutSeconds: 3
+                  failureThreshold: 3
+              readiness: *probes
             resources:
               requests:
                 cpu: 50m
