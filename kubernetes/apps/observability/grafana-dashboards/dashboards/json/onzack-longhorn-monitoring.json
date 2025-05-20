@@ -1,53 +1,4 @@
 {
-  "__inputs": [
-    {
-      "name": "DS_PROMETHEUS",
-      "label": "prometheus",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "prometheus",
-      "pluginName": "Prometheus"
-    }
-  ],
-  "__elements": {},
-  "__requires": [
-    {
-      "type": "panel",
-      "id": "alertlist",
-      "name": "Alert list",
-      "version": ""
-    },
-    {
-      "type": "grafana",
-      "id": "grafana",
-      "name": "Grafana",
-      "version": "11.5.1"
-    },
-    {
-      "type": "datasource",
-      "id": "prometheus",
-      "name": "Prometheus",
-      "version": "1.0.0"
-    },
-    {
-      "type": "panel",
-      "id": "stat",
-      "name": "Stat",
-      "version": ""
-    },
-    {
-      "type": "panel",
-      "id": "table",
-      "name": "Table",
-      "version": ""
-    },
-    {
-      "type": "panel",
-      "id": "timeseries",
-      "name": "Time series",
-      "version": ""
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -74,7 +25,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": null,
+  "id": 413,
   "links": [],
   "panels": [
     {
@@ -93,7 +44,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "$${DS_PROMETHEUS}"
       },
       "description": "The total number of volumes in the Longhorn storage system",
       "fieldConfig": {
@@ -103,8 +54,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -133,7 +83,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.1",
+      "pluginVersion": "11.6.0",
       "targets": [
         {
           "datasource": {
@@ -154,7 +104,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "$${DS_PROMETHEUS}"
       },
       "description": "Healthy volumes are volumes that are attaching to a node and have the number of healthy replicas equals to the expected number of replicas.",
       "fieldConfig": {
@@ -164,8 +114,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
-                "value": null
+                "color": "red"
               },
               {
                 "color": "green",
@@ -198,7 +147,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.1",
+      "pluginVersion": "11.6.0",
       "targets": [
         {
           "datasource": {
@@ -219,7 +168,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "$${DS_PROMETHEUS}"
       },
       "description": "Note that Longhorn volume actual size is not the size of the filesystem inside a Longhorn volume.  See more at : https://longhorn.io/docs/1.0.2/volumes-and-nodes/volume-size/#volume-actual-size",
       "fieldConfig": {
@@ -266,8 +215,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "transparent",
-                "value": null
+                "color": "transparent"
               },
               {
                 "color": "red",
@@ -301,7 +249,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.1",
+      "pluginVersion": "11.6.0",
       "targets": [
         {
           "datasource": {
@@ -323,7 +271,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "$${DS_PROMETHEUS}"
       },
       "description": "Degraded volumes are volumes that have the number of healthy replicas smaller than the expected number of replicas. e.g. User creates a volume with 2 replicas but 1 replicas is failed.",
       "fieldConfig": {
@@ -333,8 +281,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "orange",
@@ -367,7 +314,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.1",
+      "pluginVersion": "11.6.0",
       "targets": [
         {
           "datasource": {
@@ -388,7 +335,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "$${DS_PROMETHEUS}"
       },
       "description": "Fault volumes are volumes that doesn't have any healthy replica.",
       "fieldConfig": {
@@ -398,8 +345,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -432,7 +378,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.1",
+      "pluginVersion": "11.6.0",
       "targets": [
         {
           "datasource": {
@@ -454,7 +400,7 @@
       "datasource": {
         "default": false,
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "$${DS_PROMETHEUS}"
       },
       "description": "The capacity of each Longhorn volume",
       "fieldConfig": {
@@ -482,8 +428,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "#EAB839",
@@ -572,7 +517,7 @@
           }
         ]
       },
-      "pluginVersion": "11.5.1",
+      "pluginVersion": "11.6.0",
       "targets": [
         {
           "datasource": {
@@ -592,7 +537,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -682,7 +627,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "$${DS_PROMETHEUS}"
       },
       "description": "Attached volumes are volumes that are currently attaching to a node",
       "fieldConfig": {
@@ -692,8 +637,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
-                "value": null
+                "color": "red"
               },
               {
                 "color": "green",
@@ -726,7 +670,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.1",
+      "pluginVersion": "11.6.0",
       "targets": [
         {
           "datasource": {
@@ -747,7 +691,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "$${DS_PROMETHEUS}"
       },
       "description": "Detached volumes are volumes that aren't currently attaching to a node",
       "fieldConfig": {
@@ -757,8 +701,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "yellow",
@@ -791,7 +734,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.1",
+      "pluginVersion": "11.6.0",
       "targets": [
         {
           "datasource": {
@@ -825,7 +768,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "$${DS_PROMETHEUS}"
       },
       "description": "The total number of nodes in the Longhorn storage system",
       "fieldConfig": {
@@ -835,8 +778,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -865,7 +807,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.1",
+      "pluginVersion": "11.6.0",
       "targets": [
         {
           "datasource": {
@@ -884,7 +826,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "$${DS_PROMETHEUS}"
       },
       "description": "Disabled nodes are nodes that are disabled by the user.  When users disable a node, Longhorn will not use the node's storage for replica scheduling. Note that Longhorn can still attach a volume to disabled nodes because the actual data of the volume could be on a different node.",
       "fieldConfig": {
@@ -894,8 +836,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "yellow",
@@ -928,7 +869,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.1",
+      "pluginVersion": "11.6.0",
       "targets": [
         {
           "datasource": {
@@ -947,7 +888,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "$${DS_PROMETHEUS}"
       },
       "description": "",
       "fieldConfig": {
@@ -994,8 +935,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1029,7 +969,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.1",
+      "pluginVersion": "11.6.0",
       "targets": [
         {
           "datasource": {
@@ -1049,7 +989,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "$${DS_PROMETHEUS}"
       },
       "description": "Schedulable nodes are nodes that Longhorn can use their storage for replica scheduling.",
       "fieldConfig": {
@@ -1059,8 +999,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
-                "value": null
+                "color": "red"
               },
               {
                 "color": "green",
@@ -1093,7 +1032,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.1",
+      "pluginVersion": "11.6.0",
       "targets": [
         {
           "datasource": {
@@ -1112,7 +1051,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "$${DS_PROMETHEUS}"
       },
       "description": "Failed Nodes are nodes that Longhorn cannot attach volumes to and cannot schedule replicas onto. e.g: when the nodes went down.",
       "fieldConfig": {
@@ -1122,8 +1061,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1156,7 +1094,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.1",
+      "pluginVersion": "11.6.0",
       "targets": [
         {
           "datasource": {
@@ -1175,7 +1113,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "$${DS_PROMETHEUS}"
       },
       "description": "",
       "fieldConfig": {
@@ -1194,8 +1132,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -1242,7 +1179,7 @@
           }
         ]
       },
-      "pluginVersion": "11.5.1",
+      "pluginVersion": "11.6.0",
       "targets": [
         {
           "datasource": {
@@ -1297,7 +1234,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "$${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1344,8 +1281,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1377,7 +1313,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.1",
+      "pluginVersion": "11.6.0",
       "targets": [
         {
           "datasource": {
@@ -1407,7 +1343,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "description": "The capacity of each Longhorn volume",
           "fieldConfig": {
@@ -1502,7 +1438,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "description": "",
           "fieldConfig": {
@@ -1631,7 +1567,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "description": "",
           "fieldConfig": {
@@ -1727,7 +1663,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "description": "",
           "fieldConfig": {
@@ -1823,7 +1759,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "description": "Instance managers are pods that contains the engine and replica processes of Longhorn volumes. See more at https://longhorn.io/docs/1.0.2/concepts/#11-the-longhorn-manager-and-the-longhorn-engine ",
           "fieldConfig": {
@@ -1884,7 +1820,7 @@
             "h": 10,
             "w": 8,
             "x": 0,
-            "y": 52
+            "y": 65
           },
           "id": 28,
           "options": {
@@ -1919,7 +1855,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "description": "Instance managers are pods that contains the engine and replica processes of Longhorn volumes. See more at https://longhorn.io/docs/1.0.2/concepts/#11-the-longhorn-manager-and-the-longhorn-engine ",
           "fieldConfig": {
@@ -1980,7 +1916,7 @@
             "h": 10,
             "w": 8,
             "x": 8,
-            "y": 52
+            "y": 65
           },
           "id": 30,
           "options": {
@@ -2015,7 +1951,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "description": "Instance managers are pods that contains the engine and replica processes of Longhorn volumes. See more at https://longhorn.io/docs/1.0.2/concepts/#11-the-longhorn-manager-and-the-longhorn-engine ",
           "fieldConfig": {
@@ -2075,7 +2011,7 @@
             "h": 10,
             "w": 8,
             "x": 16,
-            "y": 52
+            "y": 65
           },
           "id": 29,
           "options": {
@@ -2110,7 +2046,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "description": "Longhorn manager pods manage the control plane of the Longhorn system. e.g. Volume scheduling, attaching, detaching, backup, etc,..",
           "fieldConfig": {
@@ -2171,7 +2107,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 62
+            "y": 75
           },
           "id": 2,
           "options": {
@@ -2206,7 +2142,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "description": "Longhorn manager pods manage the control plane of the Longhorn system. e.g. Volume scheduling, attaching, detaching, backup, etc,..",
           "fieldConfig": {
@@ -2266,7 +2202,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 62
+            "y": 75
           },
           "id": 31,
           "options": {
@@ -2303,7 +2239,7 @@
       "type": "row"
     },
     {
-      "collapsed": true,
+      "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -2311,47 +2247,53 @@
         "y": 42
       },
       "id": 50,
-      "panels": [
-        {
-          "description": "To get Longhorn Alerts you have to deploy PrometheusRules (more Infos: https://longhorn.io/docs/1.3.1/monitoring/alert-rules-example/)",
-          "fieldConfig": {
-            "defaults": {},
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 13,
-            "w": 24,
-            "x": 0,
-            "y": 82
-          },
-          "id": 48,
-          "options": {
-            "alertInstanceLabelFilter": "",
-            "alertName": "Longhorn",
-            "dashboardAlerts": false,
-            "datasource": "prometheus",
-            "groupBy": [],
-            "groupMode": "default",
-            "maxItems": 20,
-            "sortOrder": 1,
-            "stateFilter": {
-              "error": true,
-              "firing": true,
-              "noData": false,
-              "normal": false,
-              "pending": true
-            }
-          },
-          "title": "Longhorn Alerts",
-          "type": "alertlist"
-        }
-      ],
+      "panels": [],
       "title": "Alerts",
       "type": "row"
+    },
+    {
+      "description": "To get Longhorn Alerts you have to deploy PrometheusRules (more Infos: https://longhorn.io/docs/1.3.1/monitoring/alert-rules-example/)",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 24,
+        "x": 0,
+        "y": 43
+      },
+      "id": 48,
+      "options": {
+        "alertInstanceLabelFilter": "",
+        "alertName": "Longhorn",
+        "dashboardAlerts": false,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "$${DS_PROMETHEUS}"
+        },
+        "groupBy": [],
+        "groupMode": "default",
+        "maxItems": 20,
+        "showInactiveAlerts": false,
+        "sortOrder": 1,
+        "stateFilter": {
+          "error": true,
+          "firing": true,
+          "noData": false,
+          "normal": false,
+          "pending": true
+        },
+        "viewMode": "list"
+      },
+      "pluginVersion": "11.6.0",
+      "title": "Longhorn Alerts",
+      "type": "alertlist"
     }
   ],
+  "preload": false,
   "refresh": "5m",
-  "schemaVersion": 40,
+  "schemaVersion": 41,
   "tags": ["Storage", "K8s", "Longhorn"],
   "templating": {
     "list": [
@@ -2359,7 +2301,7 @@
         "current": {},
         "includeAll": false,
         "label": "Datasource",
-        "name": "datasource",
+        "name": "DS_PROMETHEUS",
         "options": [],
         "query": "prometheus",
         "refresh": 1,
@@ -2370,7 +2312,7 @@
         "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "$${datasource}"
+          "uid": "$${DS_PROMETHEUS}"
         },
         "definition": "label_values(longhorn_volume_state,volume)",
         "includeAll": true,
@@ -2397,6 +2339,5 @@
   "timezone": "",
   "title": "Longhorn Monitoring",
   "uid": "ozk-lh-mon",
-  "version": 8,
-  "weekStart": ""
+  "version": 11
 }
