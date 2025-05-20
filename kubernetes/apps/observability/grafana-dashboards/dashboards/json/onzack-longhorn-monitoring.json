@@ -2268,10 +2268,6 @@
         "alertInstanceLabelFilter": "",
         "alertName": "Longhorn",
         "dashboardAlerts": false,
-        "datasource": {
-          "type": "prometheus",
-          "uid": "$${DS_PROMETHEUS}"
-        },
         "groupBy": [],
         "groupMode": "default",
         "maxItems": 20,
@@ -2310,6 +2306,10 @@
       },
       {
         "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "$${DS_PROMETHEUS}"
+        },
         "definition": "label_values(longhorn_volume_state,volume)",
         "includeAll": true,
         "label": "Volume",
