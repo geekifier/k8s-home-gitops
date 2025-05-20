@@ -4,6 +4,7 @@ resources:
   - ./helm/helmrelease.yaml
   - ./external.vmsingle.yaml
   - ./external.vmauth.yaml
+  - ./legacy.vmstaticscrape.yaml
 configMapGenerator:
   - name: vm-kube-state-metrics-cm
     files:
