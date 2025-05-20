@@ -6,7 +6,7 @@ kind: Kustomization
 configMapGenerator:
   - name: grafana-dashboard-longhorn
     files:
-      - ./json/longhorn-16888_rev9.json
+      - ./json/onzack-longhorn-monitoring.json
   - name: flux-cluster
     files:
       - ./json/flux-cluster.json
