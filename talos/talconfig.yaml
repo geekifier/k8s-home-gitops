@@ -1,0 +1,143 @@
+---
+clusterName: kubernetes
+
+talosVersion: "${talosVersion}"
+kubernetesVersion: "${kubernetesVersion}"
+
+endpoint: https://192.168.1.80:6443
+additionalApiServerCertSans: &sans
+  - "127.0.0.1"
+  - "192.168.1.80"
+  - "kube1.int.domain.tld"
+additionalMachineCertSans: *sans
+
+clusterPodNets: ["100.64.0.0/16"]
+clusterSvcNets: ["100.65.0.0/16"]
+
+# Disable built-in CNI to use Cilium
+cniConfig:
+  name: none
+
+nodes:
+  ### NODE CONFIG FOR
+  ################## TINYKUBE01
+  - hostname: "tinykube01"
+    ipAddress: "192.168.1.61"
+    installDisk: "/dev/nvme0n1"
+    machineSpec:
+      secureboot: false
+    talosImageURL: factory.talos.dev/installer/613e1592b2da41ae5e265e8789429f22e121aab91cb4deb6bc3c0b6262961245
+    controlPlane: true
+    volumes:
+      - name: EPHEMERAL
+        provisioning:
+          maxSize: 200Gi
+    userVolumes:
+      - name: longhorn
+        provisioning:
+          minSize: 300Gi
+          maxSize: 600Gi
+          grow: true
+          diskSelector:
+            match: system_disk
+        filesystem:
+          type: xfs
+    networkInterfaces:
+      - interface: "eno1"
+        ignore: true
+      - interface: "enp1s0f0"
+        dhcp: false
+        addresses:
+          - "192.168.1.61/24"
+        routes:
+          - network: "0.0.0.0/0"
+            gateway: "192.168.1.1"
+        mtu: 1500
+        vip:
+          ip: "192.168.1.80"
+  ### NODE CONFIG FOR
+  ################## TINYKUBE02
+  - hostname: "tinykube02"
+    ipAddress: "192.168.1.62"
+    installDisk: "/dev/nvme0n1"
+    machineSpec:
+      secureboot: false
+    talosImageURL: factory.talos.dev/installer/613e1592b2da41ae5e265e8789429f22e121aab91cb4deb6bc3c0b6262961245
+    controlPlane: true
+    volumes:
+      - name: EPHEMERAL
+        provisioning:
+          maxSize: 200Gi
+    userVolumes:
+      - name: longhorn
+        provisioning:
+          minSize: 300Gi
+          maxSize: 600Gi
+          grow: true
+          diskSelector:
+            match: system_disk
+        filesystem:
+          type: xfs
+    networkInterfaces:
+      - interface: "eno1"
+        ignore: true
+      - interface: "enp1s0f0"
+        dhcp: false
+        addresses:
+          - "192.168.1.62/24"
+        routes:
+          - network: "0.0.0.0/0"
+            gateway: "192.168.1.1"
+        mtu: 1500
+        vip:
+          ip: "192.168.1.80"
+  ### NODE CONFIG FOR
+  ################## TINYKUBE03
+  - hostname: "tinykube03"
+    ipAddress: "192.168.1.63"
+    installDisk: "/dev/nvme0n1"
+    machineSpec:
+      secureboot: false
+    talosImageURL: factory.talos.dev/installer/613e1592b2da41ae5e265e8789429f22e121aab91cb4deb6bc3c0b6262961245
+    controlPlane: true
+    volumes:
+      - name: EPHEMERAL
+        provisioning:
+          maxSize: 200Gi
+    userVolumes:
+      - name: longhorn
+        provisioning:
+          minSize: 300Gi
+          maxSize: 600Gi
+          grow: true
+          diskSelector:
+            match: system_disk
+        filesystem:
+          type: xfs
+    networkInterfaces:
+      - interface: "eno1"
+        ignore: true
+      - interface: "enp1s0f0"
+        dhcp: false
+        addresses:
+          - "192.168.1.63/24"
+        routes:
+          - network: "0.0.0.0/0"
+            gateway: "192.168.1.1"
+        mtu: 1500
+        vip:
+          ip: "192.168.1.80"
+
+# Global patches
+patches:
+  - "@./patches/global/machine-files.yaml"
+  - "@./patches/global/machine-kubelet.yaml"
+  - "@./patches/global/machine-network.yaml"
+  - "@./patches/global/machine-sysctls.yaml"
+  - "@./patches/global/machine-time.yaml"
+
+# Controller patches
+controlPlane:
+  patches:
+    - "@./patches/controller/admission-controller-patch.yaml"
+    - "@./patches/controller/cluster.yaml"
