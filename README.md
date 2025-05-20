@@ -4,17 +4,17 @@ Xenu Next Generation Home Platform
 
 Based on the excellent work by @onedr0p in [home-ops](https://github.com/onedr0p/home-ops) and [cluster-template](https://github.com/onedr0p/cluster-template) community.
 
-## Changes from the original
+## Implemented Features
 
-### Deployment into Proxmox VMs vs bare metal
+### Workspace integration with MCP
 
-Originally, I wanted to deploy the cluster onto my bare metal k8s nodes, but due to [limitations](https://github.com/siderolabs/talos/issues/8367) in Talos Linux related to volume management, I decided to run Talos in VMs.
+With the release of [Flux Operator MCP Server](https://fluxcd.io/blog/2025/05/ai-assisted-gitops/), I was able to integrate my gitops workspace with Github Copilot. With the use of [custom instructions](./github/copilot-instructions.md) Copilot is able to use the tools provided by the MCP (and this repo) to interact with the cluster.
 
-Once Talos matures and allows for better volume management, I may revisit this. Target: Talos v1.10.
+This functionality is still in development, but it has been a real game changer in terms of LLM usefulness for cluster management
 
-### Configuring Proxmox
+For example, I can ask the Agent to investigate running pods and propose improvements to their running configs, such as health probes.
 
-I used my existing Ansible setup in another repo to provision a new Proxmox cluster across the 3 cluster nodes.
+You can see the custom instructions [here](./github/copilot-instructions.md) (work in progress).
 
 ### Using Cilium ingress instead of nginx-ingress
 
@@ -55,6 +55,18 @@ Some of the other parts, like SSDs and some of the RAM, were scavenged from my i
 | 1 TB NVME       | Inland Performance Plus 1TB NVMe    |  $69.99   | MicroCenter                   | 700TBW endurance                                                        |
 | 10 GbE NIC      | SuperMicro AOC-STGN-I2S Low Profile |   ~$18    | eBay                          | 3D printed a [custom baffle](https://www.thingiverse.com/thing:6348691) |
 | 1.5M DAC Cables | SFP-H10GB-CU1.5M Cisco Compatible   |    $11    | eBay (Private Label Networks) |
+
+# Changelog
+
+## 2025-05
+
+### Talos migration to bare metal!
+
+With the release of [Talos v1.10](https://www.talos.dev/v1.10/introduction/what-is-new/), and its support for [User Volumes](https://www.talos.dev/v1.10/talos-guides/configuration/disk-management/#user-volumes), I was able to eliminate the use of Proxmox and switches all my k8s nodes over to bare metal.
+
+### LLM MCP integration for Flux
+
+Added a section in the README describing the new AI integration.
 
 # External Resources
 
