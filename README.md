@@ -8,13 +8,13 @@ Based on the excellent work by @onedr0p in [home-ops](https://github.com/onedr0p
 
 ### Workspace integration with MCP
 
-With the release of [Flux Operator MCP Server](https://fluxcd.io/blog/2025/05/ai-assisted-gitops/), I was able to integrate my gitops workspace with Github Copilot. With the use of [custom instructions](./github/copilot-instructions.md) Copilot is able to use the tools provided by the MCP (and this repo) to interact with the cluster.
+With the release of [Flux Operator MCP Server](https://fluxcd.io/blog/2025/05/ai-assisted-gitops/), I was able to integrate my gitops workspace with Github Copilot. With the use of [custom instructions](.github/copilot-instructions.md) Copilot is able to use the tools provided by the MCP (and this repo) to interact with the cluster.
 
 This functionality is still in development, but it has been a real game changer in terms of LLM usefulness for cluster management
 
 For example, I can ask the Agent to investigate running pods and propose improvements to their running configs, such as health probes.
 
-You can see the custom instructions [here](./github/copilot-instructions.md) (work in progress).
+You can see the custom instructions [here](.github/copilot-instructions.md) (work in progress).
 
 ### Using Cilium ingress instead of nginx-ingress
 

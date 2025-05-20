@@ -602,10 +602,11 @@ spec:
           # For example:
           # cluster: cluster-name
         extraArgs:
-          promscrape.streamParse: "true"
+          # switched to per-source streamParse toggle and automatic detection based on `promscrape.minResponseSizeForStreamParse`
+          # promscrape.streamParse: "true"
           # Do not store original labels in vmagent's memory by default. This reduces the amount of memory used by vmagent
           # but makes vmagent debugging UI less informative. See: https://docs.victoriametrics.com/vmagent/#relabel-debug
-          promscrape.dropOriginalLabels: "true"
+          # promscrape.dropOriginalLabels: "true"
         inlineRelabelConfig:
           - action: labeldrop
             regex: prometheus
@@ -812,6 +813,8 @@ spec:
           selector:
             matchLabels:
               app.kubernetes.io/name: '{{ include "prometheus-node-exporter.name" (index .Subcharts "prometheus-node-exporter") }}'
+          vm_scrape_params:
+            stream_parse: true
           endpoints:
             - port: metrics
               interval: 1m
@@ -846,6 +849,8 @@ spec:
       vmScrape:
         enabled: true
         spec:
+          vm_scrape_params:
+            stream_parse: true
           selector:
             matchLabels:
               app.kubernetes.io/name: '{{ include "kube-state-metrics.name" (index .Subcharts "kube-state-metrics") }}'
@@ -868,6 +873,8 @@ spec:
           enabled: true
           spec:
             path: /metrics/cadvisor
+            vm_scrape_params:
+              stream_parse: true
         # -- Enable scraping /metrics/probes from kubelet's service
         probes:
           enabled: true
@@ -888,6 +895,8 @@ spec:
           honorLabels: true
           interval: "30s"
           scrapeTimeout: "5s"
+          vm_scrape_params:
+            stream_parse: true
           tlsConfig:
             insecureSkipVerify: true
             caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
@@ -922,6 +931,8 @@ spec:
       # -- Spec for VMServiceScrape CRD is [here](https://docs.victoriametrics.com/operator/api.html#vmservicescrapespec)
       vmScrape:
         spec:
+          vm_scrape_params:
+            stream_parse: true
           endpoints:
             - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
               interval: 5m
