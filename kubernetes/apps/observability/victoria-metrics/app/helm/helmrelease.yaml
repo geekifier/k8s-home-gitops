@@ -22,7 +22,8 @@ spec:
   chartRef:
     kind: OCIRepository
     name: victoria-metrics-oci
-
+  driftDetection:
+    mode: enabled
   valuesFrom:
     - kind: ConfigMap
       name: vm-kube-state-metrics-cm
@@ -285,7 +286,7 @@ spec:
       spec:
         port: "8429"
         # -- Data retention period. Possible units character: h(ours), d(ays), w(eeks), y(ears), if no unit character specified - month. The minimum retention period is 24h. See these [docs](https://docs.victoriametrics.com/single-server-victoriametrics/#retention)
-        retentionPeriod: "2w" # temporarily lower retention to clear out old series
+        retentionPeriod: "1" # 1 month
         replicaCount: 1
         extraArgs: {}
         storage:
@@ -679,7 +680,11 @@ spec:
       # -- Configure additional grafana datasources (passed through tpl).
       # Check [here](http://docs.grafana.org/administration/provisioning/#datasources) for details
       extra:
-        []
+        - name: vm-historical
+          access: proxy
+          isdefault: false
+          url: "http://vmsingle-external.observability.svc.cluster.local:8429/"
+          type: prometheus
         # - name: prometheus-sample
         #   access: proxy
         #   basicAuth: true

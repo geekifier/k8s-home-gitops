@@ -80,9 +80,11 @@ spec:
     persistence:
       data:
         enabled: true
-        size: 2Gi
-        storageClass: longhorn-standard
-        accessMode: ReadWriteOnce
+        existingClaim: navidrome-data
+        # dealing with fallout from app-template upgrade
+        # size: 2Gi
+        # storageClass: longhorn-standard
+        # accessMode: ReadWriteOnce
       public:
         enabled: true
         existingClaim: smb-public-pvc

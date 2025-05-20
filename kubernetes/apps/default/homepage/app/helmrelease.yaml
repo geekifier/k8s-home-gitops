@@ -38,6 +38,8 @@ spec:
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
+        serviceAccount:
+          identifier: homepage
         containers:
           app:
             image:
@@ -63,13 +65,12 @@ spec:
                 memory: 512Mi
     service:
       app:
-        controller: *app
+        controller: homepage
         ports:
           http:
             port: 3000
     serviceAccount:
-      create: true
-      name: *app
+      homepage: {}
     persistence:
       config:
         type: configMap

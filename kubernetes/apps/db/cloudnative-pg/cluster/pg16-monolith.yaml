@@ -21,7 +21,8 @@ spec:
       pg_stat_statements.track: all
   nodeMaintenanceWindow:
     inProgress: false
-    reusePVC: true
+    # prevent node drain issues with Longhorn strict-local volumes
+    reusePVC: false
   resources:
     requests:
       cpu: 250m
