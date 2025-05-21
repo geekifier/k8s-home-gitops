@@ -29,8 +29,6 @@ spec:
           target_label: __param_target
         - source_labels: [__param_target]
           target_label: instance
-        - target_label: __address__
-          replacement: prometheus-pve-exporter.observability.svc.cluster.local:9221
     - port: metrics
       interval: 1m
       scrapeTimeout: 10s
