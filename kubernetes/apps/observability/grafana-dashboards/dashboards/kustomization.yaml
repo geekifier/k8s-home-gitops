@@ -13,6 +13,18 @@ configMapGenerator:
   - name: flux-control-plane
     files:
       - ./json/flux-control-plane.json
+  - name: grafana-dashboard-ping-exporter
+    files:
+      - ./json/network-ping-exporter.json
+    options:
+      annotations:
+        grafana_folder: "network"
+  - name: grafana-dashboard-blackbox
+    files:
+      - ./json/network-blackbox.json
+    options:
+      annotations:
+        grafana_folder: "network"
 generatorOptions:
   labels:
     grafana_dashboard: "1"

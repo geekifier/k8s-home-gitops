@@ -1,0 +1,12 @@
+# Scrape configs for metrics exposed outside of the cluster
+---
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMStaticScrape
+spec:
+  jobName: &jobName "ping-exporter"
+  targetEndpoints:
+    - targets: ["192.168.1.25:9427"]
+      scrape_interval: 15s
+metadata:
+  name: *jobName
+  namespace: observability
