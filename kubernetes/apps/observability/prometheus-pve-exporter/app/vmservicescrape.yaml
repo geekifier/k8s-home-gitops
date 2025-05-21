@@ -25,10 +25,8 @@ spec:
         target:
           - proxmox.${SECRET_DOMAIN_INT}
       relabelConfigs: &relabelConfig
-        - sourceLabels: [__address__]
-          target_label: __param_target
-        - source_labels: [__param_target]
-          target_label: instance
+        - sourceLabels: [__param_target]
+          targetLabel: instance
     - port: metrics
       interval: 1m
       scrapeTimeout: 10s
