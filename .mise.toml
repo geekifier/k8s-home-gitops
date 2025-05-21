@@ -33,3 +33,4 @@ helm-diff = "latest"
 "aqua:mikefarah/yq" = "4.45.1"
 "aqua:siderolabs/talos" = "1.9.5"
 "aqua:yannh/kubeconform" = "0.6.7"
+"go:github.com/VictoriaMetrics-Community/mcp-victoriametrics/cmd/mcp-victoriametrics" = { version = "latest" }

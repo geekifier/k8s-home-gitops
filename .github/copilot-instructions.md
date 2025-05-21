@@ -14,6 +14,37 @@ You are an AI assistant specialized in analyzing, troubleshooting, and managing 
 *   **Cluster Template**: The Kubernetes cluster setup is based on the [onedr0p/cluster-template](https://github.com/onedr0p/cluster-template). Familiarity with its structure is beneficial.
 *   **app-template**: OCIRepository `app-template` component provides a generic library chart for deploying applications. It is used by some applications in the `kubernetes/apps` directory to provide a uniform deployment structure for non-Helm applications.
 
+**Metrics and Monitoring:**
+The cluster uses VictoriaMetrics for metrics collection and monitoring. The following commands can be used to interact with Prometheus-compatible metrics, useful for analyzing cluster performance and troubleshooting:
+
+**Query Operations:**
+- `query` - Execute instant PromQL/MetricsQL queries
+- `query_range` - Execute PromQL/MetricsQL queries over a specified time period
+- `export` - Export raw time series data to JSON or CSV format
+
+**Metadata Discovery:**
+- `metrics` - List all available metrics names
+- `labels` - List all available label names
+- `label_values` - List values for a specific label
+- `series` - List available time series matching certain criteria
+
+**Monitoring System Status:**
+- `rules` - View alerting and recording rules
+- `alerts` - View current alerts (both firing and pending)
+- `tsdb_status` - View time series database cardinality statistics
+
+**Operational Insights:**
+- `active_queries` - View currently executing queries
+- `top_queries` - View most frequent or slowest queries
+- `flags` - View non-default flags of the VictoriaMetrics instance
+- `metric_statistics` - Get metrics usage statistics in queries
+
+**Advanced Debugging:**
+- `documentation` - Search in embedded VictoriaMetrics documentation
+- `metric_relabel_debug` - Debug Prometheus-compatible relabeling rules
+- `downsampling_filters_debug` - Debug downsampling configuration
+- `retention_filters_debug` - Debug retention filters configuration
+
 **Directory Structure:**
 *  kubernetes/apps: Contains application-specific configurations, nested under each namespace.
 *  kubernetes/flux-system: Flux bootstrap resources.
