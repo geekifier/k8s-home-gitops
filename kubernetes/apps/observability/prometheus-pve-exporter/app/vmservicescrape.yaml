@@ -1,0 +1,49 @@
+---
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMServiceScrape
+metadata:
+  name: prometheus-pve-exporter
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: prometheus-pve-exporter
+      app.kubernetes.io/service: prometheus-pve-exporter
+      app.kubernetes.io/instance: prometheus-pve-exporter
+  endpoints:
+    # There has to be a better way to do this. Previously multiple targets were specified under static_configs.
+    - port: metrics
+      interval: 1m
+      scrapeTimeout: 10s
+      path: /pve
+      params:
+        module:
+          - default
+        cluster:
+          - "1"
+        node:
+          - "1"
+        target:
+          - proxmox.${SECRET_DOMAIN_INT}
+      relabelConfigs: &relabelConfig
+        - sourceLabels: [__address__]
+          target_label: __param_target
+        - source_labels: [__param_target]
+          target_label: instance
+        - target_label: __address__
+          replacement: prometheus-pve-exporter.observability.svc.cluster.local:9221
+    - port: metrics
+      interval: 1m
+      scrapeTimeout: 10s
+      path: /pve
+      params:
+        module:
+          - default
+        cluster:
+          - "0"
+        node:
+          - "1"
+        target:
+          - proxmox2.${SECRET_DOMAIN_INT}
+      relabelConfigs: *relabelConfig
+  jobLabel: proxmox
+  discoveryRole: service
