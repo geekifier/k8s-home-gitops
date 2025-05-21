@@ -46,7 +46,7 @@ spec:
       app:
         controller: *app
         ports:
-          http:
+          metrics:
             port: *containerPort
     persistence:
       pve-config:
