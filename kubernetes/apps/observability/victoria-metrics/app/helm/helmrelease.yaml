@@ -739,6 +739,7 @@ spec:
         GF_AUTH_PROXY_HEADERS: "Name:Remote-Name Email:Remote-Email Groups:Remote-Groups"
         GF_AUTH_PROXY_WHITELIST: "100.64.0.0/16" # replace with interpolated var
         GF_USERS_HOME_PAGE: /dashboards
+        GF_DEFAULT_TIMEZONE: ${CLUSTER_TZ}
       ingress:
         enabled: true
         ingressClassName: internal

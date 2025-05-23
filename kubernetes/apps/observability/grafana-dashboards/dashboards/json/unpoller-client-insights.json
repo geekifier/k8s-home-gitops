@@ -2955,7 +2955,7 @@
   "refresh": "1m",
   "schemaVersion": 25,
   "style": "dark",
-  "tags": ["unifi", "unifi-poller"],
+  "tags": ["network", "unifi", "unifi-poller"],
   "templating": {
     "list": [
       {
