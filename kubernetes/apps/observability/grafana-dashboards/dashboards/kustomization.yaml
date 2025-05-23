@@ -25,6 +25,39 @@ configMapGenerator:
     options:
       annotations:
         grafana_folder: "network"
+  - name: grafana-dashboard-proxmox-cluster
+    files:
+      - ./json/proxmox-cluster.json
+  - name: grafana-dashboard-samba
+    files:
+      - ./json/samba-service.json
+  - name: grafana-dashboard-smarctl-exporter
+    files:
+      - ./json/smarctl-exporter.json
+  - name: grafana-dashboard-unpoller-client-insights
+    files:
+      - ./json/unpoller-client-insights.json
+    options:
+      annotations:
+        grafana_folder: "network"
+  - name: grafana-dashboard-unpoller-network-sites
+    files:
+      - ./json/unpoller-network-sites.json
+    options:
+      annotations:
+        grafana_folder: "network"
+  - name: grafana-dashboard-unpoller-uap-insights
+    files:
+      - ./json/unpoller-uap-insights.json
+    options:
+      annotations:
+        grafana_folder: "network"
+  - name: grafana-dashboard-unpoller-usw-insights
+    files:
+      - ./json/unpoller-usw-insights.json
+    options:
+      annotations:
+        grafana_folder: "network"
 generatorOptions:
   labels:
     grafana_dashboard: "1"

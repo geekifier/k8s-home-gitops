@@ -45,7 +45,12 @@ tasks:
       - which flux-local
 
   dashboard-prep:
-    desc: Escape vars in Grafana dashboard JSON and build a YAML list for processing by ConfigMapGenerator
+    desc: Prepares Grafana dashboard JSON files for use in ConfigMaps
+    summary: |
+      Escape vars in Grafana dashboard JSON and build a YAML list for processing by ConfigMapGenerator.
+      Usage: task dashboard-prep -- path/to/dashboard/directory
+      Example: task dashboard-prep -- kubernetes/apps/observability/grafana-dashboards/dashboards/
+      The dir you specify should be the dir containing the kustomization file (assuming it's in the same or parent dir).
     preconditions:
       - sh: test -d '{{.JSON_PATH }}'
         msg: "Directory {{ .JSON_PATH }} does not exist"
@@ -59,9 +64,35 @@ tasks:
           [[ "{{ OS }}" == "darwin" ]] && SEDCMD="gsed" || SEDCMD="sed"
           echo "Running in dir: {{ .ITEM }}"
           echo "files:"
-          for f in $(find {{ .ITEM }} -type f -name '*.json'); do
+          for f in $(find {{ .ITEM }} -type f -name '*.json' | sort); do
             "$SEDCMD" -i -r \
               '/\$\{[^\}]+\}/ s/([^$])\$\{([^}]+)\}/\1\$\${\2}/g' \
               "$f"
-            echo "  - ./dashboards/$(basename "$f")"
+            # Get the path structure by analyzing the filename
+            FULL_PATH="${f}"
+            BASE_PATH="{{ .ITEM }}"
+
+            # Remove the base path from the full path
+            REL_PATH="${FULL_PATH#$BASE_PATH}"
+            # Remove leading slash if present
+            REL_PATH="${REL_PATH#/}"
+
+            echo -e "- name: grafana-dashboard-$(basename "$f" .json)"
+            echo -e "  files:\n    - ./$REL_PATH"
           done
+  local-diff-hr:
+    desc: Use flux-local to diff HelmRelease resources
+    cmd: |
+      flux-local diff hr --path ./kubernetes/flux/cluster --branch-orig origin/head \
+      --strip-attrs "helm.sh/chart,checksum/config,app.kubernetes.io/version,chart,checksum/secret" \
+      --all-namespaces | moar -lang=yaml
+    preconditions:
+      - which flux-local
+      - which moar
+  local-diff-ks:
+    desc: Use flux-local to diff Kustomization resources
+    cmd: |
+      flux-local diff ks --all-namespaces --path kubernetes/flux/cluster --no-skip-secrets | moar -lang=diff
+    preconditions:
+      - which flux-local
+      - which moar
