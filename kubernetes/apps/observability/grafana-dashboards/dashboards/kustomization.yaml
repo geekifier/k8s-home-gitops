@@ -59,5 +59,7 @@ configMapGenerator:
       annotations:
         grafana_folder: "network"
 generatorOptions:
+  # see if this prevents dashboards from "disappearing" in the UI during updates
+  disableNameSuffixHash: true
   labels:
     grafana_dashboard: "1"

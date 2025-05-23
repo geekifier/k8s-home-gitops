@@ -3509,7 +3509,7 @@
   "refresh": "1m",
   "schemaVersion": 25,
   "style": "dark",
-  "tags": ["unifi", "uap", "unifi-poller"],
+  "tags": ["network", "unifi", "uap", "unifi-poller"],
   "templating": {
     "list": [
       {

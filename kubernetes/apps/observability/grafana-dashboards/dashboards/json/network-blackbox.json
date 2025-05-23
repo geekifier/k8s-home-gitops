@@ -187,7 +187,7 @@
   ],
   "preload": false,
   "schemaVersion": 41,
-  "tags": [],
+  "tags": ["network"],
   "templating": {
     "list": [
       {

@@ -92,7 +92,7 @@ tasks:
   local-diff-ks:
     desc: Use flux-local to diff Kustomization resources
     cmd: |
-      flux-local diff ks --all-namespaces --path kubernetes/flux/cluster --no-skip-secrets | moar -lang=diff
+      flux-local diff ks --all-namespaces --path kubernetes/flux/cluster --no-skip-secrets --limit-bytes 4096 | moar -lang=diff
     preconditions:
       - which flux-local
       - which moar

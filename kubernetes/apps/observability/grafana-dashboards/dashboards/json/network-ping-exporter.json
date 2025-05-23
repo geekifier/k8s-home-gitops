@@ -501,7 +501,7 @@
   "preload": false,
   "refresh": "20s",
   "schemaVersion": 41,
-  "tags": [],
+  "tags": ["network"],
   "templating": {
     "list": [
       {

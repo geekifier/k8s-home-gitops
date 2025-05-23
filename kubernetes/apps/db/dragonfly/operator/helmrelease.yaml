@@ -34,6 +34,8 @@ spec:
     remediation:
       strategy: rollback
       retries: 3
+  driftDetection:
+    mode: enabled
   values:
     replicaCount: 1
     crds:
@@ -46,13 +48,13 @@ spec:
       type: ClusterIP
       port: 8443
       metricsPort: 8080
-    serviceMonior:
-      enabled: true
-      interval: 30s
-      path: /metrics
-      timeout: 5s
+    # Service monitor is broken in the current chart version, the deployment has a hardcoded localhost-only
+    # metrics port. Besides, the metrics here are not as useful as the ones exposed by cluster pods.
+    serviceMonitor:
+      enabled: false
     grafanaDashboard:
       enabled: true
+      folder: database
     resources:
       requests:
         cpu: 10m

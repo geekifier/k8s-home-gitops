@@ -11,4 +11,5 @@ spec:
   podTargetLabels: ["app"]
   podMetricsEndpoints:
     - port: admin
+      interval: 30s
   fallbackScrapeProtocol: PrometheusText1.0.0
