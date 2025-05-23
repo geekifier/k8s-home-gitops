@@ -16,6 +16,9 @@ kind: HelmRelease
 metadata:
   name: &app victoria-metrics
 spec:
+  upgrade:
+    remediation:
+      retries: -1
   dependsOn:
     - name: longhorn-release
       namespace: longhorn-system
@@ -654,20 +657,6 @@ spec:
             matchLabels:
               dashboards: grafana
           allowCrossNamespaceImport: false
-      victoriametrics:
-        # -- Create per replica prometheus compatible datasource
-        perReplica: false
-        # -- List of prometheus compatible datasource configurations.
-        # VM `url` will be added to each of them in templates.
-        datasources:
-          - name: VictoriaMetrics
-            type: prometheus
-            access: proxy
-            isDefault: true
-          - name: VictoriaMetrics (DS)
-            isDefault: false
-            access: proxy
-            type: victoriametrics-metrics-datasource
       # -- List of alertmanager datasources.
       # Alertmanager generated `url` will be added to each datasource in template if alertmanager is enabled
       alertmanager:
@@ -703,10 +692,16 @@ spec:
     grafana:
       enabled: true
       deploymentStrategy:
-        type: Recreate
+        type: RollingUpdate
+        rollingUpdate:
+          maxSurge: 1
+          maxUnavailable: 0
+      admin:
+        existingSecret: victoria-metrics-grafana-secret
       persistence:
         type: pvc
-        enabled: true
+        # Tired of issues with grafana persistent storage
+        enabled: false
         size: 256Mi
         storageClassName: longhorn-standard
         accessmodes:
@@ -732,16 +727,18 @@ spec:
       # -- Create datasource configmap even if grafana deployment has been disabled
       forceDeployDatasource: false
 
-      # Uncomment the block below, if you want to enable VictoriaMetrics Datasource in Grafana:
+      # VictoriaMetrics Datasource plugin for Grafana
       # Note that Grafana will need internet access to install the datasource plugin.
-      #
-      # plugins:
-      # - victoriametrics-metrics-datasource
+      plugins:
+        - victoriametrics-metrics-datasource
+        # broken
+        # - grafana-clock-panel
       env:
         GF_AUTH_PROXY_ENABLED: "true"
         GF_AUTH_PROXY_HEADER_NAME: Remote-User
         GF_AUTH_PROXY_HEADERS: "Name:Remote-Name Email:Remote-Email Groups:Remote-Groups"
         GF_AUTH_PROXY_WHITELIST: "100.64.0.0/16" # replace with interpolated var
+        GF_USERS_HOME_PAGE: /dashboards
       ingress:
         enabled: true
         ingressClassName: internal
@@ -813,11 +810,11 @@ spec:
           selector:
             matchLabels:
               app.kubernetes.io/name: '{{ include "prometheus-node-exporter.name" (index .Subcharts "prometheus-node-exporter") }}'
-          vm_scrape_params:
-            stream_parse: true
           endpoints:
             - port: metrics
               interval: 1m
+              vm_scrape_params:
+                stream_parse: true
               relabelConfigs:
                 # These are set at the target level rather than the metric level,
                 # so it should be replaced once here instead of on every single metric.
@@ -849,8 +846,6 @@ spec:
       vmScrape:
         enabled: true
         spec:
-          vm_scrape_params:
-            stream_parse: true
           selector:
             matchLabels:
               app.kubernetes.io/name: '{{ include "kube-state-metrics.name" (index .Subcharts "kube-state-metrics") }}'
@@ -859,6 +854,8 @@ spec:
             - port: http
               honorLabels: true
               interval: 1m
+              vm_scrape_params:
+                stream_parse: true
               metricRelabelConfigs:
                 - action: labeldrop
                   regex: (uid|container_id|image_id)
@@ -931,8 +928,6 @@ spec:
       # -- Spec for VMServiceScrape CRD is [here](https://docs.victoriametrics.com/operator/api.html#vmservicescrapespec)
       vmScrape:
         spec:
-          vm_scrape_params:
-            stream_parse: true
           endpoints:
             - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
               interval: 5m
@@ -943,6 +938,8 @@ spec:
               tlsConfig:
                 caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
                 serverName: kubernetes
+              vm_scrape_params:
+                stream_parse: true
           jobLabel: component
           namespaceSelector:
             matchNames:

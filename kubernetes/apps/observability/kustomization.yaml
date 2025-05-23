@@ -11,3 +11,5 @@ resources:
   - ./grafana-dashboards/kustomization.yaml
   - ./smartctl-exporter/ks.yaml
   - ./prometheus-pve-exporter/ks.yaml
+  - ./snmp-exporter/ks.yaml
+  - ./unpoller/ks.yaml

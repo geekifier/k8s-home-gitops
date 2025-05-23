@@ -1,6 +1,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  - ./grafana.secret.sops.yaml
   - ./helm/helmrelease.yaml
   - ./external.vmsingle.yaml
   - ./external.vmauth.yaml

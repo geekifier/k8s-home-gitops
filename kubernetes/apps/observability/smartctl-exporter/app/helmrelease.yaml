@@ -31,8 +31,7 @@ spec:
     keepHistory: false
   values:
     config:
-      # temporary value for VMs, this will be nvme on bare metal
-      device_include: "sd.*"
+      device_include: "nvme.*"
     fullnameOverride: *app
     serviceMonitor:
       enabled: true
