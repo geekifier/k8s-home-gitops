@@ -2960,7 +2960,7 @@
     "list": [
       {
         "current": {},
-        "datasource": "${DS_PROMETHEUS}",
+        "datasource": "$${DS_PROMETHEUS}",
         "definition": "label_values(unpoller_client_uptime_seconds,source)",
         "hide": 2,
         "includeAll": true,
@@ -2976,7 +2976,7 @@
       {
         "allValue": ".*",
         "current": {},
-        "datasource": "${DS_PROMETHEUS}",
+        "datasource": "$${DS_PROMETHEUS}",
         "definition": "label_values(unpoller_client_uptime_seconds{source=~\"$Controller\"},site_name)",
         "includeAll": true,
         "multi": true,
@@ -2990,7 +2990,7 @@
       },
       {
         "current": {},
-        "datasource": "${DS_PROMETHEUS}",
+        "datasource": "$${DS_PROMETHEUS}",
         "definition": "label_values(unpoller_client_uptime_seconds{site_name=~\"$Site\"},ap_name)",
         "includeAll": true,
         "multi": true,
@@ -3004,7 +3004,7 @@
       },
       {
         "current": {},
-        "datasource": "${DS_PROMETHEUS}",
+        "datasource": "$${DS_PROMETHEUS}",
         "definition": "label_values(unpoller_client_uptime_seconds{site_name=~\"$Site\"},sw_name)",
         "includeAll": true,
         "multi": true,
@@ -3019,7 +3019,7 @@
       {
         "allValue": ".*",
         "current": {},
-        "datasource": "${DS_PROMETHEUS}",
+        "datasource": "$${DS_PROMETHEUS}",
         "definition": "label_values(unpoller_client_uptime_seconds{site_name=~\"$Site\", ap_name=~\"$AP\", wired=\"false\"},name)",
         "includeAll": true,
         "multi": true,
@@ -3034,7 +3034,7 @@
       {
         "allValue": ".*",
         "current": {},
-        "datasource": "${DS_PROMETHEUS}",
+        "datasource": "$${DS_PROMETHEUS}",
         "definition": "label_values(unpoller_client_uptime_seconds{site_name=~\"$Site\", sw_name=~\"$Switch\", wired=\"true\"},name)",
         "includeAll": true,
         "multi": true,

@@ -13,6 +13,9 @@ configMapGenerator:
   - name: flux-control-plane
     files:
       - ./json/flux-control-plane.json
+  - name: grafana-dashboard-ha-house
+    files:
+      - ./json/ha-house.json
   - name: grafana-dashboard-ping-exporter
     files:
       - ./json/network-ping-exporter.json
@@ -25,6 +28,12 @@ configMapGenerator:
     options:
       annotations:
         grafana_folder: "network"
+  - name: grafana-dashboard-network-edgerouter
+    files:
+      - ./json/network-edgerouter.json
+    options:
+      annotations:
+        grafana_folder: "network"
   - name: grafana-dashboard-proxmox-cluster
     files:
       - ./json/proxmox-cluster.json
@@ -34,6 +43,9 @@ configMapGenerator:
   - name: grafana-dashboard-smarctl-exporter
     files:
       - ./json/smarctl-exporter.json
+  - name: grafana-dashboard-traefik-ext
+    files:
+      - ./json/traefik-ext.json
   - name: grafana-dashboard-unpoller-client-insights
     files:
       - ./json/unpoller-client-insights.json

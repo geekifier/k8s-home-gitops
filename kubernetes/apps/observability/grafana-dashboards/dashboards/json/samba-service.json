@@ -1515,7 +1515,7 @@
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
+          "uid": "$${DS_PROMETHEUS}"
         },
         "definition": "label_values(samba_exporter_information,instance)",
         "description": "",
