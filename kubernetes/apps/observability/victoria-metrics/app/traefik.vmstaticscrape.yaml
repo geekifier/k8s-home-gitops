@@ -1,0 +1,20 @@
+# Scrape configs for metrics exposed outside of the cluster
+---
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMStaticScrape
+spec:
+  jobName: &jobName "traefik"
+  targetEndpoints:
+    - targets:
+        - "vacuum2.${SECRET_DOMAIN_INT}:8081/metrics"
+        - "rpi2.${SECRET_DOMAIN_INT}:8081/metrics"
+      scrape_interval: 15s
+      relabelConfigs:
+        - source_labels: [__address__]
+          action: replace
+          target_label: instance
+          regex: "([A-Za-z0-9.-]*).*"
+          replacement: $1
+metadata:
+  name: *jobName
+  namespace: observability

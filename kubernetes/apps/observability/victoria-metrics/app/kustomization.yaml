@@ -5,7 +5,8 @@ resources:
   - ./helm/helmrelease.yaml
   - ./external.vmsingle.yaml
   - ./external.vmauth.yaml
-  - ./legacy.vmstaticscrapes.yaml
+  - ./ping-exporter.vmstaticscrape.yaml
+  - ./traefik.vmstaticscrape.yaml
 configMapGenerator:
   - name: vm-kube-state-metrics-cm
     files:
