@@ -92,18 +92,3 @@ spec:
   backupOwnerReference: self
   cluster:
     name: postgres16
----
-# decided to handle this imperatively as it's a one-time operation
-# # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/postgresql.cnpg.io/subscription_v1.json
-# apiVersion: postgresql.cnpg.io/v1
-# kind: Subscription
-# metadata:
-#   name: vacuum2-k8s-miniflux
-# spec:
-#   name: subscriber
-#   dbname: miniflux
-#   cluster:
-#     name: postgres16
-#   externalClusterName: vacuum2
-#   publicationName: publisher
-

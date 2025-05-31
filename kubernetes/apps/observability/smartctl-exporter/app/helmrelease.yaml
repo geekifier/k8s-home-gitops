@@ -5,7 +5,7 @@ kind: OCIRepository
 metadata:
   name: prometheus-smartctl-exporter
 spec:
-  interval: 5m
+  interval: 1h
   layerSelector:
     mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
     operation: copy
@@ -40,7 +40,7 @@ spec:
         - port: http
           scheme: http
           path: /metrics
-          interval: 1m
+          interval: 2m
           scrapeTimeout: 10s
       relabelings:
         - action: labeldrop

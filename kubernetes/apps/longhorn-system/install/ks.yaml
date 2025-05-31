@@ -9,6 +9,9 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  dependsOn:
+    - name: snapshot-controller
+      namespace: kube-system
   interval: 1h
   path: ./kubernetes/apps/longhorn-system/install/helm
   postBuild:

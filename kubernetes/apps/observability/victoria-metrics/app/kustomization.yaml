@@ -7,6 +7,8 @@ resources:
   - ./external.vmauth.yaml
   - ./ping-exporter.vmstaticscrape.yaml
   - ./traefik.vmstaticscrape.yaml
+  - ./smartctl.vmstaticscrape.yaml
+  - ./coredns-ext.vmstaticscrape.yaml
 configMapGenerator:
   - name: vm-kube-state-metrics-cm
     files:

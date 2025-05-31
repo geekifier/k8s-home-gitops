@@ -5,7 +5,7 @@ kind: HelmRelease
 metadata:
   name: &app miniflux
 spec:
-  interval: 5m
+  interval: 1h
   chartRef:
     kind: OCIRepository
     name: app-template
@@ -28,7 +28,7 @@ spec:
           app:
             image:
               repository: ghcr.io/miniflux/miniflux
-              tag: 2.2.8
+              tag: 2.2.9
             envFrom:
               - secretRef:
                   name: miniflux-secret

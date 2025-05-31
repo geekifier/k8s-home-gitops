@@ -4,7 +4,7 @@ kind: HelmRelease
 metadata:
   name: &app calibre-web-automated
 spec:
-  interval: 5m
+  interval: 1h
   chartRef:
     kind: OCIRepository
     name: app-template
@@ -29,6 +29,11 @@ spec:
           gethomepage.dev/group: Media
           gethomepage.dev/name: Calibre Web Automated
           gethomepage.dev/icon: calibre-web-automated-book-downloader
+          gethomepage.dev/description: Book Library
+          gethomepage.dev/widget.type: calibreweb
+          gethomepage.dev/widget.username: '{{ "{{" }}HOMEPAGE_VAR_CALIBREWEB_USERNAME{{ "}}" }}'
+          gethomepage.dev/widget.password: '{{ "{{" }}HOMEPAGE_VAR_CALIBREWEB_PASSWORD{{ "}}" }}'
+          gethomepage.dev/widget.url: http://calibre-web-automated.default.svc.cluster.local:8083
         enabled: true
         className: internal
         hosts:
@@ -84,6 +89,8 @@ spec:
         existingClaim: smb-public-pvc
         type: persistentVolumeClaim
         globalMounts:
+          - path: /public/Library
+            subPath: Library
           - path: /cwa-book-ingest
             subPath: Library/Calibre-Import
           - path: /calibre-library
