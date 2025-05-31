@@ -1,0 +1,90 @@
+---
+# this is kept in the CM so that the `reload` plugin can reload coredns gracefully when changes
+# are made
+# https://github.com/coredns/helm/blob/master/charts/coredns/values.yaml
+image:
+  repository: ghcr.io/geekifier/coredns
+  tag: 1.12.1-redisc
+  pullSecrets:
+    - name: ghcr-login-secret
+isClusterService: false
+rbac:
+  create: false
+fullnameOverride: &app coredns-resolver
+serviceAccount:
+  create: false
+prometheus:
+  service:
+    enabled: true
+    # This needs to be fixed with a PR
+    # https://github.com/coredns/helm/blob/master/charts/coredns/templates/service-metrics.yaml#L17
+    annotations:
+  monitor:
+    enabled: true
+serviceType: LoadBalancer
+service:
+  loadBalancerIP: "192.168.1.81"
+  annotations:
+    lbipam.cilium.io/ips: "192.168.1.81"
+rollingUpdate:
+  maxSurge: 1
+  maxUnavailable: 0
+replicaCount: 2
+servers:
+  - zones:
+      - zone: ${SECRET_DOMAIN_INT}
+    port: &dnsPort 53
+    plugins: &plugins
+      - name: log
+        configBlock: |-
+          class error
+      - name: prometheus
+        parameters: 0.0.0.0:9153
+      - name: forward
+        parameters: . 192.168.1.30 192.168.1.31
+      - name: cache
+  - zones:
+      - zone: 192.168.1.0/24
+    port: *dnsPort
+    plugins: *plugins
+  - zones:
+      - zone: 192.168.2.0/24
+    port: *dnsPort
+    plugins: *plugins
+  - zones:
+      - zone: 192.168.3.0/24
+    port: *dnsPort
+    plugins: *plugins
+  - zones:
+      - zone: 192.168.4.0/24
+    port: *dnsPort
+    plugins: *plugins
+  - zones:
+      - zone: .
+    port: *dnsPort
+    plugins:
+      - name: forward
+        parameters: . tls://162.159.36.5 tls://162.159.36.20
+        configBlock: |-
+          tls_servername ${SECRET_DOT_UPSTREAM_NAME}
+          health_check 10s
+      - name: errors
+      - name: log
+        configBlock: |-
+          class error
+      - name: prometheus
+        parameters: 0.0.0.0:9153
+      - name: loop
+      - name: reload
+      - name: health
+        configBlock: |-
+          lameduck 5s
+      - name: ready
+      - name: cache
+      - name: redisc
+        configBlock: |-
+          endpoint 100.65.79.243:6379
+
+tolerations:
+  - key: CriticalAddonsOnly
+    operator: Exists

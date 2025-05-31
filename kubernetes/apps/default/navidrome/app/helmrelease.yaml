@@ -4,7 +4,7 @@ kind: HelmRelease
 metadata:
   name: &app navidrome
 spec:
-  interval: 5m
+  interval: 1h
   chartRef:
     kind: OCIRepository
     name: app-template
@@ -33,7 +33,7 @@ spec:
           app:
             image:
               repository: deluan/navidrome
-              tag: "0.55.2"
+              tag: "0.56.1"
             env:
               TZ: ${CLUSTER_TZ}
               ND_LOGLEVEL: info

@@ -7,57 +7,73 @@ configMapGenerator:
   - name: grafana-dashboard-longhorn
     files:
       - ./json/onzack-longhorn-monitoring.json
+    options:
+      annotations:
+        grafana_folder: "storage"
+
   - name: flux-cluster
     files:
       - ./json/flux-cluster.json
+
   - name: flux-control-plane
     files:
       - ./json/flux-control-plane.json
+
   - name: grafana-dashboard-ha-house
     files:
       - ./json/ha-house.json
+
   - name: grafana-dashboard-ping-exporter
     files:
       - ./json/network-ping-exporter.json
     options:
       annotations:
         grafana_folder: "network"
+
   - name: grafana-dashboard-blackbox
     files:
       - ./json/network-blackbox.json
     options:
       annotations:
         grafana_folder: "network"
+
   - name: grafana-dashboard-network-edgerouter
     files:
       - ./json/network-edgerouter.json
     options:
       annotations:
         grafana_folder: "network"
+
   - name: grafana-dashboard-proxmox-cluster
     files:
       - ./json/proxmox-cluster.json
+
   - name: grafana-dashboard-samba
     files:
       - ./json/samba-service.json
+
   - name: grafana-dashboard-smarctl-exporter
     files:
       - ./json/smarctl-exporter.json
+
   - name: grafana-dashboard-traefik-ext
     files:
       - ./json/traefik-ext.json
+
   - name: grafana-dashboard-unpoller-client-insights
     files:
       - ./json/unpoller-client-insights.json
     options:
       annotations:
         grafana_folder: "network"
+
   - name: grafana-dashboard-unpoller-network-sites
     files:
       - ./json/unpoller-network-sites.json
     options:
       annotations:
         grafana_folder: "network"
+
   - name: grafana-dashboard-unpoller-uap-insights
     files:
       - ./json/unpoller-uap-insights.json
@@ -70,6 +86,12 @@ configMapGenerator:
     options:
       annotations:
         grafana_folder: "network"
+  - name: grafana-dashboard-volsync
+    files:
+      - ./json/volsync.json
+    options:
+      annotations:
+        grafana_folder: "storage"
 generatorOptions:
   # see if this prevents dashboards from "disappearing" in the UI during updates
   disableNameSuffixHash: true

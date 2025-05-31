@@ -5,7 +5,7 @@ kind: HelmRelease
 metadata:
   name: &app ext-postgres-operator
 spec:
-  interval: 30m
+  interval: 1h
   chart:
     spec:
       chart: *app
@@ -30,11 +30,11 @@ spec:
       valuesKey: username
       targetPath: postgres.user
     - kind: Secret
-      name: &pgSecretName postgres16-superuser
+      name: *pgSecretName
       valuesKey: password
       targetPath: postgres.password
     - kind: Secret
-      name: &pgSecretName postgres16-superuser
+      name: *pgSecretName
       valuesKey: host
       targetPath: postgres.host
 

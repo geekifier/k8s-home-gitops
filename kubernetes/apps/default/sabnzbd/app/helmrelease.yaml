@@ -1,0 +1,119 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app sabnzbd
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    ingress:
+      app:
+        annotations:
+          nginx.ingress.kubernetes.io/auth-method: "GET"
+          nginx.ingress.kubernetes.io/auth-url: "http://authelia.auth.svc.cluster.local:9091/api/authz/auth-request"
+          nginx.ingress.kubernetes.io/auth-signin: "https://auth-k8s.${SECRET_DOMAIN_INT}?rm=$request_method"
+          nginx.ingress.kubernetes.io/auth-response-headers: "Remote-User,Remote-Name,Remote-Groups,Remote-Email"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Arrr
+          gethomepage.dev/description: Usenet Client
+          gethomepage.dev/widget.type: sabnzbd
+          gethomepage.dev/widget.key: '{{ "{{" }}HOMEPAGE_VAR_SABNZBD_API_KEY{{ "}}" }}'
+          gethomepage.dev/widget.url: http://sabnzbd.default.svc.cluster.local:80
+          gethomepage.dev/icon: sabnzbd
+        enabled: true
+        className: internal
+        hosts:
+          - host: &host "nzb.${SECRET_DOMAIN_INT}"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+
+    controllers:
+      sabnzbd:
+        replicas: 1
+        strategy: Recreate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/home-operations/sabnzbd
+              tag: 4.5
+            env:
+              TZ: ${CLUSTER_TZ}
+              SABNZBD__PORT: &containerPort 80
+              SABNZBD__HOST_WHITELIST_ENTRIES: >-
+                sabnzbd,
+                sabnzbd.default,
+                sabnzbd.default.svc,
+                sabnzbd.default.svc.cluster,
+                sabnzbd.default.svc.cluster.local,
+                nzb.${SECRET_DOMAIN_INT}
+              SABNZBD__LOCAL_RANGES_ENTRIES: >-
+                100.64.0.0/15,
+                192.168.0.0/16
+            envFrom:
+              - secretRef:
+                  name: sabnzbd-secret
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api?mode=version
+                    port: *containerPort
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 100m
+                memory: 64Mi
+              limits:
+                memory: 8Gi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: *containerPort
+    persistence:
+      config:
+        enabled: true
+        type: persistentVolumeClaim
+        storageClass: longhorn-standard
+        accessMode: ReadWriteOnce
+        size: 128Mi
+      tmp:
+        type: emptyDir
+      public:
+        enabled: true
+        existingClaim: smb-public-pvc
+        type: persistentVolumeClaim

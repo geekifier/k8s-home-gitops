@@ -1,0 +1,25 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+# This deployment is used as an HA-enabled home network DNS resolver with a distributed cache.
+# It is separate from the kubernetes coredns deployment.
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: coredns-resolver
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: coredns
+    namespace: kube-system
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  valuesFrom:
+    - kind: ConfigMap
+      name: coredns-resolver-values

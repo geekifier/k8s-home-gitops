@@ -1,0 +1,19 @@
+# Scrape configs for metrics exposed outside of the cluster
+---
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMStaticScrape
+spec:
+  jobName: &jobName "coredns-ext"
+  targetEndpoints:
+    - targets:
+        - "rpi2.${SECRET_DOMAIN_INT}:9153/metrics"
+      scrape_interval: 60s
+      relabelConfigs:
+        - source_labels: [__address__]
+          action: replace
+          target_label: instance
+          regex: "([A-Za-z0-9.-]*).*"
+          replacement: $1
+metadata:
+  name: *jobName
+  namespace: observability
