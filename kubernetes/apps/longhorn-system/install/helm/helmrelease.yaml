@@ -13,7 +13,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: longhorn-repo
-      version: v1.8.1
+      version: 1.9.0
   values:
     # debug hr uinstall issue
     ingress:
