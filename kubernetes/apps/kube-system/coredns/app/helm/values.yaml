@@ -9,6 +9,8 @@ service:
   name: kube-dns
   clusterIP: "100.65.0.10"
 replicaCount: 2
+customLabels:
+  jobLabel: coredns-kubernetes
 servers:
   - zones:
       - zone: .

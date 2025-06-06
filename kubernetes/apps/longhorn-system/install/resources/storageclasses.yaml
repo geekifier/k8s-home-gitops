@@ -15,7 +15,6 @@ parameters:
   fromBackup: ""
   fsType: "ext4"
   dataLocality: "best-effort"
-  backupTargetName: "garage"
 ---
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
@@ -31,7 +30,6 @@ parameters:
   fromBackup: ""
   fsType: "ext4"
   dataLocality: "best-effort"
-  backupTargetName: "garage"
 ---
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
@@ -45,10 +43,7 @@ parameters:
   numberOfReplicas: "1"
   fromBackup: ""
   fsType: "ext4"
-  # strict-local was causing issues with workload migration, requiring manual intervention
-  # using best-effort until Longhorn improves eviction handling
-  dataLocality: "best-effort"
-  backupTargetName: "garage"
+  dataLocality: "strict-local"
 ---
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
@@ -63,4 +58,3 @@ parameters:
   fromBackup: ""
   fsType: "ext4"
   dataLocality: "best-effort"
-  backupTargetName: "garage"

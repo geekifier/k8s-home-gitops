@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 58,
+  "id": 156,
   "links": [],
   "panels": [
     {
@@ -29,6 +29,302 @@
         "x": 0,
         "y": 0
       },
+      "id": 3,
+      "panels": [],
+      "title": "Summary",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "color-text",
+              "wrapText": false
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "fieldMinMax": true,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Avg"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 0.1
+                    },
+                    {
+                      "color": "orange",
+                      "value": 0.2
+                    },
+                    {
+                      "color": "dark-red",
+                      "value": 1
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #B"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
+                "id": "noValue",
+                "value": "0"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "count>1s"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 1
+                    },
+                    {
+                      "color": "dark-red",
+                      "value": 3
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "id": 4,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": false,
+          "fields": "",
+          "reducer": ["sum"],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "Avg"
+          }
+        ]
+      },
+      "pluginVersion": "12.0.0+security-01",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "avg by(name) (avg_over_time(probe_duration_seconds{instance=\"$INSTANCE\", module=~\"$MODULE\"}[$__range]))",
+          "format": "table",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "Average",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "min by(name) (min_over_time(probe_duration_seconds{instance=\"$INSTANCE\", module=~\"$MODULE\"}[$__range]))",
+          "format": "table",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "min",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "max by(name) (max_over_time(probe_duration_seconds{instance=\"$INSTANCE\", module=~\"$MODULE\"}[$__range]))",
+          "format": "table",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "sum by(name) (\n  count_over_time((probe_duration_seconds{instance=\"$INSTANCE\", module=~\"$MODULE\"} > 1)[$__range])\n)\nor\nsum by(name) (\n  probe_duration_seconds{instance=\"$INSTANCE\", module=~\"$MODULE\"} * 0\n)",
+          "format": "table",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "D"
+        }
+      ],
+      "title": "",
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "name",
+            "mode": "outer"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time 1": true,
+              "Time 2": true,
+              "Time 3": true,
+              "Time 4": true
+            },
+            "includeByName": {},
+            "indexByName": {
+              "Time 1": 1,
+              "Time 2": 4,
+              "Time 3": 5,
+              "Value #A": 2,
+              "Value #B": 3,
+              "Value #C": 6,
+              "name": 0
+            },
+            "renameByName": {
+              "Time 1": "",
+              "Time 2": "",
+              "Time 3": "",
+              "Value #A": "Avg",
+              "Value #B": "Min",
+              "Value #C": "Max",
+              "Value #D": "count>1s",
+              "name": "Target"
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "field": "Avg"
+              }
+            ]
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "binary": {
+              "left": {
+                "fixed": ""
+              },
+              "right": {
+                "fixed": ""
+              }
+            },
+            "cumulative": {
+              "field": "max",
+              "reducer": "sum"
+            },
+            "mode": "reduceRow",
+            "reduce": {
+              "include": ["Avg", "Max"],
+              "reducer": "stdDev"
+            },
+            "replaceFields": false,
+            "window": {
+              "field": "avg",
+              "reducer": "stdDev",
+              "windowAlignment": "centered",
+              "windowSize": 0.1,
+              "windowSizeMode": "percentage"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
       "id": 2,
       "panels": [],
       "title": "Response Time ($MODULE)",
@@ -37,7 +333,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DATASOURCE}"
+        "uid": "$${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -112,6 +408,22 @@
                 "value": 1
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": false,
+                  "viz": false
+                }
+              }
+            ]
           }
         ]
       },
@@ -119,14 +431,14 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 1
+        "y": 7
       },
       "id": 1,
       "interval": "30s",
       "maxPerRow": 2,
       "options": {
         "legend": {
-          "calcs": [],
+          "calcs": ["mean", "p95", "stdDev"],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
@@ -137,14 +449,14 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.0",
       "repeat": "TARGET",
       "repeatDirection": "h",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DATASOURCE}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "code",
@@ -163,7 +475,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DATASOURCE}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "code",
@@ -186,13 +498,18 @@
     }
   ],
   "preload": false,
+  "refresh": "30s",
   "schemaVersion": 41,
   "tags": ["network"],
   "templating": {
     "list": [
       {
+        "current": {
+          "text": "VictoriaMetrics",
+          "value": "P4169E866C3094E38"
+        },
         "label": "Datasource",
-        "name": "DATASOURCE",
+        "name": "DS_PROMETHEUS",
         "options": [],
         "query": "prometheus",
         "refresh": 1,
@@ -201,12 +518,12 @@
       },
       {
         "current": {
-          "text": "All",
-          "value": "$__all"
+          "text": "dns-dot",
+          "value": "dns-dot"
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "$${DATASOURCE}"
+          "uid": "$${DS_PROMETHEUS}"
         },
         "definition": "label_values(probe_duration_seconds,module)",
         "description": "",
@@ -231,7 +548,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "$${DATASOURCE}"
+          "uid": "$${DS_PROMETHEUS}"
         },
         "definition": "label_values(probe_duration_seconds{module=~\"$MODULE\"},name)",
         "description": "Probe Target",
@@ -256,7 +573,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "$${DATASOURCE}"
+          "uid": "$${DS_PROMETHEUS}"
         },
         "definition": "label_values(probe_duration_seconds{module=~\"$MODULE\", name=~\"$TARGET\"},instance)",
         "description": "",
@@ -277,12 +594,12 @@
     ]
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-12h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "Blackbox",
-  "uid": "ce35i9wj9tzwgf",
-  "version": 9
+  "uid": "eena1fw7i1i4gc",
+  "version": 2
 }
