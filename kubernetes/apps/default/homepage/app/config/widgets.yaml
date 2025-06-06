@@ -1,3 +1,16 @@
+- kubernetes:
+    cluster:
+      show: false
+    nodes:
+      # Shows node-specific statistics
+      show: true
+      # Shows the CPU for each node
+      cpu: true
+      # Shows the memory for each node
+      memory: true
+      # Shows the label, which is always the node name
+      showLabel: true
+
 - search:
     provider: [brave, duckduckgo, google]
 

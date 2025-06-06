@@ -95,6 +95,6 @@ spec:
         type: persistentVolumeClaim
         storageClass: longhorn-standard
         accessMode: ReadWriteOnce
-        size: 128Mi
+        size: 256Mi
       tmp:
         type: emptyDir

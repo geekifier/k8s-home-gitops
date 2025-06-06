@@ -8,7 +8,7 @@ spec:
   interval: 5m
   url: oci://ghcr.io/victoriametrics/helm-charts/victoria-metrics-k8s-stack
   ref:
-    tag: 0.50.0
+    tag: 0.50.1
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
@@ -174,10 +174,10 @@ spec:
           create: true
           rules: {}
         kubeApiserverBurnrate:
-          create: true
+          create: false
           rules: {}
         kubeApiserverHistogram:
-          create: true
+          create: false
           rules: {}
         kubeApiserverSlos:
           create: true
@@ -692,17 +692,14 @@ spec:
     grafana:
       enabled: true
       deploymentStrategy:
-        type: RollingUpdate
-        rollingUpdate:
-          maxSurge: 1
-          maxUnavailable: 0
+        type: Recreate
       admin:
         existingSecret: victoria-metrics-grafana-secret
       persistence:
         type: pvc
         # Tired of issues with grafana persistent storage
-        enabled: false
-        size: 256Mi
+        enabled: true
+        size: 512Mi
         storageClassName: longhorn-standard
         accessmodes:
           - ReadWriteOnce
@@ -719,6 +716,9 @@ spec:
             name: default
             orgid: 1
             foldersFromFilesStructure: true
+            disableDeletion: false
+            # useful to prototype changes
+            allowUiUpdates: true
           folderAnnotation: grafana_folder
           enabled: true
           multicluster: false
@@ -939,8 +939,14 @@ spec:
               tlsConfig:
                 caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
                 serverName: kubernetes
-              vm_scrape_params:
-                stream_parse: true
+              metricRelabelConfigs:
+                # VM-enhanced drop_metrics syntax
+                - action: drop_metrics
+                  regex:
+                    - "apiserver_.*_duration.*"
+                    - "apiserver_.*_body.*"
+                    - "apiserver_.*sizes.*"
+                    - "etcd_request_duration.*"
           jobLabel: component
           namespaceSelector:
             matchNames:
@@ -1024,7 +1030,7 @@ spec:
     # Component scraping coreDns. Use either this or kubeDns
     coreDns:
       # -- Enabled CoreDNS metrics scraping
-      enabled: false # changed
+      enabled: true
       service:
         # -- Create service for CoreDNS metrics
         enabled: true
@@ -1045,6 +1051,7 @@ spec:
           endpoints:
             - port: http-metrics
               bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+              interval: 1m
 
     # Component scraping etcd
     kubeEtcd:
