@@ -61,6 +61,7 @@
       groupName: "Spegel",
       matchDatasources: ["docker"],
       matchPackageNames: ["/spegel/"],
+      sourceUrl: "https://github.com/spegel-org/spegel",
       group: {
         commitMessageTopic: "{{{groupName}}} group",
       },
