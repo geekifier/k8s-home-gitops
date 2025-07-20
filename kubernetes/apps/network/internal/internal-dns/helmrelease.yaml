@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: external-dns
-      version: 1.15.2
+      version: 1.17.0
       sourceRef:
         kind: HelmRepository
         name: external-dns
@@ -28,6 +28,8 @@ spec:
     - kind: ConfigMap
       name: internal-dns-values
   values:
+    image:
+      tag: v0.18.0
     fullnameOverride: *app
     env:
       - name: EXTERNAL_DNS_RFC2136_KERBEROS_USERNAME

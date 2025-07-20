@@ -9,3 +9,7 @@ controllers:
             value: 1
           - name: BASE_URL
             value: https://rss.${SECRET_DOMAIN_INT}
+          - name: AUTH_PROXY_HEADER
+            value: Remote-User
+          - name: AUTH_PROXY_USER_CREATION
+            value: 1

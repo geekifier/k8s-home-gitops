@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/refs/heads/master/master/configmap.json
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mc-common-cm
+data:
+  # don't update this mindlessly, check plugin compatiblity first
+  VERSION: "1.21.5"
+  # older versions are in the experimental channel
+  PAPER_CHANNEL: experimental
+  # protocol lib using dev build for 1.21 support
+  PLUGINS: |
+    https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/build/libs/ProtocolLib.jar
+    https://github.com/oddlama/vane/releases/download/v1.18.0/vane-core-1.18.0.jar
+    https://github.com/oddlama/vane/releases/download/v1.18.0/vane-trifles-1.18.0.jar
+    https://github.com/oddlama/vane/releases/download/v1.18.0/vane-admin-1.18.0.jar
+    https://github.com/oddlama/vane/releases/download/v1.18.0/vane-enchantments-1.18.0.jar
+    https://github.com/oddlama/vane/releases/download/v1.18.0/vane-portals-1.18.0.jar
+    https://hangarcdn.papermc.io/plugins/ViaVersion/ViaVersion/versions/5.4.1/PAPER/ViaVersion-5.4.1.jar
+    https://hangarcdn.papermc.io/plugins/ViaVersion/ViaBackwards/versions/5.4.1/PAPER/ViaBackwards-5.4.1.jar
+    https://download.luckperms.net/1594/bukkit/loader/LuckPerms-Bukkit-5.5.9.jar
+    https://hangarcdn.papermc.io/plugins/jmp/TabTPS/versions/1.3.28/PAPER/tabtps-spigot-1.3.28.jar
+    https://github.com/EssentialsX/Essentials/releases/download/2.21.1/EssentialsX-2.21.1.jar
+    https://github.com/MC-Machinations/PaperTweaks/releases/download/v0.5.0/PaperTweaks.jar
+    https://github.com/BlueMap-Minecraft/BlueMap/releases/download/v5.9/bluemap-5.9-spigot.jar
+    https://www.spigotmc.org/resources/bluemap-essentials.84365/download?version=509269

@@ -1,0 +1,97 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app mc-router
+  namespace: &namespace minecraft
+spec:
+  interval: 1m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    timeout: 2m
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    serviceAccount:
+      mc-router:
+        enabled: true
+    controllers:
+      mc-router:
+        replicas: 1
+        strategy: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 1
+          maxSurge: 1
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/itzg/mc-router
+              tag: 1.33.0
+            env:
+              TZ: ${CLUSTER_TZ}
+              APP_SERVICE_PORT: &containerPort 25565
+              IN_KUBE_CLUSTER: "true"
+              AUTO_SCALE_UP: "true"
+              AUTO_SCALE_DOWN: "true"
+              AUTO_SCALE_DOWN_AFTER: 15m
+              KUBE_NAMESPACE: *namespace
+            resources:
+              requests:
+                memory: 64M
+                cpu: 250m
+              limits:
+                memory: 256M
+        serviceAccount:
+          identifier: mc-router
+    service:
+      minecraft:
+        controller: *app
+        type: LoadBalancer
+        annotations:
+          lbipam.cilium.io/ips: "192.168.1.85"
+          external-dns.alpha.kubernetes.io/hostname: "mc-router.${SECRET_DOMAIN_INT},mc-deadly.${SECRET_DOMAIN_INT},mc-friendly.${SECRET_DOMAIN_INT}"
+        ports:
+          minecraft:
+            port: *containerPort
+            targetPort: *containerPort
+            protocol: TCP
+      api:
+        controller: *app
+        type: ClusterIP
+        ports:
+          api:
+            port: &apiPort 8080
+            protocol: TCP
+            targetPort: 8080
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+    probes:
+      readiness:
+        enabled: true
+        custom: true
+        spec:
+          initialDelaySeconds: 30
+          failureThreshold: 5
+          healthyThreshold: 1
+          periodSeconds: 10
+          httpGet: &probe
+            path: /routes
+            port: *apiPort
+            scheme: HTTP
+            httpHeaders:
+              - name: Accept
+                value: application/json

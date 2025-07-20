@@ -1,0 +1,116 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app mc-deadly
+spec:
+  interval: 1m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    controllers:
+      mc-deadly:
+        # yaml-language-server: $schema=https://raw.githubusercontent.com/itzg/minecraft-server-charts/refs/heads/master/charts/minecraft/values.schema.json
+        type: statefulset
+        replicas: 1
+        strategy: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 1
+          maxSurge: 0
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/itzg/minecraft-server
+              tag: 2025.6.2@sha256:262e2309f7cc6b2ff0ac1458ac52c91e9bc778989543feec6588501f6dad31ef
+            env:
+              TZ: ${CLUSTER_TZ}
+              APP_SERVICE_PORT: &containerPort 25565
+              EULA: "true"
+              TYPE: "PAPER"
+              LEVEL: "deadly"
+              DIFFICULTY: "easy"
+              MAX_PLAYERS: 10
+              MODE: "survival"
+              MEMORY: 2048M
+              STOP_SERVER_ANNOUNCE_DELAY: 30
+              STOP_DURATION: 60
+            envFrom:
+              - secretRef:
+                  name: mc-deadly-secret
+              - configMapRef:
+                  name: mc-common-cm
+            probes:
+              liveness:
+                custom: true
+                spec:
+                  command:
+                    - mc-health
+                  initialDelaySeconds: 30
+                  periodSeconds: 5
+                  failureThreshold: 20
+                  successThreshold: 1
+                  timeoutSeconds: 1
+              readiness:
+                custom: true
+                spec:
+                  command:
+                    - mc-health
+                  initialDelaySeconds: 30
+                  periodSeconds: 5
+                  failureThreshold: 20
+                  successThreshold: 2
+                  timeoutSeconds: 1
+              startup:
+                custom: true
+                spec:
+                  command:
+                    - mc-health
+                  enabled: true
+                  failureThreshold: 5
+                  periodSeconds: 10
+                  successThreshold: 1
+                  initialDelaySeconds: 120
+            resources:
+              requests:
+                memory: 2Gi
+                cpu: 1
+              limits:
+                memory: 3Gi
+    service:
+      app:
+        controller: *app
+        type: ClusterIP
+        annotations:
+          "mc-router.itzg.me/externalServerName": "mc-deadly.${SECRET_DOMAIN_INT}"
+        ports:
+          minecraft:
+            port: *containerPort
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+    persistence:
+      data:
+        enabled: true
+        existingClaim: mc-deadly-pvc
+        type: persistentVolumeClaim
+      config:
+        type: configMap
+        name: mc-common-config-cm
+        globalMounts:
+          - path: /data/plugins/BlueMap/core.conf
+            subPath: bluemap_core.conf
