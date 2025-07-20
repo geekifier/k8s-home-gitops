@@ -2,29 +2,33 @@
 autoDirectNodeRoutes: true
 bpf:
   masquerade: true
-  # Ref: https://github.com/siderolabs/talos/issues/10002
-  hostLegacyRouting: true
-cni:
-  # Required for pairing with Multus CNI
-  exclusive: false
+  preAllocateMaps: true
+#Enable BPF clock source probing for more efficient tick retrieval.
+bpfClockProbe: true
+bgpControlPlane:
+  enabled: true
 cgroup:
   automount:
     enabled: false
   hostRoot: /sys/fs/cgroup
-# NOTE: devices might need to be set if you have more than one active NIC on your hosts
-# devices: eno+ eth+
+cni:
+  # Required for pairing with Multus CNI
+  exclusive: false
 endpointRoutes:
   enabled: true
 envoy:
   enabled: false
 dashboards:
   enabled: true
+# this requires node/pod bounce
+# https://docs.cilium.io/en/latest/operations/performance/tuning/#ipv4-big-tcp
+# enableIPv4BIGTCP: true
 hubble:
-  enabled: true
-  relay:
-    enabled: true
-  ui:
-    enabled: true
+  enabled: false
+  # relay:
+  #   enabled: true
+  # ui:
+  #   enabled: true
 ipam:
   mode: kubernetes
 ipv4NativeRoutingCIDR: "100.64.0.0/16"
@@ -36,7 +40,8 @@ l2announcements:
   enabled: true
 loadBalancer:
   algorithm: maglev
-  mode: "snat"
+  # try switching to dsr again from snat
+  mode: "dsr"
 localRedirectPolicy: true
 operator:
   dashboards:
@@ -45,7 +50,7 @@ operator:
     enabled: true
     serviceMonitor:
       enabled: true
-  replicas: 1
+  replicas: 2
   rollOutPods: true
 prometheus:
   enabled: true
@@ -74,5 +79,6 @@ securityContext:
       - NET_ADMIN
       - SYS_ADMIN
       - SYS_RESOURCE
-socketLB:
-  hostNamespaceOnly: true
+# no longer needed?
+# socketLB:
+#   hostNamespaceOnly: true

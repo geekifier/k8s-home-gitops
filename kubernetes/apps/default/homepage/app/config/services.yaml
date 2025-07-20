@@ -1,7 +1,7 @@
 - Home:
     - BlueIris:
         icon: blue-iris.png
-        href: http://bi.${SECRET_DOMAIN_INT}
+        href: http://blueiris.${SECRET_DOMAIN_INT}
         description: Cameras
 - Games:
     - Minecraft Maps:

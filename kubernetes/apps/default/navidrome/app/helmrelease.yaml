@@ -28,12 +28,12 @@ spec:
         replicas: 1
         strategy: Recreate
         annotations:
-          # reloader.stakater.com/auto: "true"
+          reloader.stakater.com/auto: "true"
         containers:
           app:
             image:
               repository: deluan/navidrome
-              tag: "0.56.1"
+              tag: "0.57.0"
             env:
               TZ: ${CLUSTER_TZ}
               ND_LOGLEVEL: info
@@ -44,6 +44,9 @@ spec:
               ND_MUSICFOLDER: /public/Media/Music
               ND_IMAGECACHESIZE: "500MB"
               ND_SCANNER_SCHEDULE: "@every 4h"
+            envFrom:
+              - secretRef:
+                  name: navidrome-secret
             probes:
               liveness: &probes
                 enabled: true

@@ -7,6 +7,8 @@ spec:
   targetEndpoints:
     - targets:
         - "proxmox.${SECRET_DOMAIN_INT}:9633/metrics"
+        - "proxmox2.${SECRET_DOMAIN_INT}:9633/metrics"
+        - "rpi2.${SECRET_DOMAIN_INT}:9633/metrics"
       scrape_interval: 2m
       relabelConfigs:
         - source_labels: [__address__]
@@ -14,6 +16,12 @@ spec:
           target_label: instance
           regex: "([A-Za-z0-9.-]*).*"
           replacement: $1
+        - source_labels: [device]
+          action: replace
+          target_label: device
+          regex: "bus_(\\d+)_sat.*_(\\d+)"
+          replacement: "bus_${1}_sas_${2}"
+
 metadata:
   name: *jobName
   namespace: observability

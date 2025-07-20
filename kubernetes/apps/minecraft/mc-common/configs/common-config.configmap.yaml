@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/refs/heads/master/master/configmap.json
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mc-common-config-cm
+data:
+  # /data/plugins/BlueMap/core.conf
+  bluemap_core.conf: |
+    accept-download: true
+    renderThreadCount: -4
+    metrics: true
+    data: "bluemap"
+    scan-for-mod-resources: true
