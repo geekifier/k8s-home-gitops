@@ -40,8 +40,8 @@ l2announcements:
   enabled: true
 loadBalancer:
   algorithm: maglev
-  # try switching to dsr again from snat
-  mode: "dsr"
+  # https://docs.cilium.io/en/latest/network/kubernetes/kubeproxy-free/#hybrid-dsr-and-snat-mode
+  mode: snat
 localRedirectPolicy: true
 operator:
   dashboards:
