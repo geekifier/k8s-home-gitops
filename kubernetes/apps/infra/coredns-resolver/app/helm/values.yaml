@@ -29,7 +29,7 @@ service:
 rollingUpdate:
   maxSurge: 1
   maxUnavailable: 0
-replicaCount: 2
+replicaCount: 3
 servers:
   - zones:
       - zone: ${SECRET_DOMAIN_INT}
@@ -43,6 +43,9 @@ servers:
       - name: forward
         parameters: . 192.168.1.30 192.168.1.31
       - name: cache
+        configBlock: |-
+          success 9984 1800
+          denial 0
   - zones:
       - zone: 192.168.1.0/24
     port: *dnsPort
@@ -78,7 +81,7 @@ servers:
       - name: reload
       - name: health
         configBlock: |-
-          lameduck 5s
+          lameduck 10s
       - name: ready
       - name: cache
       - name: redisc
