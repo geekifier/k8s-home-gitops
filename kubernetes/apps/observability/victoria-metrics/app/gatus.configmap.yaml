@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    gatus.io/enabled: "true"
+  name: victoriametrics-gatus-endpoint
+data:
+  config.yaml: |
+    default-endpoint: &defaults
+      group: internal
+      interval: 1m
+      ui:
+        hide-hostname: false
+        hide-url: true
+      client:
+        ignore-redirect: true
+      conditions:
+        - "[STATUS] == any(200, 301, 302)"
+    endpoints:
+      - name: Grafana
+        url: "https://grafana-k8s.x.markowicz.net"
+        <<: *defaults
+      - name: VictoriaMetrics Historical
+        url: "https://vme.x.markowicz.net"
+        <<: *defaults

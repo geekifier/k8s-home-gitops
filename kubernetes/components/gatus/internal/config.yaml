@@ -1,0 +1,12 @@
+endpoints:
+  - name: "${APP}"
+    group: internal
+    url: "${GATUS_URL:=https://${GATUS_HOST:=${APP}}.${SECRET_DOMAIN_INT}}"
+    interval: 1m
+    ui:
+      hide-hostname: false
+      hide-url: true
+    conditions:
+      - "[STATUS] == 200"
+    client:
+      ignore-redirect: false
