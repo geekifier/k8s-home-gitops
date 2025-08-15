@@ -33,7 +33,7 @@ spec:
           app:
             image:
               repository: deluan/navidrome
-              tag: "0.57.0"
+              tag: "0.58.0"
             env:
               TZ: ${CLUSTER_TZ}
               ND_LOGLEVEL: info
