@@ -8,9 +8,13 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  components:
+    - ../../../../components/gatus/internal
   interval: 1h
   path: ./kubernetes/apps/default/sonarr/app
   postBuild:
+    substitute:
+      APP: *app
     substituteFrom:
       - name: cluster-settings
         kind: ConfigMap
