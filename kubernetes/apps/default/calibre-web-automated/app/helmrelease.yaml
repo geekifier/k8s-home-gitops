@@ -54,8 +54,8 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
             image:
-              repository: crocodilestick/calibre-web-automated
-              tag: V3.0.4
+              repository: ghcr.io/crocodilestick/calibre-web-automated
+              tag: dev@sha256:7a2d71b414e91a00429815a1ce634cc0e4e8eabd65555de0abeef5ad5487ff5f
             env:
               TZ: ${CLUSTER_TZ}
               # cache book covers in pv
@@ -84,6 +84,15 @@ spec:
       config:
         enabled: true
         existingClaim: calibre-web-automated-config
+      db:
+        enabled: true
+        type: persistentVolumeClaim
+        size: 100Mi
+        accessMode: ReadWriteOnce
+        storageClass: longhorn-standard
+        globalMounts:
+          # this path is enforced by CWA :/
+          - path: /calibre-library
       public:
         enabled: true
         existingClaim: smb-public-pvc
@@ -91,7 +100,7 @@ spec:
         globalMounts:
           - path: /public/Library
             subPath: Library
-          - path: /cwa-book-ingest
-            subPath: Library/Calibre-Import
-          - path: /calibre-library
-            subPath: Library/Calibre
+          # - path: /cwa-book-ingest
+          #   subPath: Library/Calibre-Import
+          # - path: /books
+          #   subPath: Library/Calibre

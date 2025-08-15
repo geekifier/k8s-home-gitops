@@ -9,9 +9,14 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  components:
+    - ../../../../components/gatus/internal
   interval: 1h
   path: ./kubernetes/apps/default/miniflux/app
   postBuild:
+    substitute:
+      APP: *app
+      GATUS_HOST: rss
     substituteFrom:
       - name: cluster-secrets
         kind: Secret
