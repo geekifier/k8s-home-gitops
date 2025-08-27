@@ -12,7 +12,6 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  # suspend: true
   interval: 1h
   path: ./kubernetes/apps/observability/victoria-metrics/app
   postBuild:
@@ -29,4 +28,3 @@ spec:
     namespace: flux-system
   targetNamespace: *namespace
   timeout: 5m
-  wait: true

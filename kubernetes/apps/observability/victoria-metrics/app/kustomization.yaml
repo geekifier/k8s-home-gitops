@@ -5,6 +5,7 @@ resources:
   - ./helm/helmrelease.yaml
   - ./external.vmsingle.yaml
   - ./external.vmauth.yaml
+  - ./gatus.configmap.yaml
   - ./ping-exporter.vmstaticscrape.yaml
   - ./traefik.vmstaticscrape.yaml
   - ./smartctl.vmstaticscrape.yaml

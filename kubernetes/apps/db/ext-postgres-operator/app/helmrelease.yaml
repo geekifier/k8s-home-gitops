@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: *app
-      version: 2.0.1
+      version: 2.1.0
       sourceRef:
         kind: HelmRepository
         name: ext-postgres-operator-repo
@@ -41,7 +41,7 @@ spec:
   values:
     image:
       repository: ghcr.io/movetokube/postgres-operator
-      tag: "2.0.0"
+      tag: "2.2.0"
     replicaCount: 1
     fullnameOverride: *app
     # empty string means all namespaces

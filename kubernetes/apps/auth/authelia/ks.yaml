@@ -12,6 +12,8 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  components:
+    - ../../../../components/gatus/internal
   interval: 30m
   path: ./kubernetes/apps/auth/authelia/app
   prune: true
@@ -24,6 +26,9 @@ spec:
   timeout: 5m
   wait: false
   postBuild:
+    substitute:
+      APP: *app
+      GATUS_HOST: auth-k8s
     substituteFrom:
       - name: cluster-secrets
         kind: Secret

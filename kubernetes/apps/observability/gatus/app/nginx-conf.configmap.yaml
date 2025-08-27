@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gatus-nginx-conf
+data:
+  default.conf: |
+    server {
+      listen       8080;
+      server_name  localhost;
+
+      #access_log  /var/log/nginx/host.access.log  main;
+
+      location /config/ {
+        alias   /config/;
+        autoindex on;
+        autoindex_format json;
+
+        # Block non-YAML files
+        location ~ \.((?!ya?ml$).)+$ {
+          return 403;
+        }
+
+        try_files $uri $uri/ =404;
+      }
+
+      error_page   500 502 503 504  /50x.html;
+      location = /50x.html {
+        root   /usr/share/nginx/html;
+      }
+    }

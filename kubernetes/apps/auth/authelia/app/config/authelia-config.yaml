@@ -14,6 +14,8 @@ log:
   level: info
 
 authentication_backend:
+  password_reset:
+    disable: false
   ldap:
     implementation: activedirectory
     address: ldaps://${SECRET_AD_ENDPOINT}:636
@@ -26,6 +28,14 @@ authentication_backend:
 access_control:
   default_policy: deny
   rules:
+    - domain: "*.${SECRET_DOMAIN_INT}"
+      policy: bypass
+      networks:
+        - "${SECRET_MONITOR_IP}/32"
+      resources:
+        - "^/health.*$"
+        - "^/$"
+        - "^/login.*$"
     - domain: "music.${SECRET_DOMAIN_INT}"
       resources:
         - "^.*/rest.*$"
@@ -76,3 +86,10 @@ notifier:
   disable_startup_check: true
   filesystem:
     filename: /tmp/notify.txt
+
+webauthn:
+  disable: false
+  enable_passkey_login: true
+  experimental_enable_passkey_uv_two_factors: true
+  display_name: Authelia
+  attestation_conveyance_preference: indirect

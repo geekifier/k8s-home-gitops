@@ -1,0 +1,48 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/refs/heads/master/master-standalone/service-v1.json
+apiVersion: v1
+kind: Service
+metadata:
+  name: unifi-proxy
+spec:
+  type: ClusterIP
+  ports:
+    - name: https
+      port: 443
+      targetPort: 443
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/refs/heads/master/master-standalone/endpoints-v1.json
+kind: Endpoints
+apiVersion: v1
+metadata:
+  name: unifi-proxy
+subsets:
+  - addresses:
+      - ip: 192.168.0.2
+    ports:
+      - port: 443
+        name: https
+        protocol: TCP
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/refs/heads/master/master-standalone/ingress-networking-v1.json
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: unifi-proxy
+  namespace: infra
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/proxy-ssl-verify: "false"
+spec:
+  ingressClassName: internal
+  rules:
+    - host: unifi.${SECRET_DOMAIN_INT}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: unifi-proxy
+                port:
+                  name: https

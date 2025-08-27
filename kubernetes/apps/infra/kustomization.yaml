@@ -7,3 +7,4 @@ components:
   - ../../components/common
 resources:
   - ./coredns-resolver/ks.yaml
+  - ./external-proxy/ks.yaml

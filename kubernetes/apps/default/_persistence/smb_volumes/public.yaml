@@ -17,7 +17,8 @@ spec:
     # permissions are handled server-side
     - noperm
     # unfortunately calibre will not work without this
-    - nobrl
+    # now that DB is on PV, we should be able to run without this
+    # - nobrl
   csi:
     driver: smb.csi.k8s.io
     # volumeHandle format: {smb-server-address}#{sub-dir-name}#{share-name}
