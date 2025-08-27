@@ -1,0 +1,27 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app external-proxy
+  namespace: &namespace infra
+spec:
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  interval: 1h
+  path: ./kubernetes/apps/infra/external-proxy/endpoints
+  prune: true
+  retryInterval: 2m
+  postBuild:
+    substituteFrom:
+      - name: cluster-settings
+        kind: ConfigMap
+      - name: cluster-secrets
+        kind: Secret
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: *namespace
+  timeout: 5m

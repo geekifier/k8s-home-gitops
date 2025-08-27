@@ -60,6 +60,13 @@ configMapGenerator:
     files:
       - ./json/traefik-ext.json
 
+  - name: grafana-dashboard-unpoller-dpi-client
+    files:
+      - ./json/unpoller-dpi-client.json
+    options:
+      annotations:
+        grafana_folder: "network"
+
   - name: grafana-dashboard-unpoller-client-insights
     files:
       - ./json/unpoller-client-insights.json
@@ -80,12 +87,21 @@ configMapGenerator:
     options:
       annotations:
         grafana_folder: "network"
+
+  - name: grafana-dashboard-unpoller-usg-insights
+    files:
+      - ./json/unpoller-usg-insights.json
+    options:
+      annotations:
+        grafana_folder: "network"
+
   - name: grafana-dashboard-unpoller-usw-insights
     files:
       - ./json/unpoller-usw-insights.json
     options:
       annotations:
         grafana_folder: "network"
+
   - name: grafana-dashboard-volsync
     files:
       - ./json/volsync.json

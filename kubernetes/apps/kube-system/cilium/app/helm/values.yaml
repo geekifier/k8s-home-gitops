@@ -6,7 +6,7 @@ bpf:
 #Enable BPF clock source probing for more efficient tick retrieval.
 bpfClockProbe: true
 bgpControlPlane:
-  enabled: true
+  enabled: false
 cgroup:
   automount:
     enabled: false
@@ -24,11 +24,16 @@ dashboards:
 # https://docs.cilium.io/en/latest/operations/performance/tuning/#ipv4-big-tcp
 # enableIPv4BIGTCP: true
 hubble:
-  enabled: false
-  # relay:
-  #   enabled: true
-  # ui:
-  #   enabled: true
+  enabled: true
+  relay:
+    enabled: true
+  ui:
+    enabled: true
+    ingress:
+      enabled: true
+      className: internal
+      hosts:
+        - "hubble.${SECRET_DOMAIN_INT}"
 ipam:
   mode: kubernetes
 ipv4NativeRoutingCIDR: "100.64.0.0/16"
@@ -40,8 +45,8 @@ l2announcements:
   enabled: true
 loadBalancer:
   algorithm: maglev
-  # try switching to dsr again from snat
-  mode: "dsr"
+  # https://docs.cilium.io/en/latest/network/kubernetes/kubeproxy-free/#hybrid-dsr-and-snat-mode
+  mode: snat
 localRedirectPolicy: true
 operator:
   dashboards:

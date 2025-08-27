@@ -9,12 +9,16 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  components:
+    - ../../../../components/gatus/internal
   dependsOn:
     - name: snapshot-controller
       namespace: kube-system
   interval: 1h
   path: ./kubernetes/apps/longhorn-system/install/helm
   postBuild:
+    substitute:
+      APP: *app
     substituteFrom:
       - name: cluster-secrets
         kind: Secret

@@ -1,0 +1,145 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app gatus
+spec:
+  interval: 1m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+    timeout: 2m
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+    timeout: 2m
+
+  values:
+    controllers:
+      gatus:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          init-config:
+            image:
+              repository: ghcr.io/home-operations/k8s-sidecar
+              tag: 1.30.9@sha256:74d65c3def9276b24b5bfe41f8efb773174e7a1ecf3c9b5a31bd02cfdee232c9
+            env:
+              FOLDER: &GATUS_CONFIG /config
+              LABEL: gatus.io/enabled
+              NAMESPACE: ALL
+              RESOURCE: configmap
+              UNIQUE_FILENAMES: true
+              METHOD: WATCH
+            restartPolicy: Always
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 128Mi
+        containers:
+          # app:
+          #   image:
+          #     repository: ghcr.io/twin/gatus
+          #     tag: v5.21.0@sha256:b45c89b1f8bfd5be456306b2bf1a581cc13ca0d897faf357ef77c35ac9eca1fa
+          #   env:
+          #     TZ: ${CLUSTER_TZ}
+          #     GATUS_CONFIG_PATH: *GATUS_CONFIG
+          #     GATUS_DELAY_START_SECONDS: 5
+          #     WEB_PORT: &port 80
+          #   probes:
+          #     liveness: &probes
+          #       enabled: true
+          #       custom: true
+          #       spec:
+          #         httpGet:
+          #           path: /health
+          #           port: *port
+          #         initialDelaySeconds: 0
+          #         periodSeconds: 10
+          #         timeoutSeconds: 1
+          #         failureThreshold: 3
+          #     readiness: *probes
+          #   securityContext:
+          #     allowPrivilegeEscalation: false
+          #     readOnlyRootFilesystem: true
+          #     capabilities: { drop: ["ALL"] }
+          #   resources:
+          #     requests:
+          #       cpu: 100m
+          #     limits:
+          #       memory: 256Mi
+          config:
+            image:
+              repository: ghcr.io/nginx/nginx-unprivileged
+              tag: 1.29-alpine
+            env:
+              TZ: ${CLUSTER_TZ}
+
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      config:
+        controller: *app
+        ports:
+          http-config:
+            port: 8080
+    ingress:
+      app:
+        className: internal
+        hosts:
+          - host: &host "gatus-config.${SECRET_DOMAIN_INT}"
+            paths:
+              - path: /config
+                service:
+                  identifier: config
+                  port: http-config
+    rbac:
+      roles:
+        gatus:
+          type: ClusterRole
+          rules:
+            - apiGroups: [""]
+              resources: ["configmaps"]
+              verbs: ["get", "watch", "list"]
+      bindings:
+        gatus:
+          type: ClusterRoleBinding
+          roleRef:
+            identifier: gatus
+          subjects:
+            - identifier: gatus
+    serviceAccount:
+      gatus: {}
+    persistence:
+      config:
+        enabled: true
+        type: emptyDir
+      # config:
+      #   existingClaim: gatus
+      config-file:
+        type: configMap
+        name: gatus-configmap
+        globalMounts:
+          - path: /config/config.yaml
+            subPath: config.yaml
+            readOnly: true
+      nginx:
+        type: configMap
+        name: gatus-nginx-conf
+        advancedMounts:
+          gatus:
+            config:
+              - path: /etc/nginx/conf.d/default.conf
+                subPath: default.conf
+                readOnly: true

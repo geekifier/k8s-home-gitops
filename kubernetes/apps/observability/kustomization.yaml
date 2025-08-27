@@ -12,4 +12,5 @@ resources:
   - ./smartctl-exporter/ks.yaml
   - ./prometheus-pve-exporter/ks.yaml
   - ./snmp-exporter/ks.yaml
+  - ./gatus/ks.yaml
   - ./unpoller/ks.yaml
