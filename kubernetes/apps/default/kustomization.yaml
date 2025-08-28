@@ -22,3 +22,4 @@ resources:
   - ./radarr/ks.yaml
   - ./sonarr/ks.yaml
   - ./jellyfin/ks.yaml
+  - ./profilarr/ks.yaml
