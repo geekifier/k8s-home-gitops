@@ -85,14 +85,14 @@ tasks:
     cmd: |
       flux-local diff hr --path ./kubernetes/flux/cluster --branch-orig origin/head \
       --strip-attrs "helm.sh/chart,checksum/config,app.kubernetes.io/version,chart,checksum/secret" \
-      --all-namespaces | moar -lang=yaml
+      --all-namespaces | moor -lang=yaml
     preconditions:
       - which flux-local
-      - which moar
+      - which moor
   local-diff-ks:
     desc: Use flux-local to diff Kustomization resources
     cmd: |
-      flux-local diff ks --all-namespaces --path kubernetes/flux/cluster --no-skip-secrets --limit-bytes 4096 | moar -lang=diff
+      flux-local diff ks --all-namespaces --path kubernetes/flux/cluster --no-skip-secrets --limit-bytes 4096 | moor -lang=diff
     preconditions:
       - which flux-local
-      - which moar
+      - which moor
