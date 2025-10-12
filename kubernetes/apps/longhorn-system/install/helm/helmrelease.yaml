@@ -13,7 +13,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: longhorn-repo
-      version: 1.9.1
+      version: 1.10.0
   values:
     # debug hr uinstall issue
     ingress:
@@ -26,7 +26,7 @@ spec:
     defaultSettings:
       # for apps with replication, override with `strict-local`
       defaultDataLocality: best-effort
-      defaultReplicaCount: 2
+      defaultReplicaCount: "2"
       replicaAutoBalance: least-effort
       allowVolumeCreationWithDegradedAvailability: false
     persistence:
