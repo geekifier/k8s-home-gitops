@@ -26,7 +26,7 @@ spec:
     keepHistory: false
   valuesFrom:
     - kind: Secret
-      name: &pgSecretName postgres16-superuser
+      name: &pgSecretName postgres17-superuser
       valuesKey: username
       targetPath: postgres.user
     - kind: Secret
@@ -41,7 +41,7 @@ spec:
   values:
     image:
       repository: ghcr.io/movetokube/postgres-operator
-      tag: "2.2.0"
+      tag: "2.3.0"
     replicaCount: 1
     fullnameOverride: *app
     # empty string means all namespaces

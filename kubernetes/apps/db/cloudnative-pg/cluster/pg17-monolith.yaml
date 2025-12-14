@@ -3,9 +3,9 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: &clusterName postgres16
+  name: &clusterName postgres17
 spec:
-  instances: 1
+  instances: 2
   imageName: ghcr.io/cloudnative-pg/postgresql:17.6
   primaryUpdateStrategy: unsupervised
   primaryUpdateMethod: switchover
@@ -45,7 +45,7 @@ spec:
       endpointURL: "http://blackhole2.${SECRET_DOMAIN_INT}:3900"
       # Note: serverName version needs to be incremented
       # when recovering from an existing cnpg cluster
-      serverName: *clusterName
+      serverName: postgres17-02
       s3Credentials:
         region:
           name: cloudnative-pg-garage-secret
@@ -56,16 +56,36 @@ spec:
         secretAccessKey:
           name: cloudnative-pg-garage-secret
           key: CNPG_S3_SECRET_ACCESS_KEY
+
+  bootstrap:
+    initdb:
+      import:
+        type: monolith
+        databases: ["*"]
+        roles: ["*"]
+        source:
+          externalCluster: postgres16-source
+
+  externalClusters:
+    - name: postgres16-source
+      connectionParameters:
+        host: postgres16-rw.db.svc.cluster.local
+        user: postgres
+        dbname: postgres
+        port: "5432"
+      password:
+        name: postgres16-superuser
+        key: password
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/postgresql.cnpg.io/scheduledbackup_v1.json
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
 metadata:
-  name: postgres16-daily
+  name: postgres17-daily
   namespace: db
 spec:
   schedule: "@daily"
   immediate: true
   backupOwnerReference: self
   cluster:
-    name: postgres16
+    name: postgres17
