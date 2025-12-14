@@ -24,6 +24,10 @@ spec:
   role: *dbName
   database: *dbName
   secretName: pgsql
+  # IMPORTANT: TeslaMate requires SUPERUSER during migrations/upgrades
+  # See /kubernetes/apps/default/teslamate/MIGRATION-NOTES.md for details
+  # Normal operation: uses OWNER privileges (database owner + group membership)
+  # During migrations: temporarily grant SUPERUSER, then revoke after completion
   privileges: OWNER
   annotations:
     reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
@@ -34,6 +38,8 @@ spec:
     DATABASE_USER: "{{.Role}}"
     DATABASE_PASS: "{{.Password}}"
     DATABASE_NAME: "{{.Database}}"
+    # We need to set this manually because the value forced by the operator overwrited Teslamate's app port
+    PORT: "4000"
 ---
 apiVersion: db.movetokube.com/v1alpha1
 kind: PostgresUser

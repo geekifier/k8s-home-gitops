@@ -49,6 +49,21 @@ parameters:
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
+  name: longhorn-cluster-best-effort
+provisioner: driver.longhorn.io
+allowVolumeExpansion: true
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+parameters:
+  numberOfReplicas: "1"
+  fromBackup: ""
+  fsType: "ext4"
+  dataLocality: "best-effort"
+  dataEngine: "v1"
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
   name: longhorn-yolo
 provisioner: driver.longhorn.io
 allowVolumeExpansion: true
