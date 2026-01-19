@@ -4,7 +4,6 @@ resources:
   - ./helmrepo.yaml
   - ./helmrelease.yaml
   - ./garage.secret.sops.yaml
-  - ../cluster/pg16-monolith.yaml
   - ../cluster/pg17-monolith.yaml
 # configMapGenerator:
 #   - name: vm-kube-state-metrics-cm

@@ -61,6 +61,20 @@
       ignoreTests: true,
     },
     {
+      description: "Auto-merge *arr apps container updates",
+      matchDatasources: ["docker"],
+      matchPackageNames: [
+        "ghcr.io/home-operations/radarr",
+        "ghcr.io/home-operations/sonarr",
+        "ghcr.io/home-operations/prowlarr",
+      ],
+      automerge: true,
+      automergeType: "branch",
+      matchUpdateTypes: ["minor", "patch", "digest"],
+      minimumReleaseAge: "3 days",
+      ignoreTests: true,
+    },
+    {
       matchUpdateTypes: ["major"],
       semanticCommitType: "feat",
       commitMessagePrefix: "{{semanticCommitType}}({{semanticCommitScope}})!:",
@@ -134,6 +148,12 @@
     {
       matchDatasources: ["github-releases"],
       addLabels: ["renovate/github-release"],
+    },
+    {
+      description: "Link Siderolabs images to their GitHub releases",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/siderolabs/installer"],
+      customChangelogUrl: "https://github.com/siderolabs/talos",
     },
   ],
   customManagers: [
