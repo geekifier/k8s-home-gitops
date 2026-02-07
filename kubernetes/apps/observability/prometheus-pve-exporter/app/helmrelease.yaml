@@ -27,7 +27,7 @@ spec:
           app:
             image:
               repository: ghcr.io/prometheus-pve/prometheus-pve-exporter
-              tag: 3.6.0
+              tag: 3.8.0
             env:
               TZ: ${CLUSTER_TZ}
               APP_SERVICE_PORT: &containerPort 9221

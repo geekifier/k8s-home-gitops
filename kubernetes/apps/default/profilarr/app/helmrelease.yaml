@@ -41,7 +41,7 @@ spec:
           app:
             image:
               repository: santiagosayshey/profilarr
-              tag: v1.1.3
+              tag: v1.1.4
             env:
               TZ: ${CLUSTER_TZ}
               PROFILARR__SERVER__PORT: &containerPort 6868
