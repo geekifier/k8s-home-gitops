@@ -153,8 +153,59 @@
       description: "Link Siderolabs images to their GitHub releases",
       matchDatasources: ["docker"],
       matchPackageNames: ["ghcr.io/siderolabs/installer"],
-      customChangelogUrl: "https://github.com/siderolabs/talos",
+      changelogUrl: "https://github.com/siderolabs/talos",
     },
+    {
+      description: "Disable lookup for custom coredns image",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/geekifier/coredns"],
+      enabled: false,
+    },
+    {
+      description: "Link csi-driver-smb to its GitHub releases",
+      matchDatasources: ["helm"],
+      matchPackageNames: ["csi-driver-smb"],
+      changelogUrl: "https://github.com/kubernetes-csi/csi-driver-smb",
+    },
+    {
+      description: "Link prometheus-community OCI charts to their GitHub releases",
+      matchDatasources: ["docker"],
+      matchPackageNames: [
+        "ghcr.io/prometheus-community/charts/prometheus-snmp-exporter",
+        "ghcr.io/prometheus-community/charts/prometheus-smartctl-exporter",
+      ],
+      changelogUrl: "https://github.com/prometheus-community/helm-charts",
+    },
+    {
+      description: "Link VictoriaMetrics helm charts to their GitHub releases",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/victoriametrics/helm-charts/victoria-metrics-k8s-stack"],
+      changelogUrl: "https://github.com/VictoriaMetrics/helm-charts",
+    },
+    {
+      description: "Link dragonfly-operator helm chart to its GitHub releases",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/dragonflydb/dragonfly-operator/helm/dragonfly-operator"],
+      changelogUrl: "https://github.com/dragonflydb/dragonfly-operator",
+    },
+    {
+      description: "Link CoreDNS helm chart to its GitHub releases",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/coredns/charts/coredns"],
+      changelogUrl: "https://github.com/coredns/helm",
+    },
+    {
+      description: "Link Reloader helm chart to its GitHub releases",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/stakater/charts/reloader"],
+      changelogUrl: "https://github.com/stakater/Reloader",
+    },
+    {
+      description: "Link Jellyfin helm chart to its GitHub releases",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/jellyfin/jellyfin"],
+      changelogUrl: "https://github.com/jellyfin/jellyfin",
+    }
   ],
   customManagers: [
     {
