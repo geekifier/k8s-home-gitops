@@ -13,3 +13,10 @@ controllers:
             value: Remote-User
           - name: AUTH_PROXY_USER_CREATION
             value: 1
+          - name: TRUSTED_REVERSE_PROXY_NETWORKS
+            value: 100.64.0.0/16
+          - name: DATABASE_URL
+            valueFrom:
+              secretKeyRef:
+                name: pgsql-miniflux
+                key: DATABASE_URL

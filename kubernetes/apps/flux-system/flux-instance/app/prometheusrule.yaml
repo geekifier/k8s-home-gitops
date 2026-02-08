@@ -1,0 +1,46 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: flux-prometheus-rules
+spec:
+  groups:
+    - name: flux
+      rules:
+        - alert: FluxHelmReleaseNotReady
+          expr: |
+            flux_resource_info{kind="HelmRelease", ready="False", suspended="False"} == 1
+          for: 15m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Flux HelmRelease {{ $labels.name }} is failing"
+            description: >-
+              HelmRelease {{ $labels.name }} in namespace {{ $labels.exported_namespace }}
+              has been in a non-ready state for more than 15 minutes.
+              Reason: {{ $labels.reason }}.
+        - alert: FluxKustomizationNotReady
+          expr: |
+            flux_resource_info{kind="Kustomization", ready="False", suspended="False"} == 1
+          for: 15m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Flux Kustomization {{ $labels.name }} is failing"
+            description: >-
+              Kustomization {{ $labels.name }} in namespace {{ $labels.exported_namespace }}
+              has been in a non-ready state for more than 15 minutes.
+              Reason: {{ $labels.reason }}.
+        - alert: FluxSourceNotReady
+          expr: |
+            flux_resource_info{kind=~"GitRepository|OCIRepository|HelmRepository", ready="False", suspended="False"} == 1
+          for: 15m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Flux source {{ $labels.kind }}/{{ $labels.name }} is failing"
+            description: >-
+              {{ $labels.kind }} {{ $labels.name }} in namespace {{ $labels.exported_namespace }}
+              has been in a non-ready state for more than 15 minutes.
+              Reason: {{ $labels.reason }}.
