@@ -11,12 +11,8 @@ spec:
     class_name: internal
     host: vme.${SECRET_DOMAIN_INT}
   unauthorizedUserAccessSpec:
-    # keeping it simple for now
-    # url_map:
-    #   - src_paths:
-    #       - "/prometheus/api/v1/write"
-    #       - "/influx/write"
-    #       - "/api/v1/import"
-    #       - "/api/v1/import/.*"
-    #     url_prefix: "http://vmsingle-external.observability.svc.cluster.local:8429/"
-    url_prefix: "http://vmsingle-external.observability.svc.cluster.local:8429/"
+    targetRef:
+      crd:
+        kind: VMSingle
+        name: external
+        namespace: observability

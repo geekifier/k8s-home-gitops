@@ -1,0 +1,28 @@
+---
+apiVersion: db.movetokube.com/v1alpha1
+kind: Postgres
+metadata:
+  name: &dbName miniflux
+  # the operator is limited to managing resources in the same namespace only
+  namespace: db
+spec:
+  database: *dbName
+  dropOnDelete: false
+---
+apiVersion: db.movetokube.com/v1alpha1
+kind: PostgresUser
+metadata:
+  name: &dbName miniflux
+  # the operator is limited to managing resources in the same namespace only
+  namespace: db
+spec:
+  role: *dbName
+  database: *dbName
+  secretName: pgsql
+  privileges: OWNER
+  annotations:
+    reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+    reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+    reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "default"
+  secretTemplate:
+    DATABASE_URL: "postgres://{{ .Role }}:{{ .Password }}@{{ .Host }}.db.svc.cluster.local:5432/{{ .Database }}?sslmode=require"

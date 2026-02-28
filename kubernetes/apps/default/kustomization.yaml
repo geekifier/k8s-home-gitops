@@ -23,3 +23,4 @@ resources:
   - ./sonarr/ks.yaml
   - ./jellyfin/ks.yaml
   - ./profilarr/ks.yaml
+  - ./booklore/ks.yaml
