@@ -8,6 +8,7 @@ components:
   - ../../components/repos/app-template
 resources:
   - ./victoria-metrics/ks.yaml
+  - ./grafana-alloy/ks.yaml
   - ./grafana-dashboards/kustomization.yaml
   - ./smartctl-exporter/ks.yaml
   - ./prometheus-pve-exporter/ks.yaml
