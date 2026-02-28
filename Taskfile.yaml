@@ -85,7 +85,7 @@ tasks:
     cmd: |
       flux-local diff hr --path ./kubernetes/flux/cluster --branch-orig origin/head \
       --strip-attrs "helm.sh/chart,checksum/config,app.kubernetes.io/version,chart,checksum/secret" \
-      --all-namespaces | moor -lang=yaml
+      --skip-kinds "ValidatingWebhookConfiguration,MutatingWebhookConfiguration" --all-namespaces | moor -lang=yaml
     preconditions:
       - which flux-local
       - which moor

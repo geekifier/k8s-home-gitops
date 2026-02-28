@@ -1,0 +1,153 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/source.toolkit.fluxcd.io/ocirepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: grafana-alloy
+spec:
+  interval: 1h
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 1.6.0
+  url: oci://ghcr.io/home-operations/charts-mirror/alloy
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app grafana-alloy
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: grafana-alloy
+  interval: 1h
+  maxHistory: 3
+  upgrade:
+    remediation:
+      retries: -1
+  uninstall:
+    keepHistory: false
+  values:
+    fullnameOverride: *app
+    crds:
+      create: false
+    controller:
+      type: daemonset
+    alloy:
+      stabilityLevel: generally-available
+      extraEnv:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: GRAFANA_CLOUD_LOKI_URL
+          valueFrom:
+            secretKeyRef:
+              name: grafana-cloud-secret
+              key: GRAFANA_CLOUD_LOKI_URL
+        - name: GRAFANA_CLOUD_LOKI_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: grafana-cloud-secret
+              key: GRAFANA_CLOUD_LOKI_USERNAME
+        - name: GRAFANA_CLOUD_LOKI_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: grafana-cloud-secret
+              key: GRAFANA_CLOUD_LOKI_PASSWORD
+      mounts:
+        varlog: false
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          cpu: 100m
+          memory: 256Mi
+      configMap:
+        create: true
+        content: |-
+          logging {
+            level  = "info"
+            format = "logfmt"
+          }
+
+          discovery.kubernetes "pods" {
+            role = "pod"
+            selectors {
+              role  = "pod"
+              field = "spec.nodeName=" + env("NODE_NAME")
+            }
+          }
+
+          discovery.relabel "pods" {
+            targets = discovery.kubernetes.pods.targets
+            // Drop kube-system pods to conserve quota
+            rule {
+              action        = "drop"
+              source_labels = ["__meta_kubernetes_namespace"]
+              regex         = "kube-system"
+            }
+            // instance = node hostname (aligns with host agents)
+            rule {
+              action        = "replace"
+              source_labels = ["__meta_kubernetes_pod_node_name"]
+              target_label  = "instance"
+            }
+            rule {
+              action        = "replace"
+              source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+              target_label  = "app"
+            }
+            rule {
+              action        = "replace"
+              source_labels = ["__meta_kubernetes_namespace"]
+              target_label  = "namespace"
+            }
+            rule {
+              action        = "replace"
+              source_labels = ["__meta_kubernetes_pod_name"]
+              target_label  = "pod"
+            }
+            rule {
+              action        = "replace"
+              source_labels = ["__meta_kubernetes_pod_container_name"]
+              target_label  = "container"
+            }
+          }
+
+          loki.source.kubernetes "pods" {
+            targets    = discovery.relabel.pods.output
+            forward_to = [loki.process.pods.receiver]
+          }
+
+          loki.process "pods" {
+            forward_to = [loki.write.grafana_cloud.receiver]
+            stage.json {
+              expressions = { level = "level" }
+            }
+            stage.labels {
+              values = { level = "" }
+            }
+            stage.drop {
+              older_than          = "1h"
+              drop_counter_reason = "too_old"
+            }
+          }
+
+          loki.write "grafana_cloud" {
+            endpoint {
+              url        = env("GRAFANA_CLOUD_LOKI_URL")
+              basic_auth {
+                username = env("GRAFANA_CLOUD_LOKI_USERNAME")
+                password = env("GRAFANA_CLOUD_LOKI_PASSWORD")
+              }
+              batch_wait         = "5s"
+              min_backoff_period = "2s"
+            }
+            external_labels = {
+              cluster = "xenu",
+            }
+          }

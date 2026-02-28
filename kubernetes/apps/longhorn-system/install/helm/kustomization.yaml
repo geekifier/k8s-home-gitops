@@ -10,3 +10,4 @@ resources:
   - ../resources/garage.secret.sops.yaml
   - ../resources/longhorn.prometheusrule.yaml
   - ../resources/longhorn.snapshotclass.yaml
+  - ../resources/longhorn.recurringjob-trim.yaml
