@@ -16,11 +16,10 @@ resources:
   - ./teslamate/ks.yaml
   - ./mumble-server/ks.yaml
   - ./navidrome/ks.yaml
-  - ./calibre-web-automated/ks.yaml
   - ./sabnzbd/ks.yaml
   - ./prowlarr/ks.yaml
   - ./radarr/ks.yaml
   - ./sonarr/ks.yaml
   - ./jellyfin/ks.yaml
   - ./profilarr/ks.yaml
-  - ./booklore/ks.yaml
+  - ./archivis/ks.yaml
