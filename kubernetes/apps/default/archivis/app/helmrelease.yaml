@@ -2,7 +2,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app calibre-web-automated
+  name: &app archivis
 spec:
   interval: 1h
   chartRef:
@@ -25,15 +25,11 @@ spec:
           nginx.ingress.kubernetes.io/auth-signin: "https://auth-k8s.${SECRET_DOMAIN_INT}?rm=$request_method"
           nginx.ingress.kubernetes.io/auth-response-headers: "Remote-User,Remote-Name,Remote-Groups,Remote-Email"
           gethomepage.dev/enabled: "true"
-          gethomepage.dev/pod-selector: app.kubernetes.io/name=calibre-web-automated
+          gethomepage.dev/pod-selector: app.kubernetes.io/name=archivis
           gethomepage.dev/group: Media
-          gethomepage.dev/name: Calibre Web Automated
-          gethomepage.dev/icon: calibre-web-automated-book-downloader
+          gethomepage.dev/name: Archivis
+          gethomepage.dev/icon: mdi-bookshelf
           gethomepage.dev/description: Book Library
-          gethomepage.dev/widget.type: calibreweb
-          gethomepage.dev/widget.username: '{{ "{{" }}HOMEPAGE_VAR_CALIBREWEB_USERNAME{{ "}}" }}'
-          gethomepage.dev/widget.password: '{{ "{{" }}HOMEPAGE_VAR_CALIBREWEB_PASSWORD{{ "}}" }}'
-          gethomepage.dev/widget.url: http://calibre-web-automated.default.svc.cluster.local:8083
         enabled: true
         className: internal
         hosts:
@@ -43,32 +39,49 @@ spec:
                 service:
                   identifier: app
                   port: http
-
     controllers:
-      calibre-web-automated:
+      archivis:
         replicas: 1
         strategy: Recreate
-        annotations: {}
         containers:
           app:
-            securityContext:
-              allowPrivilegeEscalation: false
             image:
-              repository: ghcr.io/crocodilestick/calibre-web-automated
-              tag: v4.0.6
+              repository: ghcr.io/geekifier/archivis
+              tag: dev
             env:
               TZ: ${CLUSTER_TZ}
-              # cache book covers in pv
-              CACHE_DIR: /config/cache
-              APP_SERVICE_PORT: &containerPort 8083
-              PUID: 1000
-              PGID: 1000
-              NETWORK_SHARE_MODE: false
+              # Proxy auth — Authelia sends Remote-* headers
+              ARCHIVIS_AUTH__PROXY__ENABLED: "true"
+              ARCHIVIS_AUTH__PROXY__TRUSTED_PROXIES: "[100.64.0.0/16]"
+              ARCHIVIS_AUTH__PROXY__USER_HEADER: Remote-User
+              ARCHIVIS_AUTH__PROXY__EMAIL_HEADER: Remote-Email
+              ARCHIVIS_AUTH__PROXY__GROUPS_HEADER: Remote-Groups
+            envFrom:
+              - secretRef:
+                  name: archivis-secret
             probes:
-              liveness:
+              liveness: &probes
                 enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health/live
+                    port: &containerPort 9514
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
+                  timeoutSeconds: 2
+                  failureThreshold: 3
               readiness:
                 enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health/ready
+                    port: *containerPort
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
+                  timeoutSeconds: 2
+                  failureThreshold: 3
             resources:
               requests:
                 cpu: 5m
@@ -76,6 +89,15 @@ spec:
               limits:
                 # needed during ingestion
                 memory: 2048Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
     service:
       app:
         controller: *app
@@ -83,21 +105,22 @@ spec:
           http:
             port: *containerPort
     persistence:
-      config:
+      data:
         enabled: true
         type: persistentVolumeClaim
         size: 4Gi
         accessMode: ReadWriteOnce
         storageClass: longhorn-standard
-      db:
+        globalMounts:
+          - path: /data
+      books:
         enabled: true
         type: persistentVolumeClaim
-        size: 256Mi
+        size: 16Gi
         accessMode: ReadWriteOnce
         storageClass: longhorn-standard
         globalMounts:
-          # this path is enforced by CWA :/
-          - path: /calibre-library
+          - path: /books
       public:
         enabled: true
         existingClaim: smb-public-pvc
@@ -105,7 +128,3 @@ spec:
         globalMounts:
           - path: /public/Library
             subPath: Library
-          - path: /cwa-book-ingest
-            subPath: Library/Calibre-Import
-          # - path: /books
-          #   subPath: Library/Calibre
