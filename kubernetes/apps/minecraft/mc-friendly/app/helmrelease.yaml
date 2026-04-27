@@ -32,7 +32,7 @@ spec:
           app:
             image:
               repository: ghcr.io/itzg/minecraft-server
-              tag: 2026.2.0@sha256:84d4238e570ace1a48a00b9a626d1a01ce92026c92443b7a1edd3f40cd293d74
+              tag: 2026.4.2@sha256:13b19d4134d236de47320e937d456b38bbc148db2bbab4a81064a3e71dbe37ad
             env:
               TZ: ${CLUSTER_TZ}
               APP_SERVICE_PORT: &containerPort 25565

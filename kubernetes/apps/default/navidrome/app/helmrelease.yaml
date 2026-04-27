@@ -33,11 +33,11 @@ spec:
           app:
             image:
               repository: deluan/navidrome
-              tag: "0.60.2"
+              tag: "0.61.2"
             env:
               TZ: ${CLUSTER_TZ}
               ND_LOGLEVEL: info
-              ND_REVERSEPROXYWHITELIST: "100.64.0.0/16" # replace with interpolated value
+              ND_EXTAUTH_TRUSTEDSOURCES: "100.64.0.0/16" # replace with interpolated value
               ND_ENABLEUSEREDITING: false
               ND_BASEURL: "https://music.${SECRET_DOMAIN_INT}"
               ND_PORT: &port 4533
