@@ -47,9 +47,10 @@ spec:
           app:
             image:
               repository: ghcr.io/geekifier/archivis
-              tag: dev
+              tag: sha-91a6237
             env:
               TZ: ${CLUSTER_TZ}
+              ARCHIVIS_PUBLIC_BASE_URL: https://books.${SECRET_DOMAIN_INT}
               # Proxy auth — Authelia sends Remote-* headers
               ARCHIVIS_AUTH__PROXY__ENABLED: "true"
               ARCHIVIS_AUTH__PROXY__TRUSTED_PROXIES: "[100.64.0.0/16]"
@@ -60,14 +61,23 @@ spec:
               - secretRef:
                   name: archivis-secret
             probes:
-              liveness: &probes
+              startup:
                 enabled: true
                 custom: true
                 spec:
                   httpGet:
                     path: /health/live
                     port: &containerPort 9514
-                  initialDelaySeconds: 5
+                  periodSeconds: 2
+                  failureThreshold: 15 # 30s budget — 240x measured p50, 6x estimated p99
+                  timeoutSeconds: 2
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health/live
+                    port: *containerPort
                   periodSeconds: 10
                   timeoutSeconds: 2
                   failureThreshold: 3
@@ -78,17 +88,15 @@ spec:
                   httpGet:
                     path: /health/ready
                     port: *containerPort
-                  initialDelaySeconds: 5
                   periodSeconds: 10
                   timeoutSeconds: 2
                   failureThreshold: 3
             resources:
               requests:
                 cpu: 5m
-                memory: 348Mi
+                memory: 128Mi
               limits:
-                # needed during ingestion
-                memory: 2048Mi
+                memory: 1024Mi
             securityContext:
               allowPrivilegeEscalation: false
     defaultPodOptions:

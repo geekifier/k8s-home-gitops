@@ -77,7 +77,7 @@ spec:
           config:
             image:
               repository: ghcr.io/nginx/nginx-unprivileged
-              tag: 1.29-alpine
+              tag: 1.30-alpine
             env:
               TZ: ${CLUSTER_TZ}
 
