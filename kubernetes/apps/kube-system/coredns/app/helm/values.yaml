@@ -23,6 +23,11 @@ servers:
         configBlock: |-
           lameduck 5s
       - name: ready
+      # Must precede the catch-all: log returns on first name match
+      - name: log
+        parameters: _kerberos._udp.${SECRET_DOMAIN_INT} _kerberos._tcp.${SECRET_DOMAIN_INT}
+        configBlock: |-
+          class denial error
       - name: log
         configBlock: |-
           class error

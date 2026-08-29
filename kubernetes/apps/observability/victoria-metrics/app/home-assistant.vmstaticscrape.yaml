@@ -1,0 +1,23 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/operator.victoriametrics.com/vmstaticscrape_v1beta1.json
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMStaticScrape
+metadata:
+  name: &jobName home-assistant-prom
+  namespace: observability
+  labels:
+    vm-target: external
+spec:
+  jobName: *jobName
+  targetEndpoints:
+    - targets:
+        - "https://control.${SECRET_DOMAIN_INT}/api/prometheus"
+      scrape_interval: 1m
+      metricRelabelConfigs:
+        # Drop noisy Home Assistant metrics
+        - sourceLabels: [__name__]
+          action: drop
+          regex: "ha_(state_change_total|state_change_created|last_updated_time_seconds)"
+        - if: '{__name__!="ha_entity_available"}'
+          action: labeldrop
+          regex: "friendly_name"

@@ -15,6 +15,7 @@ parameters:
   fromBackup: ""
   fsType: "ext4"
   dataLocality: "best-effort"
+  disableRevisionCounter: "true"
 ---
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
@@ -30,6 +31,7 @@ parameters:
   fromBackup: ""
   fsType: "ext4"
   dataLocality: "best-effort"
+  disableRevisionCounter: "true"
 ---
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
@@ -45,6 +47,7 @@ parameters:
   fsType: "ext4"
   dataLocality: "strict-local"
   dataEngine: "v1"
+  disableRevisionCounter: "true"
 ---
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
@@ -60,6 +63,7 @@ parameters:
   fsType: "ext4"
   dataLocality: "best-effort"
   dataEngine: "v1"
+  disableRevisionCounter: "true"
 ---
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
@@ -74,3 +78,4 @@ parameters:
   fromBackup: ""
   fsType: "ext4"
   dataLocality: "best-effort"
+  disableRevisionCounter: "true"

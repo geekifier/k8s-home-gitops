@@ -7,7 +7,7 @@ spec:
   targetEndpoints:
     - targets:
         - "vacuum2.${SECRET_DOMAIN_INT}:8081/metrics"
-        - "rpi2.${SECRET_DOMAIN_INT}:8081/metrics"
+        - "rpi2.${SECRET_DOMAIN_INT}:8082/metrics"
       scrape_interval: 15s
       relabelConfigs:
         - source_labels: [__address__]

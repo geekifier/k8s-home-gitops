@@ -47,6 +47,10 @@ access_control:
         - '^.*\/health.?$'
         - '^.*\/.\/download.*$'
       policy: bypass
+    - domain: "books.${SECRET_DOMAIN_INT}"
+      resources:
+        - "^/kobo/.*"
+      policy: bypass
     - domain: "*.${SECRET_DOMAIN_INT}"
       policy: one_factor
 
