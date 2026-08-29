@@ -47,7 +47,7 @@ spec:
           app:
             image:
               repository: ghcr.io/geekifier/archivis
-              tag: sha-91a6237
+              tag: sha-c50e622@sha256:60810d2a066b8da9e713b5c4a6b327eb56caea91fe54768801381d49b5297f32
             env:
               TZ: ${CLUSTER_TZ}
               ARCHIVIS_PUBLIC_BASE_URL: https://books.${SECRET_DOMAIN_INT}

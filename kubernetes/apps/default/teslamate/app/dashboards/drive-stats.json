@@ -50,7 +50,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "semi-dark-blue"
+                "color": "semi-dark-blue",
+                "value": 0
               }
             ]
           },
@@ -88,7 +89,7 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "13.0.1+security-01",
       "targets": [
         {
           "datasource": {
@@ -134,7 +135,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               }
             ]
           },
@@ -197,7 +199,7 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "13.0.1+security-01",
       "targets": [
         {
           "datasource": {
@@ -243,7 +245,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "semi-dark-yellow"
+                "color": "semi-dark-yellow",
+                "value": 0
               }
             ]
           },
@@ -281,7 +284,7 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "13.0.1+security-01",
       "targets": [
         {
           "datasource": {
@@ -337,7 +340,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#c7d0d9"
+                "color": "#c7d0d9",
+                "value": 0
               }
             ]
           },
@@ -398,7 +402,7 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "13.0.1+security-01",
       "targets": [
         {
           "datasource": {
@@ -445,7 +449,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#c7d0d9"
+                "color": "#c7d0d9",
+                "value": 0
               }
             ]
           },
@@ -508,7 +513,7 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "13.0.1+security-01",
       "targets": [
         {
           "datasource": {
@@ -535,7 +540,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#c7d0d9"
+                "color": "#c7d0d9",
+                "value": 0
               }
             ]
           },
@@ -573,7 +579,7 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "13.0.1+security-01",
       "targets": [
         {
           "datasource": {
@@ -609,7 +615,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#c7d0d9"
+                "color": "#c7d0d9",
+                "value": 0
               }
             ]
           },
@@ -672,7 +679,7 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "13.0.1+security-01",
       "targets": [
         {
           "datasource": {
@@ -728,7 +735,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#c7d0d9"
+                "color": "#c7d0d9",
+                "value": 0
               }
             ]
           },
@@ -791,7 +799,7 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "13.0.1+security-01",
       "targets": [
         {
           "datasource": {
@@ -848,7 +856,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#c7d0d9"
+                "color": "#c7d0d9",
+                "value": 0
               }
             ]
           },
@@ -911,7 +920,7 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "13.0.1+security-01",
       "targets": [
         {
           "datasource": {
@@ -951,7 +960,6 @@
         "type": "grafana-postgresql-datasource",
         "uid": "TeslaMate"
       },
-      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -987,7 +995,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "super-light-green"
+                "color": "super-light-green",
+                "value": 0
               }
             ]
           }
@@ -1044,7 +1053,7 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "13.0.1+security-01",
       "targets": [
         {
           "datasource": {
@@ -1105,7 +1114,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#c7d0d9"
+                "color": "#c7d0d9",
+                "value": 0
               }
             ]
           },
@@ -1168,7 +1178,7 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "13.0.1+security-01",
       "targets": [
         {
           "datasource": {
@@ -1215,7 +1225,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#c7d0d9"
+                "color": "#c7d0d9",
+                "value": 0
               }
             ]
           },
@@ -1278,7 +1289,7 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "13.0.1+security-01",
       "targets": [
         {
           "datasource": {
@@ -1365,7 +1376,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "semi-dark-blue"
+                "color": "semi-dark-blue",
+                "value": 0
               },
               {
                 "color": "light-red",
@@ -1408,7 +1420,7 @@
         "sizing": "auto",
         "valueMode": "color"
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "13.0.1+security-01",
       "targets": [
         {
           "datasource": {
@@ -1445,7 +1457,7 @@
   ],
   "preload": false,
   "refresh": false,
-  "schemaVersion": 41,
+  "schemaVersion": 42,
   "tags": [
     "tesla"
   ],
@@ -1465,6 +1477,7 @@
         "query": "SELECT\n    id as __value,\n    CASE WHEN COUNT(id) OVER (PARTITION BY name) > 1 AND name IS NOT NULL THEN CONCAT(name, ' - ', RIGHT(vin, 6)) ELSE COALESCE(name, CONCAT('VIN ', vin)) end as __text \nFROM cars\nORDER BY display_priority ASC, name ASC, vin ASC;",
         "refresh": 1,
         "regex": "",
+        "regexApplyTo": "value",
         "type": "query"
       },
       {
@@ -1481,6 +1494,7 @@
         "query": "select unit_of_length from settings limit 1;",
         "refresh": 1,
         "regex": "",
+        "regexApplyTo": "value",
         "type": "query"
       },
       {
@@ -1497,6 +1511,7 @@
         "query": "SELECT CASE WHEN '$length_unit' = 'km' THEN 'km/h' WHEN '$length_unit' = 'mi' THEN 'mph' END",
         "refresh": 1,
         "regex": "",
+        "regexApplyTo": "value",
         "type": "query"
       },
       {
@@ -1513,6 +1528,7 @@
         "query": "select preferred_range from settings limit 1;",
         "refresh": 1,
         "regex": "",
+        "regexApplyTo": "value",
         "type": "query"
       },
       {
@@ -1529,6 +1545,7 @@
         "query": "select base_url from settings limit 1;",
         "refresh": 1,
         "regex": "",
+        "regexApplyTo": "value",
         "type": "query"
       },
       {
@@ -1563,6 +1580,7 @@
         "query": "WITH splits AS (\n    SELECT unnest(string_to_array('$exclude', ', ')) AS part\n),\nsplit_strings AS (\n\tSELECT part AS part\n\tFROM (VALUES (NULL)) AS v(dummy)\n\tLEFT JOIN splits ON TRUE\n),\nexclude_string AS (\n\tSELECT array_to_string(array_agg(case when part is null then '''''' else '''%' || part || '%''' end), ', ') AS formatted_string\n\tFROM split_strings\n)\nSELECT '(ARRAY[' || formatted_string || '])' FROM exclude_string",
         "refresh": 1,
         "regex": "",
+        "regexApplyTo": "value",
         "type": "query"
       }
     ]
@@ -1572,8 +1590,9 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "browser",
   "title": "Drive Stats",
   "uid": "_7WkNSyWk",
-  "version": 1
+  "version": 1,
+  "weekStart": ""
 }

@@ -506,7 +506,7 @@
       {
         "current": {
           "text": "VictoriaMetrics",
-          "value": "P4169E866C3094E38"
+          "value": "victoriametrics-prom"
         },
         "label": "Datasource",
         "name": "DS_PROMETHEUS",

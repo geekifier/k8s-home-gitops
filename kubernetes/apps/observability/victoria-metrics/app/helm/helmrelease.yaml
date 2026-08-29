@@ -8,7 +8,7 @@ spec:
   interval: 5m
   url: oci://ghcr.io/victoriametrics/helm-charts/victoria-metrics-k8s-stack
   ref:
-    tag: 0.70.0
+    tag: 0.87.0
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
@@ -16,7 +16,10 @@ kind: HelmRelease
 metadata:
   name: &app victoria-metrics
 spec:
+  install:
+    crds: CreateReplace
   upgrade:
+    crds: CreateReplace
     remediation:
       retries: -1
   dependsOn:
@@ -37,13 +40,20 @@ spec:
     # -- VictoriaMetrics Operator dependency chart configuration. More values can be found [here](https://docs.victoriametrics.com/helm/victoriametrics-operator#parameters). Also checkout [here](https://docs.victoriametrics.com/operator/vars) possible ENV variables to configure operator behaviour
     victoria-metrics-operator:
       enabled: true
+      # Chart 0.87.0 vendors operator subchart 0.66.* (appVersion v0.73.1), whose
+      # generated Role grants the config-reloader only [get, watch] on the config
+      # Secret. Its reflector also needs `list`, so vmagent/vmsingle silently keep
+      # their boot-time scrape config forever. Subchart pins can't be overridden
+      # (Helm resolves them at package time), so pin the image instead.
+      # https://github.com/VictoriaMetrics/operator/issues/2384 (fixed in v0.74.0)
+      # https://github.com/VictoriaMetrics/helm-charts/issues/3136 (chart side, open)
+      # REMOVE once the stack chart vendors operator subchart >= 0.67.0.
+      image:
+        tag: v0.74.0
       crds:
         plain: true
         cleanup:
           enabled: true
-          image:
-            repository: bitnami/kubectl
-            pullPolicy: IfNotPresent
       serviceMonitor:
         enabled: true
       operator:
@@ -55,7 +65,6 @@ spec:
     defaultDashboards:
       # -- Enable custom dashboards installation
       enabled: true
-      defaultTimezone: "America/Indiana/Indianapolis"
       labels: {}
       annotations: {}
       grafanaOperator:
@@ -79,15 +88,23 @@ spec:
 
     # -- Create default rules for monitoring the cluster
     defaultRules:
+      # As of chart 0.87.0 the default rules are no longer templated by Helm.
+      # A sync-job fetches them from the upstream URLs in `defaultRules.sources`
+      # and applies them as VMRules labelled `managed-by: sync-job`. Only the
+      # keys below are read by that job -- `helm template` renders no VMRule at
+      # all, so a rule override cannot be verified from the rendered manifests.
+      # Check the `victoria-metrics-sync-job-config` ConfigMap instead.
+      #
+      # Group keys must be the real Prometheus group name (`kube-scheduler.rules`,
+      # not `kubeScheduler`).
+
       # -- Labels, which are used for grouping results of the queries. Note that these labels are joined with `.Values.global.clusterLabel`
-      additionalGroupByLabels: []
-      create: true
+      extraGroupByLabels: []
+      enabled: true
 
       # -- Common properties for VMRule groups
       group:
-        spec:
-          # -- Optional HTTP URL parameters added to each rule request
-          params: {}
+        spec: {}
 
       # -- Common properties for all VMRules
       rule:
@@ -135,130 +152,66 @@ spec:
           spec:
             labels:
               severity: critical
+        # Talos has no systemd; node-exporter exposes no node_systemd_* metrics.
+        NodeSystemdServiceFailed:
+          enabled: false
+        NodeSystemdServiceCrashlooping:
+          enabled: false
+        # No software RAID (node_md_* absent).
+        NodeRAIDDegraded:
+          enabled: false
+        NodeRAIDDiskFailure:
+          enabled: false
+        # Alertmanager runs as a single replica, so no clustering metrics are
+        # emitted.
+        AlertmanagerClusterDown:
+          enabled: false
+        AlertmanagerClusterCrashlooping:
+          enabled: false
+        AlertmanagerClusterFailedPeers:
+          enabled: false
+        AlertmanagerClusterFailedToSendAlerts:
+          enabled: false
+        AlertmanagerMembersInconsistent:
+          enabled: false
+        AlertmanagerConfigInconsistent:
+          enabled: false
+
+        # Recording rule, not an alert. Its join
+        # (`on(cluster,namespace,pod) ... node_namespace_pod:kube_pod_info:`)
+        # can never match because the node-exporter scrape rewrites `pod` to
+        # "{{service}}-{{node}}" (see relabelConfigs further down), while
+        # kube_pod_info carries the real pod name.
+        # This might need to be investigated further / fixed holistically.
+        node:node_num_cpu:sum:
+          enabled: false
       # -- Rule group properties
+      # Only overrides belong here. Every group not listed is created with the
+      # chart's defaults; listing one with `enabled: true` is a no-op that the
+      # sync-job drops on the floor.
       groups:
-        etcd:
-          create: true
-          # -- Common properties for all rules in a group
-          rules: {}
-          # spec:
-          #   annotations:
-          #     dashboard: https://example.com/dashboard/1
-        general:
-          create: true
-          rules: {}
-        k8sContainerCpuLimits:
-          create: true
-          rules: {}
-        k8sContainerCpuRequests:
-          create: true
-          rules: {}
-        k8sContainerCpuUsageSecondsTotal:
-          create: true
-          rules: {}
-        k8sContainerMemoryLimits:
-          create: true
-          rules: {}
-        k8sContainerMemoryRequests:
-          create: true
-          rules: {}
-        k8sContainerMemoryRss:
-          create: true
-          rules: {}
-        k8sContainerMemoryCache:
-          create: true
-          rules: {}
-        k8sContainerMemoryWorkingSetBytes:
-          create: true
-          rules: {}
-        k8sContainerMemorySwap:
-          create: true
-          rules: {}
-        k8sPodOwner:
-          create: true
-          rules: {}
-        k8sContainerResource:
-          create: true
-          rules: {}
-        kubeApiserver:
-          create: true
-          rules: {}
-        kubeApiserverAvailability:
-          create: true
-          rules: {}
-        kubeApiserverBurnrate:
-          create: false
-          rules: {}
-        kubeApiserverHistogram:
-          create: false
-          rules: {}
-        kubeApiserverSlos:
-          create: true
-          rules: {}
-        kubelet:
-          create: true
-          rules: {}
-        kubePrometheusGeneral:
-          create: true
-          rules: {}
-        kubePrometheusNodeRecording:
-          create: true
-          rules: {}
-        kubernetesApps:
-          create: true
-          rules: {}
-          targetNamespace: ".*"
-        kubernetesResources:
-          create: true
-          rules: {}
-        kubernetesStorage:
-          create: true
-          rules: {}
-          targetNamespace: ".*"
-        kubernetesSystem:
-          create: true
-          rules: {}
-        kubernetesSystemKubelet:
-          create: true
-          rules: {}
-        kubernetesSystemApiserver:
-          create: true
-          rules: {}
-        kubernetesSystemControllerManager:
-          create: true
-          rules: {}
-        kubeScheduler:
-          create: true
-        kubernetesSystemScheduler:
-          create: true
-          rules: {}
-        kubeStateMetrics:
-          create: true
-          rules: {}
-        nodeNetwork:
-          create: true
-          rules: {}
-        node:
-          create: true
-          rules: {}
-        vmagent:
-          create: true
-          rules: {}
-        vmsingle:
-          create: true
-          rules: {}
-        vmcluster:
-          create: true
-          rules: {}
-        vmHealth:
-          create: true
-          rules: {}
-        vmoperator:
-          create: true
-          rules: {}
-        alertmanager:
-          create: true
-          rules: {}
+        # Disabled: these groups consume apiserver_request_sli_duration_seconds_*,
+        # which is dropped at scrape time by the kubeApiServer drop_metrics rule
+        # ("apiserver_.*_duration.*") to keep apiserver ingestion down. With no
+        # input the 5 availability recording rules emit 0 samples (firing
+        # RecordingRulesNoData), and the 4 KubeAPIErrorBudgetBurn alerts in
+        # kube-apiserver-slos can never fire because they read the burnrate
+        # recording rules, which are themselves disabled below.
+        # Re-enabling requires restoring the SLI histogram at ingestion.
+        kube-apiserver-availability.rules:
+          enabled: false
+        kube-apiserver-slos:
+          enabled: false
+        kube-apiserver-burnrate.rules:
+          enabled: false
+        kube-apiserver-histogram.rules:
+          enabled: false
+        # Disabled: emits count:up0 / count:up1 only. count:up0 is
+        # `count(up == 0)`, which returns no series precisely when every target
+        # is healthy -- so it trips RecordingRulesNoData during normal
+        # operation. Neither series is referenced by any rule or dashboard here.
+        kube-prometheus-general.rules:
+          enabled: false
 
       # -- Runbook url prefix for default rules
       runbookUrl: https://runbooks.prometheus-operator.dev/runbooks
@@ -267,15 +220,6 @@ spec:
       labels: {}
       # -- Annotations for default rules
       annotations: {}
-
-    # -- Provide custom recording or alerting rules to be deployed into the cluster.
-    additionalVictoriaMetricsMap:
-    #    rule-name:
-    #     groups:
-    #     - name: my_group
-    #       rules:
-    #       - record: my_record
-    #         expr: 100 * my_record
 
     external:
       grafana:
@@ -300,6 +244,7 @@ spec:
       annotations: {}
       enabled: true
       spec:
+        # Existing deployment port, do not remove.
         port: "8429"
         # -- Data retention period. Possible units character: h(ours), d(ays), w(eeks), y(ears), if no unit character specified - month. The minimum retention period is 24h. See these [docs](https://docs.victoriametrics.com/single-server-victoriametrics/#retention)
         retentionPeriod: "1" # 1 month
@@ -318,6 +263,17 @@ spec:
             memory: 1024Mi
           limits:
             memory: 3096Mi
+        # Soft anti-affinity: avoid tinykube02 (lowest-endurance SSD); still allowed
+        # if no other node is available.
+        affinity:
+          nodeAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                preference:
+                  matchExpressions:
+                    - key: kubernetes.io/hostname
+                      operator: NotIn
+                      values: ["tinykube02"]
       ingress:
         enabled: true
         annotations: {}
@@ -357,8 +313,6 @@ spec:
         replicaCount: 1
         port: "9093"
         selectAllByDefault: true
-        image:
-          tag: v0.28.1
         externalURL: ""
         routePrefix: /
 
@@ -377,11 +331,14 @@ spec:
           group_by: ["alertname", "namespace"]
           group_wait: 30s
           group_interval: 5m
-          repeat_interval: 0s
+          repeat_interval: 4h
           routes:
             - matchers:
                 - severity=critical
-              receiver: pushover
+              receiver: pushover-critical
+            - matchers:
+                - severity=warning
+              receiver: pushover-normal
         inhibit_rules:
           - target_matchers:
               - severity=~"warning|info"
@@ -405,26 +362,40 @@ spec:
               - namespace
         receivers:
           - name: blackhole
-          - name: pushover
+          - name: pushover-critical
             pushover_configs:
               - user_key: "${SECRET_PUSHOVER_USER_KEY}"
                 token: "${SECRET_PUSHOVER_API_TOKEN}"
                 priority: '{{ if eq .Status "firing" }}1{{ else }}-1{{ end }}'
-                title: '{{ .CommonLabels.alertname }}'
+                title: "{{ .CommonLabels.alertname }}"
                 message: >-
                   {{ range .Alerts }}{{ .Annotations.summary }}
                   {{ .Annotations.description }}
 
                   {{ end }}
-                url: '{{ (index .Alerts 0).GeneratorURL }}'
+                url: "{{ (index .Alerts 0).GeneratorURL }}"
+                url_title: "View in vmalert"
+          # Same delivery as `pushover-critical`, but priority 0 instead of 1
+          # so it obeys quiet hours / silent mode.
+          - name: pushover-normal
+            pushover_configs:
+              - user_key: "${SECRET_PUSHOVER_USER_KEY}"
+                token: "${SECRET_PUSHOVER_API_TOKEN}"
+                priority: '{{ if eq .Status "firing" }}0{{ else }}-1{{ end }}'
+                title: "{{ .CommonLabels.alertname }}"
+                message: >-
+                  {{ range .Alerts }}{{ .Annotations.summary }}
+                  {{ .Annotations.description }}
+
+                  {{ end }}
+                url: "{{ (index .Alerts 0).GeneratorURL }}"
                 url_title: "View in vmalert"
       # -- Better alert templates for [slack source](https://gist.github.com/milesbxf/e2744fc90e9c41b47aa47925f8ff6512)
       monzoTemplate:
         enabled: true
 
       # -- (object) Extra alert templates
-      templateFiles:
-        {}
+      templateFiles: {}
         # template_1.tmpl: |-
         #   {{ define "hello" -}}
         #   hello, Victoria!
@@ -475,8 +446,7 @@ spec:
         externalLabels: {}
 
       # -- (object) Extra VMAlert annotation templates
-      templateFiles:
-        {}
+      templateFiles: {}
         # template_1.tmpl: |-
         #   {{ define "hello" -}}
         #   hello, Victoria!
@@ -486,8 +456,7 @@ spec:
       # -- Allows to configure static notifiers, discover notifiers via Consul and DNS,
       # see specification [here](https://docs.victoriametrics.com/vmalert/#notifier-configuration-file).
       # This configuration will be created as separate secret and mounted to VMAlert pod.
-      additionalNotifierConfigs:
-        {}
+      additionalNotifierConfigs: {}
         # dns_sd_configs:
         #   - names:
         #       - my.domain.com
@@ -500,8 +469,7 @@ spec:
         # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
         ingressClassName: internal
         # Values can be templated
-        annotations:
-          {}
+        annotations: {}
           # kubernetes.io/ingress.class: nginx
           # kubernetes.io/tls-acme: "true"
         labels: {}
@@ -559,33 +527,49 @@ spec:
         port: "8429"
         selectAllByDefault: true
         scrapeInterval: 30s
-        externalLabels:
-          {}
+        externalLabels: {}
           # For multi-cluster setups it is useful to use "cluster" label to identify the metrics source.
           # For example:
           # cluster: cluster-name
-        extraArgs:
-          # switched to per-source streamParse toggle and automatic detection based on `promscrape.minResponseSizeForStreamParse`
-          # promscrape.streamParse: "true"
-          # Do not store original labels in vmagent's memory by default. This reduces the amount of memory used by vmagent
-          # but makes vmagent debugging UI less informative. See: https://docs.victoriametrics.com/vmagent/#relabel-debug
-          # promscrape.dropOriginalLabels: "true"
+        # extraArgs:
+        ## switched to per-source streamParse toggle and automatic detection based on `promscrape.minResponseSizeForStreamParse`
+        # promscrape.streamParse: "true"
+        ## Do not store original labels in vmagent's memory by default. This reduces the amount of memory used by vmagent
+        ## but makes vmagent debugging UI less informative. See: https://docs.victoriametrics.com/vmagent/#relabel-debug
+        # promscrape.dropOriginalLabels: "true"
         inlineRelabelConfig:
           - action: labeldrop
             regex: prometheus
+          # grpc_server_handled_total is deliberately kept — it feeds the active
+          # etcdHighNumberOfFailedGRPCRequests alert.
+          - action: drop
+            source_labels: [__name__]
+            regex: longhorn_rest_client_.*_seconds_bucket|prober_probe_duration_seconds_bucket|(longhorn_)?workqueue_(queue|work)_duration_seconds_bucket|apiserver_watch_cache_read_wait_seconds_bucket|container_tasks_state|container_memory_failures_total|kubernetes_feature_enabled
+          # Drop per-interface container_network_* noise from cadvisor: ephemeral cilium veths
+          # (lxc*/veth*) and tunnel/virtual interfaces. Keeps eth0 (real pod traffic) and the
+          # node's physical NICs.
+          - action: drop
+            source_labels: [interface]
+            regex: lxc.*|cilium.*|sit0|tunl0|ip6tnl0|teql0|dummy0|veth.*
         resources:
           requests:
             cpu: 100m
             memory: 128Mi
           limits:
             memory: 256Mi
+        staticScrapeNamespaceSelector: {}
+        staticScrapeSelector:
+          matchExpressions:
+            - key: vm-target
+              operator: NotIn
+              values:
+                - external
       # -- (object) VMAgent ingress configuration
       ingress:
         enabled: true
         ingressClassName: internal
         # Values can be templated
-        annotations:
-          {}
+        annotations: {}
           # kubernetes.io/ingress.class: nginx
           # kubernetes.io/tls-acme: "true"
         labels: {}
@@ -617,24 +601,47 @@ spec:
             matchLabels:
               dashboards: grafana
           allowCrossNamespaceImport: false
+      # -- List of prometheus compatible datasource configurations.
+      # VM `url` will be added to each of them in templates.
+      # uid deviates from the chart default (VictoriaMetrics / VictoriaMetricsDS)
+      # to match the `<backend>-<type>` convention used by the extra datasources
+      # below. Changing a uid orphans dashboards that pinned the old one.
+      victoriametrics:
+        datasources:
+          - name: VictoriaMetrics
+            type: prometheus
+            access: proxy
+            uid: victoriametrics-prom
+            isDefault: true
+          - name: VictoriaMetrics (DS)
+            isDefault: false
+            access: proxy
+            uid: victoriametrics-vm
+            type: victoriametrics-metrics-datasource
       # -- List of alertmanager datasources.
       # Alertmanager generated `url` will be added to each datasource in template if alertmanager is enabled
       alertmanager:
-        # -- Create per replica alertmanager compatible datasource
-        perReplica: false
         datasources:
           - name: Alertmanager
             access: proxy
+            uid: Alertmanager
             jsonData:
               implementation: prometheus
       # -- Configure additional grafana datasources (passed through tpl).
       # Check [here](http://docs.grafana.org/administration/provisioning/#datasources) for details
       extra:
-        - name: vm-historical
+        - name: vm-historical-prom
           access: proxy
-          isdefault: false
+          isDefault: false
           url: "http://vmsingle-external.observability.svc.cluster.local:8429/"
           type: prometheus
+          uid: vm-historical-prom
+        - name: vm-historical-vm
+          access: proxy
+          isDefault: false
+          url: "http://vmsingle-external.observability.svc.cluster.local:8429/"
+          type: victoriametrics-metrics-datasource
+          uid: vm-historical-vm
         # - name: prometheus-sample
         #   access: proxy
         #   basicAuth: true
@@ -651,6 +658,12 @@ spec:
     # -- Grafana dependency chart configuration. For possible values refer [here](https://github.com/grafana/helm-charts/tree/main/charts/grafana#configuration)
     grafana:
       enabled: true
+      # Replaces defaultDashboards.defaultTimezone, which chart 0.85.x removed
+      # with no equivalent value. Applies to dashboards whose timezone field is
+      # "" (the majority); dashboards that hardcode "browser" keep that setting.
+      grafana.ini:
+        date_formats:
+          default_timezone: America/Indiana/Indianapolis
       deploymentStrategy:
         type: Recreate
       admin:
@@ -667,8 +680,18 @@ spec:
       sidecar:
         datasources:
           enabled: true
+          # Must stay false: the chart's datasources init path is buggy.
+          # `initDatasources: true` moves k8s-sidecar from a normal container to
+          # a plain initContainer, which has to be one-shot to ever exit. The
+          # alerts and notifiers init paths handle that -- they force
+          # METHOD=LIST unless restartPolicy is Always (a native sidecar, where
+          # long-running is legal). The datasources path has no such guard: it
+          # passes `watchMethod` straight through, and that defaults to WATCH.
+          # k8s-sidecar in WATCH mode never returns, so the initContainer hangs
+          # and Grafana's own container is never started.
+          # If this is ever needed, set `watchMethod: LIST` alongside it.
           initDatasources: false
-          skipreload: false
+          skipReload: false
           label: grafana_datasource
           searchNamespace: ALL
         dashboards:
@@ -693,6 +716,10 @@ spec:
         - victoriametrics-metrics-datasource
         # broken
         # - grafana-clock-panel
+      # plugins are re-downloaded on every start; keep the churn off the PVC
+      extraEmptyDirMounts:
+        - name: grafana-plugins
+          mountPath: /var/lib/grafana/plugins
       env:
         GF_AUTH_PROXY_ENABLED: "true"
         GF_AUTH_PROXY_HEADER_NAME: Remote-User
@@ -752,14 +779,6 @@ spec:
       enabled: true
 
       # all values for prometheus-node-exporter helm chart can be specified here
-      service:
-        # Add the 'node-exporter' label to be used by serviceMonitor to match standard common usage in rules and grafana dashboards
-        #
-        labels:
-          jobLabel: node-exporter
-      extraArgs:
-        - --collector.filesystem.ignored-mount-points=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($|/)
-        - --collector.filesystem.ignored-fs-types=^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|erofs|sysfs|tracefs)$
       # -- Node Exporter VM scrape config
       vmScrape:
         # whether we should create a service scrape resource for node-exporter
@@ -851,7 +870,7 @@ spec:
         spec:
           scheme: "https"
           honorLabels: true
-          interval: "30s"
+          interval: "60s"
           scrapeTimeout: "5s"
           vm_scrape_params:
             stream_parse: true
@@ -891,7 +910,8 @@ spec:
         spec:
           endpoints:
             - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
-              interval: 5m
+              interval: 1m
+              scrapeTimeout: 10s
               # bearerTokenSecret:
               #   key: ""
               port: https
@@ -906,7 +926,8 @@ spec:
                     - "apiserver_.*_duration.*"
                     - "apiserver_.*_body.*"
                     - "apiserver_.*sizes.*"
-                    - "etcd_request_duration.*"
+                    - "apiserver_(storage_list_|watch_cache_|flowcontrol_).*"
+                    - "etcd_request(s_total|_duration.*)"
           jobLabel: component
           namespaceSelector:
             matchNames:
@@ -923,10 +944,6 @@ spec:
 
       # -- If your kube controller manager is not deployed as a pod, specify IPs it can be found on
       endpoints: []
-      # - 10.141.4.22
-      # - 10.141.4.23
-      # - 10.141.4.24
-
       # If using kubeControllerManager.endpoints only the port and targetPort are used
       service:
         # -- Create service for kube controller manager metrics scraping
@@ -942,14 +959,10 @@ spec:
       # -- Spec for VMServiceScrape CRD is [here](https://docs.victoriametrics.com/operator/api.html#vmservicescrapespec)
       vmScrape:
         spec:
-          jobLabel: jobLabel
-          namespaceSelector:
-            matchNames:
-              - kube-system
+          jobLabel: app.kubernetes.io/component
+          # insecureSkipVerify is required for Talos
           endpoints:
             - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
-              # bearerTokenSecret:
-              #   key: ""
               port: http-metrics
               scheme: https
               tlsConfig:
@@ -978,9 +991,9 @@ spec:
       # -- Spec for VMServiceScrape CRD is [here](https://docs.victoriametrics.com/operator/api.html#vmservicescrapespec)
       vmScrape:
         spec:
-          jobLabel: jobLabel
+          jobLabel: app.kubernetes.io/component
           namespaceSelector:
-            matchNames: [kube-system]
+            matchNames: []
           endpoints:
             - port: http-metrics-dnsmasq
               bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
@@ -1005,9 +1018,9 @@ spec:
       # -- Spec for VMServiceScrape CRD is [here](https://docs.victoriametrics.com/operator/api.html#vmservicescrapespec)
       vmScrape:
         spec:
-          jobLabel: jobLabel
+          jobLabel: app.kubernetes.io/component
           namespaceSelector:
-            matchNames: [kube-system]
+            matchNames: []
           endpoints:
             - port: http-metrics
               bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
@@ -1027,6 +1040,7 @@ spec:
       vmScrape:
         spec:
           endpoints:
+            # Required to work with Talos
             - port: http-metrics
               scheme: http
 
@@ -1037,9 +1051,6 @@ spec:
 
       # -- If your kube scheduler is not deployed as a pod, specify IPs it can be found on
       endpoints: []
-      # - 10.141.4.22
-      # - 10.141.4.23
-      # - 10.141.4.24
 
       # If using kubeScheduler.endpoints only the port and targetPort are used
       service:
@@ -1054,15 +1065,11 @@ spec:
           component: kube-scheduler
 
       # -- Spec for VMServiceScrape CRD is [here](https://docs.victoriametrics.com/operator/api.html#vmservicescrapespec)
+      # insecureSkipVerify is required for Talos
       vmScrape:
         spec:
-          jobLabel: jobLabel
-          namespaceSelector:
-            matchNames: [kube-system]
           endpoints:
             - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
-              # bearerTokenSecret:
-              #   key: ""
               port: http-metrics
               scheme: https
               tlsConfig:
@@ -1076,9 +1083,9 @@ spec:
       # -- Spec for VMServiceScrape CRD is [here](https://docs.victoriametrics.com/operator/api.html#vmservicescrapespec)
       vmScrape:
         spec:
-          jobLabel: jobLabel
+          jobLabel: app.kubernetes.io/component
           namespaceSelector:
-            matchNames: [kube-system]
+            matchNames: []
           endpoints:
             - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
               # bearerTokenSecret:

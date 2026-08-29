@@ -1,0 +1,29 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/networking.k8s.io/networkpolicy_v1.json
+# dragonfly-operator >= v1.5.0 defaults spec.networkPolicyEnabled to true and creates a
+# `dragonfly-shared` NetworkPolicy that admits the admin port (9999) only from the operator
+# and peer pods. That silently blackholes vmagent's scrapes of the PodMonitor above.
+# NetworkPolicies are additive, so this rule re-opens 9999 for vmagent only, leaving the
+# operator's restriction intact for everything else.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dragonfly-shared-allow-vmagent
+spec:
+  podSelector:
+    matchLabels:
+      app: dragonfly-shared
+      app.kubernetes.io/name: dragonfly
+      app.kubernetes.io/part-of: dragonfly
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: observability
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: vmagent
+      ports:
+        - port: 9999
+          protocol: TCP

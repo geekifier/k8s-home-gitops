@@ -44,6 +44,45 @@ tasks:
     preconditions:
       - which flux-local
 
+  chart-drift:
+    desc: Diff a HelmRelease's inlined values against every chart version it ever pinned
+    summary: |
+      Finds upstream defaults that changed underneath an inlined values override.
+
+      When a HelmRelease inlines a chart's full values file, Renovate bumps only the
+      version string, so an upstream default that moved is silently kept at the old
+      value with no diff to review. That is how KubeSchedulerDown fired for 33 days
+      (PR #776): the chart moved control-plane Services to app.kubernetes.io/component
+      but the pinned `jobLabel: jobLabel` override survived the bump.
+
+      Comparing more than two versions is what separates drift from intent. A value
+      still matching some older chart default was never a decision; one differing from
+      every version ever pinned here is a real customization.
+
+      Usage: task chart-drift -- <helmrelease.yaml> [--from VER]... [--to VER]
+
+      Baselines default to every version this file's git history ever pinned -- all of
+      them, no cap -- so drift missed during one upgrade stays visible; target defaults
+      to the version pinned in the file.
+
+      Audit what a Renovate bump would silently change, before merging it:
+        task chart-drift -- <helmrelease.yaml> --to 0.90.0
+
+      Values print as 120-character stubs, which hides which keys of a nested override
+      were actually overridden. Add --expand to print each finding in full, as a
+      unified diff against the chart default (- chart, + repo).
+
+      Exit 1 on stale drift or a value whose shape conflicts with the chart. Exit 3
+      means nothing was found but a baseline was capped or unfetchable, so coverage was
+      incomplete -- that is not a clean result.
+    cmd: "{{.SCRIPTS_DIR}}/chart-values-drift.sh {{.CLI_ARGS}}"
+    preconditions:
+      - sh: test -n '{{.CLI_ARGS}}'
+        msg: "Usage: task chart-drift -- <helmrelease.yaml> [--from VER]... [--to VER]"
+      - which helm
+      - which yq
+      - which python3
+
   dashboard-prep:
     desc: Prepares Grafana dashboard JSON files for use in ConfigMaps
     summary: |
