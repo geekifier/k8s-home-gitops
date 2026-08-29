@@ -11,8 +11,8 @@ spec:
     class_name: internal
     host: vme.${SECRET_DOMAIN_INT}
   unauthorizedUserAccessSpec:
-    targetRef:
-      crd:
-        kind: VMSingle
-        name: external
-        namespace: observability
+    targetRefs:
+      - crd:
+          kind: VMSingle
+          name: external
+          namespace: observability

@@ -31,5 +31,10 @@ extraArgs:
   - "--rfc2136-tsig-axfr"
 serviceMonitor:
   enabled: true
+# KDC names are absolute; skip ndots:5 search-domain expansion
+dnsConfig:
+  options:
+    - name: ndots
+      value: "2"
 podAnnotations:
   secret.reloader.stakater.com/reload: internal-dns-secret

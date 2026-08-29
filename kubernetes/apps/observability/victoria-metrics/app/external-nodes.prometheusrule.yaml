@@ -1,0 +1,144 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+#
+# Filesystem and liveness alerts for the non-Kubernetes hosts running Grafana Alloy
+# with the `unix` integration (an embedded node_exporter) and remote-write into
+# vmsingle-victoria-metrics under `job="integrations/unix"`.
+
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: external-nodes-rules
+spec:
+  groups:
+    - name: external-nodes.recording
+      rules:
+        - record: instance_mountpoint:node_filesystem_free_gib:external_nodes
+          expr: |
+            last_over_time(node_filesystem_avail_bytes{job="integrations/unix", fstype!~"tmpfs|ramfs|devtmpfs|squashfs|overlay|iso9660|autofs|nsfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4", mountpoint!=""}[10m])
+            / (1024 * 1024 * 1024)
+            and
+            last_over_time(node_filesystem_readonly{job="integrations/unix", mountpoint!=""}[10m]) == 0
+        - record: instance_mountpoint:node_filesystem_free_percent:external_nodes
+          expr: |
+            last_over_time(node_filesystem_avail_bytes{job="integrations/unix", fstype!~"tmpfs|ramfs|devtmpfs|squashfs|overlay|iso9660|autofs|nsfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4", mountpoint!=""}[10m])
+            /
+            last_over_time(node_filesystem_size_bytes{job="integrations/unix", mountpoint!=""}[10m])
+            * 100
+            and
+            last_over_time(node_filesystem_readonly{job="integrations/unix", mountpoint!=""}[10m]) == 0
+        - record: instance_mountpoint:node_filesystem_free_inodes_percent:external_nodes
+          expr: |
+            last_over_time(node_filesystem_files_free{job="integrations/unix", fstype!~"tmpfs|ramfs|devtmpfs|squashfs|overlay|iso9660|autofs|nsfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4", mountpoint!=""}[10m])
+            /
+            last_over_time(node_filesystem_files{job="integrations/unix", mountpoint!=""}[10m])
+            * 100
+            and
+            last_over_time(node_filesystem_files{job="integrations/unix", mountpoint!=""}[10m]) > 0
+
+    - name: external-nodes.filesystem
+      rules:
+        - alert: NodeFilesystemSpaceFillingUp
+          annotations:
+            summary: Filesystem is predicted to run out of space within 24 hours.
+            description: >-
+              {{ $labels.mountpoint }} on {{ $labels.instance }} ({{ $labels.device }})
+              has {{ printf "%.1f" $value }} GiB free and, on its trend over the last
+              6 hours, is on track to be full within 24 hours.
+            runbook_url: https://runbooks.prometheus-operator.dev/runbooks/node/nodefilesystemspacefillingup
+          expr: |
+            instance_mountpoint:node_filesystem_free_gib:external_nodes
+            and instance_mountpoint:node_filesystem_free_percent:external_nodes < 30
+            and predict_linear(node_filesystem_avail_bytes{job="integrations/unix", fstype!~"tmpfs|ramfs|devtmpfs|squashfs|overlay|iso9660|autofs|nsfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4", mountpoint!=""}[6h], 86400) < 0
+          for: 1h
+          labels:
+            severity: warning
+        - alert: NodeFilesystemSpaceFillingUp
+          annotations:
+            summary: Filesystem is predicted to run out of space within 4 hours.
+            description: >-
+              {{ $labels.mountpoint }} on {{ $labels.instance }} ({{ $labels.device }})
+              has {{ printf "%.1f" $value }} GiB free and, on its trend over the last
+              6 hours, is on track to be full within 4 hours.
+            runbook_url: https://runbooks.prometheus-operator.dev/runbooks/node/nodefilesystemspacefillingup
+          expr: |
+            instance_mountpoint:node_filesystem_free_gib:external_nodes
+            and instance_mountpoint:node_filesystem_free_percent:external_nodes < 30
+            and predict_linear(node_filesystem_avail_bytes{job="integrations/unix", fstype!~"tmpfs|ramfs|devtmpfs|squashfs|overlay|iso9660|autofs|nsfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4", mountpoint!=""}[6h], 14400) < 0
+          for: 30m
+          labels:
+            severity: critical
+        - alert: NodeFilesystemAlmostOutOfSpace
+          annotations:
+            summary: Filesystem is running out of space.
+            description: >-
+              {{ $labels.mountpoint }} on {{ $labels.instance }} ({{ $labels.device }})
+              has only {{ printf "%.1f" $value }} GiB free.
+            runbook_url: https://runbooks.prometheus-operator.dev/runbooks/node/nodefilesystemalmostoutofspace
+          expr: |
+            instance_mountpoint:node_filesystem_free_gib:external_nodes < 100
+            and instance_mountpoint:node_filesystem_free_percent:external_nodes < 10
+          for: 30m
+          labels:
+            severity: warning
+        - alert: NodeFilesystemAlmostOutOfSpace
+          annotations:
+            summary: Filesystem is nearly full.
+            description: >-
+              {{ $labels.mountpoint }} on {{ $labels.instance }} ({{ $labels.device }})
+              has only {{ printf "%.1f" $value }} GiB free.
+            runbook_url: https://runbooks.prometheus-operator.dev/runbooks/node/nodefilesystemalmostoutofspace
+          expr: |
+            instance_mountpoint:node_filesystem_free_gib:external_nodes < 50
+            and instance_mountpoint:node_filesystem_free_percent:external_nodes < 5
+          for: 15m
+          labels:
+            severity: critical
+
+        - alert: NodeFilesystemAlmostOutOfFiles
+          annotations:
+            summary: Filesystem has less than 5% inodes left.
+            description: >-
+              {{ $labels.mountpoint }} on {{ $labels.instance }} ({{ $labels.device }})
+              has only {{ printf "%.2f" $value }}% of its inodes left.
+            runbook_url: https://runbooks.prometheus-operator.dev/runbooks/node/nodefilesystemalmostoutoffiles
+          expr: instance_mountpoint:node_filesystem_free_inodes_percent:external_nodes < 5
+          for: 1h
+          labels:
+            severity: warning
+        - alert: NodeFilesystemAlmostOutOfFiles
+          annotations:
+            summary: Filesystem has less than 3% inodes left.
+            description: >-
+              {{ $labels.mountpoint }} on {{ $labels.instance }} ({{ $labels.device }})
+              has only {{ printf "%.2f" $value }}% of its inodes left.
+            runbook_url: https://runbooks.prometheus-operator.dev/runbooks/node/nodefilesystemalmostoutoffiles
+          expr: instance_mountpoint:node_filesystem_free_inodes_percent:external_nodes < 3
+          for: 1h
+          labels:
+            severity: critical
+
+    - name: external-nodes.health
+      rules:
+        - alert: NodeExporterDown
+          annotations:
+            summary: Host metrics exporter is failing.
+            description: >-
+              The unix exporter on {{ $labels.instance }} is reporting down.
+          expr: last_over_time(up{job="integrations/unix"}[30m]) == 0
+          for: 15m
+          labels:
+            severity: warning
+        - alert: NodeExporterMissing
+          annotations:
+            summary: Host has stopped reporting metrics.
+            description: >-
+              {{ $labels.instance }} has sent no metrics for 15 minutes; the host or
+              Grafana Alloy is likely down.
+          expr: |
+            count by (instance) (last_over_time(up{job="integrations/unix"}[6h]))
+            unless
+            count by (instance) (last_over_time(up{job="integrations/unix"}[10m]))
+          for: 15m
+          labels:
+            severity: warning

@@ -3,7 +3,7 @@ web:
   port: ${WEB_PORT}
 storage:
   type: sqlite
-  path: /config/sqlite.db
+  path: /data/sqlite.db
   caching: true
 metrics: true
 debug: false
