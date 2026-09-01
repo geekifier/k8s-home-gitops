@@ -58,6 +58,12 @@ Some of the other parts, like SSDs and some of the RAM, were scavenged from my i
 
 # Changelog
 
+## 2026-08
+
+### Tooling updates
+
+- Replaced `talhelper` with `topf`.
+
 ## 2025-05
 
 ### Talos migration to bare metal!
