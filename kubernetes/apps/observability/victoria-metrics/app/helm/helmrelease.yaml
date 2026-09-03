@@ -340,6 +340,10 @@ spec:
                 - severity=warning
               receiver: pushover-normal
         inhibit_rules:
+          # `instance` keeps suppression per-node: NodeFilesystem*/etcd*/Kubelet* carry no
+          # `namespace`, so [namespace, alertname] cross-suppressed every other node.
+          # Absent-on-both compares equal, so pairs without `instance` are unaffected.
+          # Omitted from InfoInhibitor, whose `group(...) by (namespace)` has no `instance`.
           - target_matchers:
               - severity=~"warning|info"
             source_matchers:
@@ -347,6 +351,7 @@ spec:
             equal:
               - namespace
               - alertname
+              - instance
           - target_matchers:
               - severity=info
             source_matchers:
@@ -354,6 +359,7 @@ spec:
             equal:
               - namespace
               - alertname
+              - instance
           - target_matchers:
               - severity=info
             source_matchers:

@@ -51,6 +51,10 @@ access_control:
       resources:
         - "^/kobo/.*"
       policy: bypass
+    - domain: "konflate.${SECRET_DOMAIN_INT}"
+      resources:
+        - "^/mcp([/?].*)?$"
+      policy: bypass
     - domain: "*.${SECRET_DOMAIN_INT}"
       policy: one_factor
 
