@@ -2,7 +2,8 @@
 _.python.venv = { path = "{{config_root}}/.venv", create = true }
 KUBECONFIG = "{{config_root}}/kubeconfig"
 SOPS_AGE_KEY_FILE = "{{config_root}}/age.key"
-TALOSCONFIG = "{{config_root}}/talos/clusterconfig/talosconfig"
+TALOSCONFIG = "{{config_root}}/talos/talosconfig"
+TOPFCONFIG = "{{config_root}}/talos/topf.yaml"
 BOOTSTRAP_DIR = "{{config_root}}/bootstrap"
 KUBERNETES_DIR = "{{config_root}}/kubernetes"
 ROOT_DIR = "{{config_root}}"
@@ -12,7 +13,6 @@ TALOS_DIR = "{{config_root}}/talos"
 [tools]
 python = "3.14.7"
 "pipx:makejinja" = "2.8.2"
-"aqua:budimanjojo/talhelper" = "3.1.17"
 "pipx:flux-local" = "8.4.0"
 uv = "latest"
 k9s = "latest"
@@ -33,5 +33,6 @@ helm-diff = "latest"
 "aqua:mikefarah/yq" = "4.53.6"
 "aqua:siderolabs/talos" = "1.13.9"
 "aqua:yannh/kubeconform" = "0.8.0"
+"github:postfinance/topf" = "v0.5.0"
 "go:github.com/VictoriaMetrics-Community/mcp-victoriametrics/cmd/mcp-victoriametrics" = { version = "latest" }
 "go:github.com/backube/volsync/kubectl-volsync" = { version = "latest" }
