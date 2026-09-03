@@ -8,16 +8,17 @@ tasks:
     desc: Bootstrap the Talos cluster
     dir: '{{.TALOS_DIR}}'
     cmds:
-      - '[ -f talsecret.sops.yaml ] || talhelper gensecret | sops --filename-override talos/talsecret.sops.yaml --encrypt /dev/stdin > talsecret.sops.yaml'
-      - talhelper genconfig
-      - talhelper gencommand apply --extra-flags="--insecure" | bash
-      - until talhelper gencommand bootstrap | bash; do sleep 10; done
-      - until talhelper gencommand kubeconfig --extra-flags="{{.ROOT_DIR}} --force" | bash; do sleep 10; done
+      # topf stores a freshly generated bundle SOPS-encrypted (via .sops.yaml); an existing one is left untouched
+      - topf secrets --confirm=false > /dev/null
+      - topf apply --auto-bootstrap --confirm=false
+      - topf talosconfig > talosconfig
+      # topf issues short-lived admin certs by default; 8760h keeps the kubeconfig usable long-term
+      - topf kubeconfig --validity 8760h > {{.ROOT_DIR}}/kubeconfig
     preconditions:
       - test -f {{.ROOT_DIR}}/.sops.yaml
       - test -f {{.SOPS_AGE_KEY_FILE}}
-      - test -f {{.TALOS_DIR}}/talconfig.yaml
-      - which talhelper talosctl sops
+      - test -f {{.TALOS_DIR}}/topf.yaml
+      - which topf talosctl sops
 
   apps:
     desc: Bootstrap apps into the Talos cluster

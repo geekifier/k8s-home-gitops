@@ -91,7 +91,7 @@ function apply_crds() {
         # renovate: datasource=github-releases depName=kubernetes-sigs/gateway-api
         # https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.5.1/experimental-install.yaml
         # renovate: datasource=github-releases depName=prometheus-operator/prometheus-operator
-        https://github.com/prometheus-operator/prometheus-operator/releases/download/v0.93.0/stripped-down-crds.yaml
+        https://github.com/prometheus-operator/prometheus-operator/releases/download/v0.93.1/stripped-down-crds.yaml
     )
 
     for crd in "${crds[@]}"; do
@@ -125,7 +125,7 @@ function apply_helm_releases() {
 }
 
 function main() {
-    check_cli helmfile kubectl kustomize sops talhelper yq
+    check_cli helmfile kubectl kustomize sops yq
 
     # Apply resources and Helm releases
     wait_for_nodes
