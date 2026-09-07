@@ -24,12 +24,9 @@ spec:
     remediation:
       strategy: rollback
       retries: 3
-  valuesFrom:
-    - kind: ConfigMap
-      name: internal-dns-values
   values:
     image:
-      tag: v0.18.0
+      tag: v0.22.0
     fullnameOverride: *app
     env:
       - name: EXTERNAL_DNS_RFC2136_KERBEROS_USERNAME
@@ -47,3 +44,40 @@ spec:
           secretKeyRef:
             name: internal-dns-secret
             key: EXTERNAL_DNS_RFC2136_KERBEROS_REALM
+    extraVolumeMounts:
+      - mountPath: /etc/krb5.conf
+        name: kerberos-config-volume
+        subPath: krb5.conf
+    extraVolumes:
+      - configMap:
+          defaultMode: 420
+          name: krb5.conf
+        name: kerberos-config-volume
+    domainFilters:
+      - ${SECRET_DOMAIN_INT}
+    policy: sync
+    # v0.22 defaults to the GA prefix without fallback. Keep existing annotations
+    # valid regardless of Flux reconciliation order (and during Helm rollback).
+    annotationPrefix: external-dns.alpha.kubernetes.io/
+    # need to template this
+    txtOwnerId: tinykube01
+    txtPrefix: "k8s"
+    provider:
+      name: rfc2136
+
+    extraArgs:
+      - "--rfc2136-gss-tsig"
+      # needs to be actual FQDN for Kerberos to work
+      - "--rfc2136-host=sambadc03.${SECRET_DOMAIN_INT}"
+      - "--rfc2136-port=53"
+      - "--rfc2136-zone=${SECRET_DOMAIN_INT}"
+      - "--rfc2136-axfr"
+    serviceMonitor:
+      enabled: true
+    # KDC names are absolute; skip ndots:5 search-domain expansion
+    dnsConfig:
+      options:
+        - name: ndots
+          value: "2"
+    podAnnotations:
+      secret.reloader.stakater.com/reload: internal-dns-secret

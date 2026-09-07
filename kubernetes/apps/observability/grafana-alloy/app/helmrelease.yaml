@@ -135,6 +135,10 @@ spec:
               older_than          = "1h"
               drop_counter_reason = "too_old"
             }
+            stage.drop {
+              expression          = "Password for 'SuperUser' set to"
+              drop_counter_reason = "secret_in_log"
+            }
           }
 
           loki.write "grafana_cloud" {
