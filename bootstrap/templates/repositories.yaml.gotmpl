@@ -1,0 +1,5 @@
+---
+# Cilium is the only bootstrap release using a HelmRepository instead of OCI.
+repositories:
+  - name: cilium
+    url: '{{ exec "yq" (list "eval" "select(.kind == \"HelmRepository\") | .spec.url" (printf "%s/kubernetes/apps/kube-system/cilium/app/helmrelease.yaml" (requiredEnv "ROOT_DIR"))) | trim }}'

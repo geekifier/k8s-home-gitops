@@ -51,7 +51,7 @@ spec:
           app:
             image:
               repository: ghcr.io/home-operations/sonarr
-              tag: 4.0.16.2946@sha256:22651c750eedb091f6d76ade95dbecae0eeafe2b55432c3b8d8b042e8745f344
+              tag: 4.0.19.3011@sha256:47d56de90c81eb2a8f0d36771328a95e7299609579b88db82b1473c314f26a47
             env:
               TZ: ${CLUSTER_TZ}
               SONARR__SERVER__PORT: &containerPort 80

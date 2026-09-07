@@ -26,14 +26,14 @@ spec:
           app:
             image:
               repository: ghcr.io/mumble-voip/mumble-server
-              tag: v1.5.735-3
+              tag: v1.5.901-3 # renovate is pinned to 1.5.x in .renovaterc.json5
             env:
               TZ: "${CLUSTER_TZ}"
             envFrom:
-              - configMapRef:
-                  name: mumble-config-cm
               - secretRef:
                   name: pgsql-mumble
+              - secretRef:
+                  name: mumble-server-secret
             resources:
               requests:
                 cpu: 25m

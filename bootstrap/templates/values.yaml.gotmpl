@@ -1,0 +1,11 @@
+{{- $appDir := printf "%s/kubernetes/apps/%s/%s/app" (requiredEnv "ROOT_DIR") .Release.Namespace .Release.Name -}}
+{{- $hr := exec "yq" (list "eval" "select(.kind == \"HelmRelease\")" (printf "%s/helmrelease.yaml" $appDir)) | fromYaml -}}
+{{- $values := index $hr.spec "values" | default dict -}}
+{{- if index $hr.spec "valuesFrom" -}}
+{{- fail "Bootstrap requires inline spec.values; valuesFrom references are not supported" -}}
+{{- end -}}
+{{/* cert-manager uses chart resource defaults during bootstrap; Flux applies overrides afterward. */}}
+{{- if and (eq .Release.Namespace "cert-manager") (eq .Release.Name "cert-manager") -}}
+{{- $_ := unset $values "resources" -}}
+{{- end -}}
+{{ $values | toYaml }}

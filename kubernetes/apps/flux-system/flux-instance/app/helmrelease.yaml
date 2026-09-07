@@ -36,6 +36,21 @@ spec:
   dependsOn:
     - name: flux-operator
       namespace: flux-system
-  valuesFrom:
-    - kind: ConfigMap
-      name: flux-instance-values
+  values:
+    instance:
+      distribution:
+        artifact: oci://ghcr.io/controlplaneio-fluxcd/flux-operator-manifests:v0.32.0
+        version: 2.x
+      cluster:
+        networkPolicy: false
+      components:
+        - source-controller
+        - kustomize-controller
+        - helm-controller
+        - notification-controller
+      sync:
+        kind: GitRepository
+        url: "ssh://git@github.com/geekifier/xenu-ng.git"
+        pullSecret: github-deploy-key
+        ref: "refs/heads/master"
+        path: kubernetes/flux/cluster

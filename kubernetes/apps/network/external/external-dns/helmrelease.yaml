@@ -26,8 +26,11 @@ spec:
       retries: 3
   values:
     image:
-      tag: v0.18.0
+      tag: v0.22.0
     fullnameOverride: *app
+    # v0.22 defaults to the GA prefix without fallback. Keep existing annotations
+    # valid regardless of Flux reconciliation order (and during Helm rollback).
+    annotationPrefix: external-dns.alpha.kubernetes.io/
     provider:
       name: cloudflare
     env:
