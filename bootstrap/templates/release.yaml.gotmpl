@@ -1,0 +1,17 @@
+{{- $path := printf "%s/kubernetes/apps/%s/%s/app/helmrelease.yaml" (requiredEnv "ROOT_DIR") .Release.Namespace .Release.Name -}}
+{{- $hr := exec "yq" (list "eval" "select(.kind == \"HelmRelease\")" $path) | fromYaml -}}
+{{- if hasKey $hr.spec "chartRef" -}}
+{{- $source := exec "yq" (list "eval" "select(.kind == \"OCIRepository\")" $path) | fromYaml -}}
+{{- if or (ne $hr.spec.chartRef.kind "OCIRepository") (ne $source.metadata.name $hr.spec.chartRef.name) -}}
+{{- fail "Bootstrap expects the referenced OCIRepository alongside its HelmRelease" -}}
+{{- end -}}
+chart: {{ $source.spec.url | quote }}
+version: {{ required "Bootstrap requires a pinned OCIRepository tag" $source.spec.ref.tag | quote }}
+{{- else -}}
+{{- $chart := $hr.spec.chart.spec -}}
+{{- if ne $chart.sourceRef.kind "HelmRepository" -}}
+{{- fail "Bootstrap expects a HelmRepository chart source" -}}
+{{- end -}}
+chart: {{ printf "%s/%s" $chart.sourceRef.name $chart.chart | quote }}
+version: {{ required "Bootstrap requires a pinned Helm chart version" $chart.version | quote }}
+{{- end }}

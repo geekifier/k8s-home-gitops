@@ -33,6 +33,63 @@ spec:
     remediation:
       strategy: rollback
       retries: 3
-  valuesFrom:
-    - kind: ConfigMap
-      name: coredns-values
+  values:
+    fullnameOverride: coredns
+    image:
+      repository: mirror.gcr.io/coredns/coredns
+    k8sAppLabelOverride: kube-dns
+    serviceAccount:
+      create: true
+    service:
+      name: kube-dns
+      clusterIP: "100.65.0.10"
+    replicaCount: 2
+    customLabels:
+      jobLabel: coredns-kubernetes
+    servers:
+      - zones:
+          - zone: .
+            scheme: dns://
+            use_tcp: true
+        port: 53
+        plugins:
+          - name: errors
+          - name: health
+            configBlock: |-
+              lameduck 5s
+          - name: ready
+          # Must precede the catch-all: log returns on first name match
+          - name: log
+            parameters: _kerberos._udp.${SECRET_DOMAIN_INT} _kerberos._tcp.${SECRET_DOMAIN_INT}
+            configBlock: |-
+              class denial error
+          - name: log
+            configBlock: |-
+              class error
+          - name: prometheus
+            parameters: 0.0.0.0:9153
+          - name: kubernetes
+            parameters: cluster.local in-addr.arpa
+            configBlock: |-
+              pods insecure
+              fallthrough in-addr.arpa
+          - name: forward
+            parameters: . /etc/resolv.conf
+          - name: cache
+            parameters: 30
+          - name: loop
+          - name: reload
+          - name: loadbalance
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: node-role.kubernetes.io/control-plane
+                  operator: Exists
+    tolerations:
+      - key: CriticalAddonsOnly
+        operator: Exists
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule

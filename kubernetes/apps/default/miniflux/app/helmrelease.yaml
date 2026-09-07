@@ -16,12 +16,11 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
-  valuesFrom:
-    - kind: ConfigMap
-      name: miniflux-values
   values:
     controllers:
       miniflux:
+        annotations:
+          reloader.stakater.com/auto: "true"
         replicas: 1
         strategy: RollingUpdate
         containers:
@@ -29,6 +28,24 @@ spec:
             image:
               repository: ghcr.io/miniflux/miniflux
               tag: 2.3.3
+            env:
+              - name: CREATE_ADMIN
+                value: 1
+              - name: RUN_MIGRATIONS
+                value: 1
+              - name: BASE_URL
+                value: https://rss.${SECRET_DOMAIN_INT}
+              - name: AUTH_PROXY_HEADER
+                value: Remote-User
+              - name: AUTH_PROXY_USER_CREATION
+                value: 1
+              - name: TRUSTED_REVERSE_PROXY_NETWORKS
+                value: 100.64.0.0/16
+              - name: DATABASE_URL
+                valueFrom:
+                  secretKeyRef:
+                    name: pgsql-miniflux
+                    key: DATABASE_URL
             envFrom:
               - secretRef:
                   name: miniflux-secret
