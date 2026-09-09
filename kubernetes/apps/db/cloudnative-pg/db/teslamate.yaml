@@ -24,10 +24,8 @@ spec:
   role: *dbName
   database: *dbName
   secretName: pgsql
-  # IMPORTANT: TeslaMate requires SUPERUSER during migrations/upgrades
-  # See /kubernetes/apps/default/teslamate/MIGRATION-NOTES.md for details
-  # Normal operation: uses OWNER privileges (database owner + group membership)
-  # During migrations: temporarily grant SUPERUSER, then revoke after completion
+  # OWNER is sufficient for the 4.0.1 -> 4.2.0 migrations (no extension changes).
+  # Recheck this for future migrations, extension upgrades may require an administrator.
   privileges: OWNER
   annotations:
     reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
