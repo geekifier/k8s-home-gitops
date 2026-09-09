@@ -56,7 +56,10 @@ spec:
       minecraft:
         controller: *app
         type: LoadBalancer
-        externalTrafficPolicy: Local
+        # Route to the always-running proxy from any L2 announcer; game servers
+        # remain on-demand. Restore Local once Cilium includes this L2 fix:
+        # https://github.com/cilium/cilium/pull/46399 (not in 1.18.13).
+        externalTrafficPolicy: Cluster
         annotations:
           lbipam.cilium.io/ips: "192.168.1.85"
           external-dns.alpha.kubernetes.io/hostname: "mc-router.${SECRET_DOMAIN_INT},mc-deadly.${SECRET_DOMAIN_INT},mc-friendly.${SECRET_DOMAIN_INT}"

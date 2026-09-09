@@ -6,6 +6,7 @@ metadata:
   name: &app teslamate
 spec:
   interval: 30m
+  timeout: 5m
   chartRef:
     kind: OCIRepository
     name: app-template
@@ -15,7 +16,9 @@ spec:
   upgrade:
     cleanupOnFail: true
     remediation:
-      retries: 3
+      # Helm rollback cannot undo database migrations. Investigate failures manually.
+      retries: 0
+      remediateLastFailure: false
   values:
     controllers:
       teslamate:
@@ -26,7 +29,7 @@ spec:
           app:
             image:
               repository: teslamate/teslamate
-              tag: 4.0.1
+              tag: 4.2.0
             env:
               TZ: "${CLUSTER_TZ}"
             envFrom:
@@ -42,6 +45,7 @@ spec:
               startup:
                 enabled: true
                 spec:
+                  # Allow 150 seconds for startup; gates liveness and readiness.
                   failureThreshold: 30
                   periodSeconds: 5
             resources:

@@ -46,6 +46,8 @@ spec:
     serviceType: LoadBalancer
     service:
       loadBalancerIP: "192.168.1.81"
+      # Restore Local after upgrading to a release containing the L2 fix:
+      # https://github.com/cilium/cilium/pull/46399 (not in 1.18.13).
       externalTrafficPolicy: Cluster
       annotations:
         lbipam.cilium.io/ips: "192.168.1.81"
