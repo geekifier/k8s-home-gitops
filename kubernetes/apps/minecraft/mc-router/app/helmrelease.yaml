@@ -8,7 +8,7 @@ spec:
   interval: 1m
   chartRef:
     kind: OCIRepository
-    name: app-template
+    name: app-template-v5
   install:
     timeout: 2m
     remediation:
@@ -25,10 +25,8 @@ spec:
     controllers:
       mc-router:
         replicas: 1
-        strategy: RollingUpdate
-        rollingUpdate:
-          maxUnavailable: 1
-          maxSurge: 1
+        # Stop the old router before starting another autoscaling instance.
+        strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
@@ -39,19 +37,49 @@ spec:
             env:
               TZ: ${CLUSTER_TZ}
               APP_SERVICE_PORT: &containerPort 25565
+              # GET /routes reads local routing state without waking backends.
+              API_BINDING: ":8080"
               IN_KUBE_CLUSTER: "true"
               AUTO_SCALE_UP: "true"
               AUTO_SCALE_DOWN: "true"
               AUTO_SCALE_DOWN_AFTER: 15m
               KUBE_NAMESPACE: *namespace
+            probes:
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet: &healthCheck
+                    path: /routes
+                    port: 8080
+                    httpHeaders:
+                      - name: Accept
+                        value: application/json
+                  periodSeconds: 5
+                  timeoutSeconds: 2
+                  failureThreshold: 12
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet: *healthCheck
+                  periodSeconds: 10
+                  timeoutSeconds: 2
+                  failureThreshold: 3
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet: *healthCheck
+                  periodSeconds: 30
+                  timeoutSeconds: 2
+                  failureThreshold: 3
             resources:
               requests:
                 memory: 64M
                 cpu: 250m
               limits:
                 memory: 256M
-        serviceAccount:
-          identifier: mc-router
     service:
       minecraft:
         controller: *app
@@ -76,26 +104,25 @@ spec:
             port: &apiPort 8080
             protocol: TCP
             targetPort: 8080
+    networkpolicies:
+      api-isolation:
+        controller: *app
+        policyTypes:
+          - Ingress
+        # Keep game traffic open; do not allow other pods to access the routing API.
+        # Kubernetes exempts this pod's local node, so kubelet HTTP probes still work.
+        # Egress remains unrestricted for DNS, Kubernetes discovery, and backends.
+        rules:
+          ingress:
+            - ports:
+                - protocol: TCP
+                  port: *containerPort
     defaultPodOptions:
+      # mc-router discovers services and scales Minecraft StatefulSets.
+      automountServiceAccountToken: true
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
         fsGroupChangePolicy: OnRootMismatch
-    probes:
-      readiness:
-        enabled: true
-        custom: true
-        spec:
-          initialDelaySeconds: 30
-          failureThreshold: 5
-          healthyThreshold: 1
-          periodSeconds: 10
-          httpGet: &probe
-            path: /routes
-            port: *apiPort
-            scheme: HTTP
-            httpHeaders:
-              - name: Accept
-                value: application/json
