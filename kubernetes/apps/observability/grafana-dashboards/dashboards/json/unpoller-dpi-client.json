@@ -72,7 +72,9 @@
       "icon": "external link",
       "includeVars": false,
       "keepTime": true,
-      "tags": ["unifi-poller"],
+      "tags": [
+        "unifi-poller"
+      ],
       "title": "UniFi Poller",
       "type": "dashboards"
     },
@@ -96,6 +98,15 @@
       "title": "Discord",
       "type": "link",
       "url": "https://discord.gg/KnyKYt2"
+    },
+    {
+      "title": "Upstream dashboard",
+      "type": "link",
+      "icon": "external link",
+      "url": "https://grafana.com/grafana/dashboards/11310/",
+      "targetBlank": true,
+      "includeVars": false,
+      "keepTime": false
     }
   ],
   "panels": [
@@ -30381,6 +30392,23 @@
   "tags": ["unifi", "unifi-poller"],
   "templating": {
     "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": "VictoriaMetrics",
+          "value": "victoriametrics-prom"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Datasource",
+        "multi": false,
+        "name": "DS_PROMETHEUS",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "type": "datasource"
+      },
       {
         "allValue": ".*",
         "current": {},

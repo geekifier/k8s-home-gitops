@@ -10,7 +10,7 @@ spec:
     mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
     operation: copy
   ref:
-    tag: 0.32.0
+    tag: 0.60.0
   url: oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator
   verify:
     provider: cosign
@@ -34,5 +34,24 @@ spec:
       strategy: rollback
       retries: 3
   values:
+    web:
+      enabled: true
+      # Authelia authenticates at the ingress; retain the UI's read-only defaults.
+      config:
+        baseURL: https://flux.${SECRET_DOMAIN_INT}
+      ingress:
+        enabled: true
+        className: internal
+        annotations:
+          nginx.ingress.kubernetes.io/auth-method: "GET"
+          nginx.ingress.kubernetes.io/auth-url: "http://authelia.auth.svc.cluster.local:9091/api/authz/auth-request"
+          nginx.ingress.kubernetes.io/auth-signin: "https://auth-k8s.${SECRET_DOMAIN_INT}?rm=$request_method"
+          nginx.ingress.kubernetes.io/auth-response-headers: "Remote-User,Remote-Name,Remote-Groups,Remote-Email"
+          nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+        hosts:
+          - host: flux.${SECRET_DOMAIN_INT}
+            paths:
+              - path: /
+                pathType: Prefix
     serviceMonitor:
       create: true

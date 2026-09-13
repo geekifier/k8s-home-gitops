@@ -10,10 +10,13 @@ spec:
     mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
     operation: copy
   ref:
-    tag: 0.4.0
+    tag: 0.7.4
   url: oci://ghcr.io/spegel-org/helm-charts/spegel
   verify:
     provider: cosign
+    matchOIDCIdentity:
+      - issuer: ^https://token\.actions\.githubusercontent\.com$
+        subject: ^https://github\.com/spegel-org/spegel/\.github/workflows/release\.yaml@refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
@@ -33,8 +36,9 @@ spec:
     remediation:
       retries: 3
   values:
+    # Provision the adapted dashboard through observability/grafana-dashboards.
     grafanaDashboard:
-      enabled: true
+      enabled: false
     service:
       registry:
         hostPort: 29999
