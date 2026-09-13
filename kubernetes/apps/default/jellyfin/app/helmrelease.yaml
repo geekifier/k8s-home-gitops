@@ -7,7 +7,7 @@ spec:
   interval: 5m
   chartRef:
     kind: OCIRepository
-    name: app-template
+    name: app-template-v5
   install:
     remediation:
       retries: -1
@@ -42,9 +42,6 @@ spec:
         replicas: 1
         type: statefulset
         strategy: RollingUpdate
-        rollingUpdate:
-          maxUnavailable: 100%
-          maxSurge: 0
         annotations: {}
         containers:
           app:

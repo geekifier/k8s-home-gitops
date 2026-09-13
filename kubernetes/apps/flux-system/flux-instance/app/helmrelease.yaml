@@ -10,7 +10,7 @@ spec:
     mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
     operation: copy
   ref:
-    tag: 0.32.0
+    tag: 0.60.0
   url: oci://ghcr.io/controlplaneio-fluxcd/charts/flux-instance
   verify:
     provider: cosign
@@ -39,8 +39,9 @@ spec:
   values:
     instance:
       distribution:
-        artifact: oci://ghcr.io/controlplaneio-fluxcd/flux-operator-manifests:v0.32.0
-        version: 2.x
+        artifact: oci://ghcr.io/controlplaneio-fluxcd/flux-operator-manifests:v0.60.0
+        # Flux 2.9 requires Kubernetes 1.34 or newer.
+        version: 2.8.8
       cluster:
         networkPolicy: false
       components:
@@ -48,6 +49,16 @@ spec:
         - kustomize-controller
         - helm-controller
         - notification-controller
+      kustomize:
+        patches:
+          # Preserve Helm 3 apply and readiness behavior during the Helm 4 upgrade.
+          - patch: |
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: --feature-gates=UseHelm3Defaults=true
+            target:
+              kind: Deployment
+              name: helm-controller
       sync:
         kind: GitRepository
         url: "ssh://git@github.com/geekifier/xenu-ng.git"
