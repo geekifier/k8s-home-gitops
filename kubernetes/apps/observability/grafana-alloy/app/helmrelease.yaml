@@ -10,7 +10,7 @@ spec:
     mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
     operation: copy
   ref:
-    tag: 1.8.1
+    tag: 1.12.1
   url: oci://ghcr.io/home-operations/charts-mirror/alloy
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
@@ -78,7 +78,7 @@ spec:
             role = "pod"
             selectors {
               role  = "pod"
-              field = "spec.nodeName=" + env("NODE_NAME")
+              field = "spec.nodeName=" + sys.env("NODE_NAME")
             }
           }
 
@@ -143,10 +143,10 @@ spec:
 
           loki.write "grafana_cloud" {
             endpoint {
-              url        = env("GRAFANA_CLOUD_LOKI_URL")
+              url        = sys.env("GRAFANA_CLOUD_LOKI_URL")
               basic_auth {
-                username = env("GRAFANA_CLOUD_LOKI_USERNAME")
-                password = env("GRAFANA_CLOUD_LOKI_PASSWORD")
+                username = sys.env("GRAFANA_CLOUD_LOKI_USERNAME")
+                password = sys.env("GRAFANA_CLOUD_LOKI_PASSWORD")
               }
               batch_wait         = "5s"
               min_backoff_period = "2s"

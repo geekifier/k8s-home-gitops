@@ -4,6 +4,12 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 configMapGenerator:
+  # Spegel v0.7.4 chart dashboard, adapted for file provisioning (no import inputs).
+  # Source: https://github.com/spegel-org/spegel/blob/v0.7.4/charts/spegel/monitoring/grafana-dashboard.json
+  - name: grafana-dashboard-spegel
+    files:
+      - ./json/spegel-operational.json
+
   - name: grafana-dashboard-longhorn
     files:
       - ./json/onzack-longhorn-monitoring.json

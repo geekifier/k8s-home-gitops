@@ -28,6 +28,8 @@ authentication_backend:
 access_control:
   default_policy: deny
   rules:
+    - domain: "flux.${SECRET_DOMAIN_INT}"
+      policy: one_factor
     - domain: "*.${SECRET_DOMAIN_INT}"
       policy: bypass
       networks:

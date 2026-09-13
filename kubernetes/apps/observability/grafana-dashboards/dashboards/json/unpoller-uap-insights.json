@@ -85,7 +85,10 @@
       "icon": "external link",
       "includeVars": false,
       "keepTime": true,
-      "tags": ["unifi-poller", "unifi"],
+      "tags": [
+        "unifi-poller",
+        "unifi"
+      ],
       "title": "UniFi Poller",
       "type": "dashboards"
     },
@@ -109,12 +112,21 @@
       "title": "Discord",
       "type": "link",
       "url": "https://discord.gg/KnyKYt2"
+    },
+    {
+      "title": "Upstream dashboard",
+      "type": "link",
+      "icon": "external link",
+      "url": "https://grafana.com/grafana/dashboards/11314/",
+      "targetBlank": true,
+      "includeVars": false,
+      "keepTime": false
     }
   ],
   "panels": [
     {
       "content": "<br>\n<br>\n<center><b><font size=\"6px\">Unifi UAP</font></b></center>\n",
-      "datasource": "$${DS_UNIFI_POLLER}",
+      "datasource": "$${DS_PROMETHEUS}",
       "fieldConfig": {
         "defaults": {
           "custom": {}
@@ -489,7 +501,7 @@
         "endCountdownTime": "2018-04-29T21:47:00.000Z",
         "endText": "00:00:00"
       },
-      "datasource": "$${DS_UNIFI_POLLER}",
+      "datasource": "$${DS_PROMETHEUS}",
       "dateSettings": {
         "dateFormat": "YYYY-MM-DD",
         "fontSize": "12px",
