@@ -100,11 +100,24 @@
       matchDatasources: ["docker"],
       semanticCommitScope: "container",
       commitMessageTopic: "image {{depName}}",
+      labels: ["renovate/container"],
     },
     {
       matchDatasources: ["helm"],
       semanticCommitScope: "helm",
       commitMessageTopic: "chart {{depName}}",
+      labels: ["renovate/helm"],
+    },
+    {
+      // Flux uses the docker datasource for OCI charts, without a chart depType.
+      // Match chart repository paths, not managers/files: both also contain images.
+      // labels replaces the container label; update-type labels remain additive.
+      description: "OCI Helm charts",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/(?:^|/)(?:charts|charts-mirror|helm-charts|helm)\//"],
+      semanticCommitScope: "helm",
+      commitMessageTopic: "chart {{depName}}",
+      labels: ["renovate/helm"],
     },
     {
       matchManagers: ["github-actions"],
@@ -124,23 +137,15 @@
     },
     {
       matchUpdateTypes: ["major"],
-      labels: ["type/major"],
+      addLabels: ["type/major"],
     },
     {
       matchUpdateTypes: ["minor"],
-      labels: ["type/minor"],
+      addLabels: ["type/minor"],
     },
     {
       matchUpdateTypes: ["patch"],
-      labels: ["type/patch"],
-    },
-    {
-      matchDatasources: ["docker"],
-      addLabels: ["renovate/container"],
-    },
-    {
-      matchDatasources: ["helm"],
-      addLabels: ["renovate/helm"],
+      addLabels: ["type/patch"],
     },
     {
       matchManagers: ["github-actions"],
