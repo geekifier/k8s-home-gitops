@@ -23,7 +23,19 @@ includes:
   talos: .taskfiles/talos
 
 tasks:
-  default: task --list
+  default: task --list --sort alphanumeric
+
+  hooks:install:
+    desc: Install Lefthook Git hooks for this checkout
+    cmd: mise exec -- lefthook install
+
+  format:
+    desc: Format tracked YAML, JSON/JSONC, and Markdown files with dprint
+    cmd: git ls-files -z | mise exec -- xargs -0 dprint fmt --allow-no-files
+
+  format:check:
+    desc: Check tracked YAML, JSON/JSONC, and Markdown formatting with dprint
+    cmd: git ls-files -z | mise exec -- xargs -0 dprint check --allow-no-files
 
   reconcile:
     desc: Force Flux to pull in changes from your Git repository
@@ -32,17 +44,18 @@ tasks:
       - test -f {{.KUBECONFIG}}
       - which flux
 
+  # CNPG creates postgres17-superuser at runtime; flate omits those valuesFrom inputs locally.
   test:
-    desc: Use flux-local to validate the workdir configuration
-    cmd: flux-local test --enable-helm --all-namespaces --path kubernetes/flux/cluster -v
+    desc: Use flate to validate the workdir configuration
+    cmd: flate test all --allow-missing-secrets --path "{{.KUBERNETES_DIR}}/flux/cluster"
     preconditions:
-      - which flux-local
+      - which flate
 
   build-all:
-    desc: Use flux-local to build all KS and HR resources
-    cmd: flux-local build all ./kubernetes --enable-helm --skip-secrets
+    desc: Use flate to build all KS and HR resources
+    cmd: flate build all --allow-missing-secrets --path "{{.KUBERNETES_DIR}}/flux/cluster" --skip-secrets
     preconditions:
-      - which flux-local
+      - which flate
 
   chart-drift:
     desc: Diff a HelmRelease's inlined values against every chart version it ever pinned
@@ -120,18 +133,20 @@ tasks:
             echo -e "  files:\n    - ./$REL_PATH"
           done
   local-diff-hr:
-    desc: Use flux-local to diff HelmRelease resources
+    desc: Use flate to diff HelmRelease resources against origin/master
     cmd: |
-      flux-local diff hr --path ./kubernetes/flux/cluster --branch-orig origin/head \
-      --strip-attrs "helm.sh/chart,checksum/config,app.kubernetes.io/version,chart,checksum/secret" \
-      --skip-kinds "ValidatingWebhookConfiguration,MutatingWebhookConfiguration" --all-namespaces | moor -lang=yaml
+      flate diff hr --allow-missing-secrets --path "{{.KUBERNETES_DIR}}/flux/cluster" --base origin/master \
+      --strip-attr helm.sh/chart --strip-attr checksum/config --strip-attr app.kubernetes.io/version \
+      --strip-attr chart --strip-attr checksum/secret --skip-secrets \
+      --skip-kinds "ValidatingWebhookConfiguration,MutatingWebhookConfiguration" --output diff | moor -lang=diff
     preconditions:
-      - which flux-local
+      - which flate
       - which moor
   local-diff-ks:
-    desc: Use flux-local to diff Kustomization resources
+    desc: Use flate to diff Kustomization resources against origin/master
     cmd: |
-      flux-local diff ks --all-namespaces --path kubernetes/flux/cluster --no-skip-secrets --limit-bytes 4096 | moor -lang=diff
+      flate diff ks --allow-missing-secrets --path "{{.KUBERNETES_DIR}}/flux/cluster" --base origin/master \
+      --skip-secrets=false --output diff | moor -lang=diff
     preconditions:
-      - which flux-local
+      - which flate
       - which moor
