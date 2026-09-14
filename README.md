@@ -24,14 +24,14 @@ I had a great experience with Traefik in my non-k8s environment, so that's anoth
 
 ## ⚙️ Software Components
 
--   [Talos Linux](https://github.com/siderolabs/talos) - API-driven, Kubernetes-focused Linux distribution
--   [Flux](https://github.com/fluxcd/flux2) - continuous delivery via a GitOps model
--   [SOPS](https://github.com/getsops/sops) combined with [age](https://github.com/FiloSottile/age) - secrets management
--   [cloudflared](https://github.com/cloudflare/cloudflared) - provision Cloudflare Tunnels for publicly exposed endpoints
--   [external-dns](https://github.com/kubernetes-sigs/external-dns) - on-demand DNS record provisioning inside Samba (Active Directory) DNS with Kerberos auth
--   [Longhorn](https://longhorn.io/) - cloud-native distributed block storage for Kubernetes
--   [CloudNativePG](https://cloudnative-pg.io/) - deploy HA PostgreSQL clusters on K8s with ease
--   [postgres-operator](https://github.com/movetokube/postgres-operator) - operator to manage DBs and roles
+- [Talos Linux](https://github.com/siderolabs/talos) - API-driven, Kubernetes-focused Linux distribution
+- [Flux](https://github.com/fluxcd/flux2) - continuous delivery via a GitOps model
+- [SOPS](https://github.com/getsops/sops) combined with [age](https://github.com/FiloSottile/age) - secrets management
+- [cloudflared](https://github.com/cloudflare/cloudflared) - provision Cloudflare Tunnels for publicly exposed endpoints
+- [external-dns](https://github.com/kubernetes-sigs/external-dns) - on-demand DNS record provisioning inside Samba (Active Directory) DNS with Kerberos auth
+- [Longhorn](https://longhorn.io/) - cloud-native distributed block storage for Kubernetes
+- [CloudNativePG](https://cloudnative-pg.io/) - deploy HA PostgreSQL clusters on K8s with ease
+- [postgres-operator](https://github.com/movetokube/postgres-operator) - operator to manage DBs and roles
 
 ## Hardware
 
@@ -54,7 +54,7 @@ Some of the other parts, like SSDs and some of the RAM, were scavenged from my i
 | 32 GB DDR4 RAM  | Crucial CT2K16G4SFRA32A             |    $45    | Best Buy (Sale)               | Already had one kit                                                     |
 | 1 TB NVME       | Inland Performance Plus 1TB NVMe    |  $69.99   | MicroCenter                   | 700TBW endurance                                                        |
 | 10 GbE NIC      | SuperMicro AOC-STGN-I2S Low Profile |   ~$18    | eBay                          | 3D printed a [custom baffle](https://www.thingiverse.com/thing:6348691) |
-| 1.5M DAC Cables | SFP-H10GB-CU1.5M Cisco Compatible   |    $11    | eBay (Private Label Networks) |
+| 1.5M DAC Cables | SFP-H10GB-CU1.5M Cisco Compatible   |    $11    | eBay (Private Label Networks) |                                                                         |
 
 # Changelog
 
@@ -78,5 +78,5 @@ Added a section in the README describing the new AI integration.
 
 ## Hardware
 
--   [STH Forum: Lenovo Project TinyMiniMicro Reference Thread](https://forums.servethehome.com/index.php?threads/lenovo-thinkcentre-thinkstation-tiny-project-tinyminimicro-reference-thread.34925/)
--   [github.com/a-little-wifi/Tinyriser](https://github.com/a-little-wifi/Tinyriser) open-source PCIe riser for Lenovo 8/9th gen Tiny PCs
+- [STH Forum: Lenovo Project TinyMiniMicro Reference Thread](https://forums.servethehome.com/index.php?threads/lenovo-thinkcentre-thinkstation-tiny-project-tinyminimicro-reference-thread.34925/)
+- [github.com/a-little-wifi/Tinyriser](https://github.com/a-little-wifi/Tinyriser) open-source PCIe riser for Lenovo 8/9th gen Tiny PCs

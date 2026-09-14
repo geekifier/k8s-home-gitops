@@ -1,0 +1,11 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/lefthook.json
+min_version: "2.1.12"
+glob_matcher: doublestar
+
+pre-commit:
+  commands:
+    dprint:
+      glob: "**/*.{yaml,yml,json,jsonc,md,markdown}"
+      run: mise exec -- dprint fmt --allow-no-files {staged_files}
+      stage_fixed: true
