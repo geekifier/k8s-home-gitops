@@ -11,9 +11,11 @@ SCRIPTS_DIR = "{{config_root}}/scripts"
 TALOS_DIR = "{{config_root}}/talos"
 
 [tools]
+dprint = "0.57.4"
+"aqua:evilmartians/lefthook" = "2.1.12"
 python = "3.14.7"
 "pipx:makejinja" = "2.8.3"
-"pipx:flux-local" = "8.4.0"
+"github:home-operations/flate" = "0.6.5"
 uv = "latest"
 k9s = "latest"
 helm-diff = "latest"

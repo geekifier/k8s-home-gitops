@@ -1,13 +1,14 @@
 {
-    "recommendations": [
-        "britesnow.vscode-toggle-quotes",
-        "fcrespo82.markdown-table-formatter",
-        "mikestead.dotenv",
-        "mitchdenny.ecdc",
-        "signageos.signageos-vscode-sops",
-        "will-stone.in-any-case",
-        "EditorConfig.editorconfig",
-        "PKief.material-icon-theme",
-        "Gruntfuggly.todo-tree"
-    ]
+  "recommendations": [
+    "dprint.dprint",
+    "britesnow.vscode-toggle-quotes",
+    "fcrespo82.markdown-table-formatter",
+    "mikestead.dotenv",
+    "mitchdenny.ecdc",
+    "signageos.signageos-vscode-sops",
+    "will-stone.in-any-case",
+    "EditorConfig.editorconfig",
+    "PKief.material-icon-theme",
+    "Gruntfuggly.todo-tree"
+  ]
 }
