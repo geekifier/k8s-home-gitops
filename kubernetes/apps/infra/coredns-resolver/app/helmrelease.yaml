@@ -15,7 +15,11 @@ spec:
   install:
     remediation:
       retries: -1
+  # Preserve distinct UDP/TCP entries sharing port 53 during updates and rollbacks.
+  rollback:
+    serverSideApply: enabled
   upgrade:
+    serverSideApply: enabled
     cleanupOnFail: true
     remediation:
       strategy: rollback
@@ -26,7 +30,7 @@ spec:
     # https://github.com/coredns/helm/blob/master/charts/coredns/values.yaml
     image:
       repository: ghcr.io/geekifier/coredns
-      tag: 1.12.1-redisc
+      tag: 1.14.6-redis_cache@sha256:bb212f73f560c17bc8589160701209db7791de40ef2e3d351e0625874ad965a3
       pullSecrets:
         - name: ghcr-login-secret
     isClusterService: false
@@ -55,6 +59,12 @@ spec:
       maxSurge: 1
       maxUnavailable: 0
     replicaCount: 3
+    # The image runs as non-root without file capabilities.
+    podSecurityContext:
+      runAsNonRoot: true
+      sysctls:
+        - name: net.ipv4.ip_unprivileged_port_start
+          value: "53"
     servers:
       - zones:
           - zone: ${SECRET_DOMAIN_INT}
@@ -89,6 +99,8 @@ spec:
         plugins: *plugins
       - zones:
           - zone: .
+            # Expose TCP alongside UDP on the shared DNS service port.
+            use_tcp: true
         port: *dnsPort
         plugins:
           - name: forward
@@ -112,11 +124,17 @@ spec:
             configBlock: |-
               success 9984 1800
               denial 1000 30
-          - name: redisc
+          - name: redis_cache
             configBlock: |-
               success 1800
               denial 30
               endpoint 100.65.79.243:6379
+              key_prefix coredns-resolver-v1
+              timeout {
+                connect 200ms
+                read 200ms
+                write 200ms
+              }
 
     tolerations:
       - key: CriticalAddonsOnly
