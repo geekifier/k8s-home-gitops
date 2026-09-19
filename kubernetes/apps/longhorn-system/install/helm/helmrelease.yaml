@@ -24,14 +24,15 @@ spec:
       serviceMonitor:
         enabled: true
     defaultSettings:
-      # for apps with replication, override with `strict-local`
       defaultDataLocality: best-effort
       defaultReplicaCount: "2"
       replicaAutoBalance: least-effort
       allowVolumeCreationWithDegradedAvailability: false
+      nodeDrainPolicy: allow-if-replica-is-stopped
+      disableSchedulingOnCordonedNode: true
+      storageReservedPercentageForDefaultDisk: 0
     persistence:
       defaultClassReplicaCount: 2
-    storageReservedPercentageForDefaultDisk: 0
   interval: 60m
   # upgrade:
   #   remediation:

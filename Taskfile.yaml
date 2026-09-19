@@ -47,7 +47,29 @@ tasks:
   # CNPG creates postgres17-superuser at runtime; flate omits those valuesFrom inputs locally.
   test:
     desc: Use flate to validate the workdir configuration
-    cmd: flate test all --allow-missing-secrets --path "{{.KUBERNETES_DIR}}/flux/cluster"
+    summary: |
+      Validate the workdir with a concise result and a full log saved locally.
+      Failures include the last 40 log lines (up to 300 characters per line).
+      Use `task test VERBOSE=1` to stream the full output instead.
+    silent: true
+    env:
+      FLATE_TEST_VERBOSE: '{{.VERBOSE | default "0"}}'
+    cmd: |
+      if [ "$FLATE_TEST_VERBOSE" = "1" ]; then
+        exec flate test all --allow-missing-secrets --path "{{.KUBERNETES_DIR}}/flux/cluster"
+      fi
+      test_tmpdir=${TMPDIR:-/tmp}
+      test_log=$(mktemp "${test_tmpdir%/}/flate-test.XXXXXX") || exit 1
+      printf 'Validating configuration...\nFull log:\n%s\n\n' "$test_log"
+      if flate test all --allow-missing-secrets --path "{{.KUBERNETES_DIR}}/flux/cluster" >"$test_log" 2>&1; then
+        echo "Validation: PASS"
+      else
+        test_status=$?
+        echo "Validation: FAIL (exit $test_status). Last 40 log lines (300 characters per line):" >&2
+        tail -n 40 "$test_log" | cut -c 1-300 >&2
+        printf '\nFull log:\n%s\n' "$test_log" >&2
+        exit "$test_status"
+      fi
     preconditions:
       - which flate
 

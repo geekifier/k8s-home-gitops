@@ -60,7 +60,9 @@ spec:
               pathType: Prefix
     persistence:
       enabled: true
-      storageClass: longhorn-yolo
+      storageClass: longhorn-standard
+      accessModes:
+        - ReadWriteOnce
       size: 5Gi
     monitoring:
       serviceMonitor:
