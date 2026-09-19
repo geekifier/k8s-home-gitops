@@ -1,0 +1,126 @@
+---
+apiVersion: tuppr.home-operations.com/v1alpha1
+kind: TalosUpgrade
+metadata:
+  name: talos
+  annotations:
+    # Readiness configuration only; activate separately.
+    tuppr.home-operations.com/suspend: "true"
+spec:
+  talos:
+    # renovate: datasource=custom.talos-factory depName=siderolabs/talos
+    version: v1.12.12
+    # Use a similar pattern for KubernetesUpgrade with depName=ghcr.io/siderolabs/kubelet.
+  parallelism: 1
+  policy:
+    force: false
+    nodrain: false
+    placement: hard
+    stage: false
+    timeout: 60m
+    # Talos owns cordon, eviction and uncordon inside the upgrade Job.
+    # Longhorn PDBs gate engine shutdown; no additional CSI wait is required.
+    waitForVolumeDetach: false
+  # No pre-hooks: 0.5.5 skips inter-batch health checks when they are configured.
+  # Admission checks BEFORE the next node; PostgreSQL 2/3 is expected while
+  # the active Job drains/reboots its node. Talos uncordons on return.
+  healthChecks:
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      name: postgres17
+      namespace: db
+      description: Before starting another node, wait for PostgreSQL to recover to 3/3
+      timeout: 30m
+      expr: >-
+        object.spec.instances == 3 && object.spec.enablePDB &&
+        (!has(object.spec.nodeMaintenanceWindow) ||
+          ((!has(object.spec.nodeMaintenanceWindow.inProgress) ||
+            !object.spec.nodeMaintenanceWindow.inProgress) &&
+           (!has(object.spec.nodeMaintenanceWindow.reusePVC) ||
+            object.spec.nodeMaintenanceWindow.reusePVC))) &&
+        object.spec.affinity.enablePodAntiAffinity &&
+        object.spec.affinity.podAntiAffinityType == 'required' &&
+        object.spec.affinity.topologyKey == 'kubernetes.io/hostname' &&
+        object.spec.storage.storageClass == 'longhorn-cluster-best-effort' &&
+        status.instances == 3 && status.readyInstances == 3 &&
+        status.topology.successfullyExtracted && status.topology.nodesUsed == 3 &&
+        status.currentPrimary != '' && status.currentPrimary == status.targetPrimary &&
+        status.phase == 'Cluster in healthy state' &&
+        status.conditions.exists(c, c.type == 'Ready' && c.status == 'True') &&
+        size(status.instancesReportedState) == 3 &&
+        status.instancesReportedState.all(n,
+          status.instancesReportedState[n].timeLineID == status.timelineID &&
+          status.instancesReportedState[n].isPrimary == (n == status.currentPrimary))
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: cloudnative-pg
+      namespace: db
+      description: CNPG operator fully available to handle the next switchover
+      timeout: 30m
+      expr: >-
+        object.spec.replicas == 2 &&
+        status.observedGeneration == object.metadata.generation &&
+        status.replicas == 2 && status.updatedReplicas == 2 &&
+        status.readyReplicas == 2 && status.availableReplicas == 2
+    - apiVersion: v1
+      kind: Node
+      labelSelector: {}
+      description: Before starting another node, all nodes must be Ready, uncordoned and pressure-free
+      timeout: 30m
+      expr: >-
+        !has(object.metadata.deletionTimestamp) &&
+        (!has(object.spec.unschedulable) || !object.spec.unschedulable) &&
+        status.conditions.exists(c, c.type == 'Ready' && c.status == 'True') &&
+        ['MemoryPressure', 'DiskPressure', 'PIDPressure'].all(t,
+          status.conditions.exists(c, c.type == t && c.status == 'False'))
+    - apiVersion: longhorn.io/v1beta2
+      kind: Setting
+      name: node-drain-policy
+      namespace: longhorn-system
+      description: Stopped replicas may remain on the returning node
+      expr: object.value == 'allow-if-replica-is-stopped'
+    - apiVersion: longhorn.io/v1beta2
+      kind: Setting
+      name: disable-scheduling-on-cordoned-node
+      namespace: longhorn-system
+      description: No new storage replicas on a cordoned node
+      expr: object.value == 'true'
+    - apiVersion: longhorn.io/v1beta2
+      kind: Node
+      namespace: longhorn-system
+      labelSelector: {}
+      description: Before starting another node, Longhorn nodes and enabled disks must recover
+      timeout: 30m
+      expr: >-
+        object.spec.allowScheduling && !object.spec.evictionRequested &&
+        ['Ready', 'Schedulable'].all(t,
+          status.conditions.exists(c, c.type == t && c.status == 'True')) &&
+        size(object.spec.disks) > 0 &&
+        object.spec.disks.all(d,
+          !object.spec.disks[d].evictionRequested &&
+          (!object.spec.disks[d].allowScheduling ||
+            ['Ready', 'Schedulable'].all(t,
+              status.diskStatus[d].conditions.exists(c, c.type == t && c.status == 'True'))))
+    - apiVersion: longhorn.io/v1beta2
+      kind: Volume
+      namespace: longhorn-system
+      labelSelector: {}
+      description: Active volumes recovered; preserve PostgreSQL best-effort storage
+      timeout: 30m
+      expr: >-
+        !has(object.metadata.deletionTimestamp) &&
+        (status.state == 'detached' ?
+          object.spec.nodeID == '' && status.robustness != 'faulted' :
+          status.state == 'attached' && status.robustness == 'healthy' &&
+          object.spec.nodeID != '' && status.currentNodeID == object.spec.nodeID &&
+          (status.kubernetesStatus.namespace == 'db' &&
+           status.kubernetesStatus.pvcName.startsWith('postgres17-') ?
+            object.spec.numberOfReplicas == 1 && object.spec.dataLocality == 'best-effort' :
+            object.spec.numberOfReplicas >= 2 &&
+            object.spec.replicaSoftAntiAffinity != 'enabled'))
+    - apiVersion: longhorn.io/v1beta2
+      kind: Setting
+      name: replica-soft-anti-affinity
+      namespace: longhorn-system
+      description: Replicated volumes keep their copies on distinct nodes
+      expr: object.value == 'false'

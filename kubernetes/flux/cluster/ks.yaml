@@ -45,7 +45,7 @@ spec:
     name: flux-system
     namespace: flux-system
   patches:
-    - # Add Sops decryption and postBuild substitutions to child Kustomizations
+    - # Add Sops decryption and shared HelmRelease CRD policies to child Kustomizations
       patch: |-
         apiVersion: kustomize.toolkit.fluxcd.io/v1
         kind: Kustomization
@@ -56,6 +56,20 @@ spec:
             provider: sops
             secretRef:
               name: sops-age
+          patches:
+            - patch: |-
+                apiVersion: helm.toolkit.fluxcd.io/v2
+                kind: HelmRelease
+                metadata:
+                  name: not-used
+                spec:
+                  install:
+                    crds: CreateReplace
+                  upgrade:
+                    crds: CreateReplace
+              target:
+                group: helm.toolkit.fluxcd.io
+                kind: HelmRelease
       target:
         group: kustomize.toolkit.fluxcd.io
         kind: Kustomization

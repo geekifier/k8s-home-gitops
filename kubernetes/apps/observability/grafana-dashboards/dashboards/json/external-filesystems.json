@@ -1,0 +1,1630 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "description": "Capacity, observed changes, selectable consumption trends and fill estimates, and collection health for non-Kubernetes node exporters (integrations/unix).",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "id": 2,
+      "title": "Filesystem capacity \u00b7 current and observed changes",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 10
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${DS_PROMETHEUS}"
+      },
+      "description": "Available is usable by ordinary users. Allocated = size \u2212 free. Reserved = free \u2212 available. Net used changes compare allocated bytes with 24h/7d ago, not regression or projected growth. Missing historical endpoints stay blank. Inodes are omitted when the filesystem reports no inode capacity. Pseudo, memory, FUSE and network filesystems are excluded; this view focuses on durable local storage.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "(max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)",
+          "refId": "A",
+          "legendFormat": "{{mountpoint}}",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})",
+          "refId": "B",
+          "legendFormat": "{{mountpoint}}",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "100 * (max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) / ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))",
+          "refId": "C",
+          "legendFormat": "{{mountpoint}}",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)) - (max by (instance, device, mountpoint, fstype) (node_filesystem_free_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))",
+          "refId": "D",
+          "legendFormat": "{{mountpoint}}",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "clamp_min((max by (instance, device, mountpoint, fstype) (node_filesystem_free_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) - (max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})), 0)",
+          "refId": "E",
+          "legendFormat": "{{mountpoint}}",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "100 * (max by (instance, device, mountpoint, fstype) (node_filesystem_files_free{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) / (max by (instance, device, mountpoint, fstype) (node_filesystem_files{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)",
+          "refId": "F",
+          "legendFormat": "{{mountpoint}}",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "(((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)) - (max by (instance, device, mountpoint, fstype) (node_filesystem_free_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))) - (((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"} offset 24h) > 0)) - (max by (instance, device, mountpoint, fstype) (node_filesystem_free_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"} offset 24h)))",
+          "refId": "G",
+          "legendFormat": "{{mountpoint}}",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "(((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)) - (max by (instance, device, mountpoint, fstype) (node_filesystem_free_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))) - (((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"} offset 7d) > 0)) - (max by (instance, device, mountpoint, fstype) (node_filesystem_free_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"} offset 7d)))",
+          "refId": "H",
+          "legendFormat": "{{mountpoint}}",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "max by (instance, device, mountpoint, fstype) (time() - timestamp(node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))",
+          "refId": "I",
+          "legendFormat": "{{mountpoint}}",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "noValue": "\u2014",
+          "custom": {
+            "minWidth": 80,
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": true
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Capacity"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Available"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Available %"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Allocated"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Reserved"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Inodes available %"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Net used change \u00b7 24h"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Net used change \u00b7 7d"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last sample age"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Available %"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "orange",
+                      "value": 5
+                    },
+                    {
+                      "color": "green",
+                      "value": 10
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Inodes available %"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "orange",
+                      "value": 5
+                    },
+                    {
+                      "color": "green",
+                      "value": 10
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mount"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 280
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Type"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 65
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Capacity"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Available"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Available %"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Allocated"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Reserved"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Inodes available %"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 130
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Net used change \u00b7 24h"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Net used change \u00b7 7d"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last sample age"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 115
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Forecast status"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 320
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Days to 10% available"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 190
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Days to no available space"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 220
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "sortBy": [
+          {
+            "displayName": "Available %",
+            "desc": false
+          }
+        ]
+      },
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "__name__": true,
+              "instance": true,
+              "device": true
+            },
+            "renameByName": {
+              "Value": "Capacity",
+              "instance": "Host",
+              "mountpoint": "Mount",
+              "device": "Device",
+              "fstype": "Type",
+              "Value #A": "Capacity",
+              "Value #B": "Available",
+              "Value #C": "Available %",
+              "Value #D": "Allocated",
+              "Value #E": "Reserved",
+              "Value #F": "Inodes available %",
+              "Value #G": "Net used change \u00b7 24h",
+              "Value #H": "Net used change \u00b7 7d",
+              "Value #I": "Last sample age"
+            },
+            "indexByName": {
+              "instance": 0,
+              "mountpoint": 1,
+              "device": 2,
+              "fstype": 3,
+              "Value #A": 4,
+              "Value #B": 5,
+              "Value #C": 6,
+              "Value #D": 7,
+              "Value #E": 8,
+              "Value #F": 9,
+              "Value #G": 10,
+              "Value #H": 11,
+              "Value #I": 12
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Capacity unavailable \u00b7 includes reserved blocks",
+      "type": "bargauge",
+      "gridPos": {
+        "x": 0,
+        "y": 10,
+        "w": 8,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${DS_PROMETHEUS}"
+      },
+      "description": "100 \u00d7 (1 \u2212 available / capacity). Read alongside absolute available space in the table. Reserved space is unavailable to ordinary users, not allocated file data.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "100 * (1 - (max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) / ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)))",
+          "refId": "A",
+          "legendFormat": "{{mountpoint}}",
+          "instant": true,
+          "range": false,
+          "format": "time_series"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "noValue": "\u2014",
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "displayName": "$${__field.labels.mountpoint}",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 85
+              },
+              {
+                "color": "red",
+                "value": 95
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "basic",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true
+      }
+    },
+    {
+      "id": 4,
+      "title": "Available space history",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 8,
+        "y": 10,
+        "w": 16,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${DS_PROMETHEUS}"
+      },
+      "description": "Look for steps caused by cleanup and recurring retention cycles before using any regression.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})",
+          "refId": "A",
+          "legendFormat": "{{mountpoint}}",
+          "instant": false,
+          "range": true,
+          "format": "time_series"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "noValue": "\u2014",
+          "unit": "bytes",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "fillOpacity": 8,
+            "spanNulls": false,
+            "showPoints": "never",
+            "axisPlacement": "auto",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ],
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "Available capacity history",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 18,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${DS_PROMETHEUS}"
+      },
+      "description": "",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "100 * (max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) / ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))",
+          "refId": "A",
+          "legendFormat": "{{mountpoint}}",
+          "instant": false,
+          "range": true,
+          "format": "time_series"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "noValue": "\u2014",
+          "unit": "percent",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "fillOpacity": 8,
+            "spanNulls": false,
+            "showPoints": "never",
+            "axisPlacement": "auto",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ],
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 6,
+      "title": "Observed allocated-space change \u00b7 rolling 1h",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 12,
+        "y": 18,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${DS_PROMETHEUS}"
+      },
+      "description": "Each point compares allocated space with one hour earlier. Positive = net allocation; negative = net recovery. This is retrospective, not a daily growth estimate.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "(((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)) - (max by (instance, device, mountpoint, fstype) (node_filesystem_free_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))) - (((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"} offset 1h) > 0)) - (max by (instance, device, mountpoint, fstype) (node_filesystem_free_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"} offset 1h)))",
+          "refId": "A",
+          "legendFormat": "{{mountpoint}}",
+          "instant": false,
+          "range": true,
+          "format": "time_series"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "noValue": "\u2014",
+          "unit": "bytes",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "fillOpacity": 8,
+            "spanNulls": false,
+            "showPoints": "never",
+            "axisPlacement": "auto",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ],
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 7,
+      "title": "Capacity outlook \u00b7 $forecast_window trend",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 26,
+        "w": 24,
+        "h": 9
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${DS_PROMETHEUS}"
+      },
+      "description": "Linear estimate from the selected Trend window, anchored at current available space. Consumption/day is positive when filling and negative when freeing space. Days are uncapped; Not filling means a flat or increasing availability trend. Zero means the threshold is already reached, even during recovery. Cleanup and differing short/long trends do not suppress results; compare 6h, 24h and 7d windows and inspect history. Regression uses the available history (at least two five-minute points); partial windows can be noisy. Estimates are withheld for stale samples (>=5m), reported read-only/collection errors, capacity changes or insufficient history. Absent optional health metrics do not suppress forecasts. These are trend scenarios, not confidence bounds or guarantees.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "(((0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))) + 5) unless (((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)) and (max by (instance, device, mountpoint, fstype) (time() - timestamp(node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) < 300) unless (((max by (instance, device, mountpoint, fstype) (node_filesystem_readonly{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) > 0) or ((max by (instance, device, mountpoint, fstype) (node_filesystem_device_error{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) > 0)))) or (((0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))) + 3) and (changes(((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))[$forecast_window:5m]) > 0)) or (((0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))) + 4) unless (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))[$forecast_window:5m]))) or (((0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))) + 1) and (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))[$forecast_window:5m]) >= 0)) or (0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)))",
+          "refId": "A",
+          "legendFormat": "{{mountpoint}}",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "((0 * (((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) - 0.1 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))) <= 0)) or ((((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) - 0.1 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))) / -(deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))[$forecast_window:5m])) / 86400) and (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))[$forecast_window:5m]) < 0)) or (((0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))) - 1) and (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))[$forecast_window:5m]) >= 0))) and ((((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)) and (max by (instance, device, mountpoint, fstype) (time() - timestamp(node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) < 300) unless (((max by (instance, device, mountpoint, fstype) (node_filesystem_readonly{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) > 0) or ((max by (instance, device, mountpoint, fstype) (node_filesystem_device_error{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) > 0))) and (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))[$forecast_window:5m])) unless (changes(((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))[$forecast_window:5m]) > 0))",
+          "refId": "B",
+          "legendFormat": "{{mountpoint}}",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "((0 * (((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) - 0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))) <= 0)) or ((((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) - 0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))) / -(deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))[$forecast_window:5m])) / 86400) and (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))[$forecast_window:5m]) < 0)) or (((0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))) - 1) and (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))[$forecast_window:5m]) >= 0))) and ((((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)) and (max by (instance, device, mountpoint, fstype) (time() - timestamp(node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) < 300) unless (((max by (instance, device, mountpoint, fstype) (node_filesystem_readonly{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) > 0) or ((max by (instance, device, mountpoint, fstype) (node_filesystem_device_error{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) > 0))) and (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))[$forecast_window:5m])) unless (changes(((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))[$forecast_window:5m]) > 0))",
+          "refId": "C",
+          "legendFormat": "{{mountpoint}}",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "(-(deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))[$forecast_window:5m])) * 86400) and ((((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)) and (max by (instance, device, mountpoint, fstype) (time() - timestamp(node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) < 300) unless (((max by (instance, device, mountpoint, fstype) (node_filesystem_readonly{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) > 0) or ((max by (instance, device, mountpoint, fstype) (node_filesystem_device_error{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) > 0))) and (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))[$forecast_window:5m])) unless (changes(((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))[$forecast_window:5m]) > 0))",
+          "refId": "D",
+          "legendFormat": "{{mountpoint}}",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "noValue": "\u2014",
+          "custom": {
+            "minWidth": 80,
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": true
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Forecast status"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Days to 10% available"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "d"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "-1": {
+                        "text": "Not filling",
+                        "color": "text"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Days to no available space"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "d"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "-1": {
+                        "text": "Not filling",
+                        "color": "text"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Forecast status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "text": "Filling",
+                        "color": "text"
+                      },
+                      "1": {
+                        "text": "Not filling",
+                        "color": "text"
+                      },
+                      "3": {
+                        "text": "Capacity changed \u00b7 try shorter window",
+                        "color": "orange"
+                      },
+                      "4": {
+                        "text": "Insufficient history",
+                        "color": "orange"
+                      },
+                      "5": {
+                        "text": "Stale / read-only / collection error",
+                        "color": "red"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mount"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 280
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Forecast status"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 320
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Days to 10% available"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 190
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Days to no available space"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 220
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Consumption / day"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "custom.width",
+                "value": 180
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "sortBy": []
+      },
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "__name__": true,
+              "instance": true,
+              "device": true,
+              "fstype": true
+            },
+            "renameByName": {
+              "Value": "Forecast status",
+              "instance": "Host",
+              "mountpoint": "Mount",
+              "device": "Device",
+              "fstype": "Type",
+              "Value #A": "Forecast status",
+              "Value #B": "Days to 10% available",
+              "Value #C": "Days to no available space",
+              "Value #D": "Consumption / day"
+            },
+            "indexByName": {
+              "instance": 0,
+              "mountpoint": 1,
+              "device": 2,
+              "fstype": 3,
+              "Value #A": 4,
+              "Value #B": 6,
+              "Value #C": 7,
+              "Value #D": 5
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Inode availability",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 35,
+        "w": 12,
+        "h": 7
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${DS_PROMETHEUS}"
+      },
+      "description": "Some filesystems report zero inode capacity; those are excluded.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "100 * (max by (instance, device, mountpoint, fstype) (node_filesystem_files_free{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) / (max by (instance, device, mountpoint, fstype) (node_filesystem_files{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)",
+          "refId": "A",
+          "legendFormat": "{{mountpoint}}",
+          "instant": false,
+          "range": true,
+          "format": "time_series"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "noValue": "\u2014",
+          "unit": "percent",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "fillOpacity": 8,
+            "spanNulls": false,
+            "showPoints": "never",
+            "axisPlacement": "auto",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ],
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 9,
+      "title": "Filesystem metric age",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 12,
+        "y": 35,
+        "w": 12,
+        "h": 7
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${DS_PROMETHEUS}"
+      },
+      "description": "Age of the latest available-space sample. Missing series produce gaps, not a healthy zero; also inspect exporter reachability below.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "max by (instance, device, mountpoint, fstype) (time() - timestamp(node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))",
+          "refId": "A",
+          "legendFormat": "{{mountpoint}}",
+          "instant": false,
+          "range": true,
+          "format": "time_series"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "noValue": "\u2014",
+          "unit": "s",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "fillOpacity": 8,
+            "spanNulls": false,
+            "showPoints": "never",
+            "axisPlacement": "auto",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ],
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 10,
+      "title": "Filesystem state",
+      "type": "state-timeline",
+      "gridPos": {
+        "x": 0,
+        "y": 42,
+        "w": 12,
+        "h": 7
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${DS_PROMETHEUS}"
+      },
+      "description": "0 writable, 1 read-only, 2 collection error, 3 both. Missing data is a gap, not healthy. Some exporters do not expose device_error; those mounts remain unknown.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "(max by (instance, device, mountpoint, fstype) (node_filesystem_readonly{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) + 2 * (max by (instance, device, mountpoint, fstype) (node_filesystem_device_error{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))",
+          "refId": "A",
+          "legendFormat": "{{mountpoint}}",
+          "instant": false,
+          "range": true,
+          "format": "time_series"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Writable",
+                  "color": "green"
+                },
+                "1": {
+                  "text": "Read-only",
+                  "color": "orange"
+                },
+                "2": {
+                  "text": "Collection error",
+                  "color": "red"
+                },
+                "3": {
+                  "text": "Read-only + error",
+                  "color": "red"
+                }
+              }
+            }
+          ],
+          "noValue": "\u2014"
+        },
+        "overrides": []
+      },
+      "options": {
+        "showValue": "auto",
+        "mergeValues": true,
+        "rowHeight": 0.8,
+        "legend": {
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      }
+    },
+    {
+      "id": 11,
+      "title": "Exporter reachability",
+      "type": "state-timeline",
+      "gridPos": {
+        "x": 12,
+        "y": 42,
+        "w": 12,
+        "h": 7
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${DS_PROMETHEUS}"
+      },
+      "description": "Scrape success for the selected host. Zero = failed scrape; a gap means no series was returned.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "up{job=\"$job\",instance=\"$instance\"}",
+          "refId": "A",
+          "legendFormat": "Exporter",
+          "instant": false,
+          "range": true,
+          "format": "time_series"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Scrape failed",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "Up",
+                  "color": "green"
+                }
+              }
+            }
+          ],
+          "noValue": "\u2014"
+        },
+        "overrides": []
+      },
+      "options": {
+        "showValue": "auto",
+        "mergeValues": true,
+        "rowHeight": 0.8,
+        "legend": {
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      }
+    }
+  ],
+  "refresh": "1m",
+  "schemaVersion": 39,
+  "tags": [
+    "node-exporter",
+    "storage",
+    "external"
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "DS_PROMETHEUS",
+        "label": "Datasource",
+        "type": "datasource",
+        "query": "prometheus",
+        "refresh": 1,
+        "options": [],
+        "current": {
+          "text": "VictoriaMetrics",
+          "value": "victoriametrics-prom"
+        }
+      },
+      {
+        "name": "job",
+        "label": "Job",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "$${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(node_filesystem_size_bytes,job)",
+        "query": {
+          "qryType": 1,
+          "query": "label_values(node_filesystem_size_bytes,job)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "sort": 1,
+        "multi": false,
+        "includeAll": false,
+        "current": {
+          "text": "integrations/unix",
+          "value": "integrations/unix"
+        },
+        "options": [],
+        "allowCustomValue": false
+      },
+      {
+        "name": "instance",
+        "label": "Host",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "$${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(up{job=\"$job\"}, instance)",
+        "query": {
+          "query": "label_values(up{job=\"$job\"}, instance)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery",
+          "qryType": 1
+        },
+        "refresh": 2,
+        "sort": 1,
+        "multi": false,
+        "includeAll": false,
+        "current": {},
+        "options": [],
+        "allowCustomValue": false
+      },
+      {
+        "name": "mountpoint",
+        "label": "Mount",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "$${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}, mountpoint)",
+        "query": {
+          "query": "label_values(node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}, mountpoint)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery",
+          "qryType": 1
+        },
+        "refresh": 2,
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "options": []
+      },
+      {
+        "name": "forecast_window",
+        "label": "Trend window",
+        "type": "custom",
+        "query": "6h,24h,7d",
+        "current": {
+          "text": "24h",
+          "value": "24h"
+        },
+        "options": [
+          {
+            "text": "6h",
+            "value": "6h",
+            "selected": false
+          },
+          {
+            "text": "24h",
+            "value": "24h",
+            "selected": true
+          },
+          {
+            "text": "7d",
+            "value": "7d",
+            "selected": false
+          }
+        ],
+        "multi": false,
+        "includeAll": false,
+        "allowCustomValue": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Storage - Host Detail",
+  "uid": "external-filesystems",
+  "version": 7,
+  "weekStart": ""
+}
