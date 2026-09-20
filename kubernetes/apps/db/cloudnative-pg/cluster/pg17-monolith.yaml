@@ -5,10 +5,16 @@ kind: Cluster
 metadata:
   name: &clusterName postgres17
 spec:
-  instances: 2
+  instances: 3
+  enablePDB: true
+  affinity:
+    enablePodAntiAffinity: true
+    podAntiAffinityType: required
+    topologyKey: kubernetes.io/hostname
   imageName: ghcr.io/cloudnative-pg/postgresql:17.6
   primaryUpdateStrategy: unsupervised
   primaryUpdateMethod: switchover
+  smartShutdownTimeout: 10
   storage:
     size: 20Gi
     storageClass: longhorn-cluster-best-effort
@@ -20,10 +26,11 @@ spec:
       shared_buffers: "128MB"
       pg_stat_statements.max: "10000"
       pg_stat_statements.track: all
-  nodeMaintenanceWindow:
-    inProgress: false
-    # prevent node drain issues with Longhorn strict-local volumes
-    reusePVC: false
+  # Query readiness checks SQL service without excluding a disconnected standby
+  # from failover. Native upgrade gates use CNPG readiness, topology and roles.
+  probes:
+    readiness:
+      type: query
   resources:
     requests:
       cpu: 250m
@@ -34,28 +41,15 @@ spec:
     enablePodMonitor: true
 
   backup:
-    retentionPolicy: 30d
-    barmanObjectStore: &barmanObjectStore
-      data:
-        compression: bzip2
-      wal:
-        compression: bzip2
-        maxParallel: 1
-      destinationPath: s3://cloudnative-pg/
-      endpointURL: "http://blackhole2.${SECRET_DOMAIN_INT}:3900"
-      # Note: serverName version needs to be incremented
-      # when recovering from an existing cnpg cluster
-      serverName: postgres17-02
-      s3Credentials:
-        region:
-          name: cloudnative-pg-garage-secret
-          key: CNPG_S3_REGION
-        accessKeyId:
-          name: cloudnative-pg-garage-secret
-          key: CNPG_S3_ACCESS_KEY_ID
-        secretAccessKey:
-          name: cloudnative-pg-garage-secret
-          key: CNPG_S3_SECRET_ACCESS_KEY
+    target: prefer-standby
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: postgres17-garage
+        # Preserve the existing archive identity across this migration.
+        # A recovered cluster writing a new archive needs a distinct identity.
+        serverName: postgres17-02
 
   bootstrap:
     initdb:
@@ -87,5 +81,8 @@ spec:
   schedule: "@daily"
   immediate: true
   backupOwnerReference: self
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
   cluster:
     name: postgres17

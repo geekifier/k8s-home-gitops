@@ -33,6 +33,16 @@ spec:
   uninstall:
     keepHistory: false
   values:
+    replicaCount: 2
+    # Keep an elected operator available when draining the primary's node.
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: cloudnative-pg
+                app.kubernetes.io/instance: cloudnative-pg
+            topologyKey: kubernetes.io/hostname
     crds:
       create: true
     monitoring:
@@ -44,6 +54,6 @@ spec:
     resources:
       requests:
         cpu: 10m
-        memory: 50Mi
+        memory: 128Mi
       limits:
-        memory: 150Mi
+        memory: 512Mi

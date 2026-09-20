@@ -1,0 +1,3195 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Talos and Kubernetes upgrades.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "tuppr on GitHub",
+      "type": "link",
+      "url": "https://github.com/home-operations/tuppr"
+    }
+  ],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 200,
+      "panels": [],
+      "title": "Operator status",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "unit": "string",
+          "noValue": "—"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 1
+      },
+      "id": 201,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "/^version$/",
+          "values": false
+        },
+        "textMode": "value"
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "max by (version) (tuppr_build_info and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))",
+          "format": "table",
+          "instant": true,
+          "refId": "A",
+          "range": false
+        }
+      ],
+      "title": "Operator version",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short",
+          "noValue": "—"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "control-plane"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "purple"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "worker"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "blue"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 1
+      },
+      "id": 202,
+      "options": {
+        "displayMode": "gradient",
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "valueMode": "color"
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "max by (role) ((tuppr_managed_nodes and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))))",
+          "legendFormat": "{{role}}",
+          "refId": "A",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "title": "Managed nodes",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          },
+          "unit": "short",
+          "mappings": [],
+          "noValue": "—"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 8,
+        "y": 1
+      },
+      "id": 205,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "sum(increase_pure(tuppr_health_check_failures_total[1h])) or (max((leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))) * 0)",
+          "refId": "A",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "title": "Health check failures (1h)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short",
+          "mappings": [],
+          "noValue": "—"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 16,
+        "y": 1
+      },
+      "id": 206,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "sum(increase_pure(tuppr_hook_executions_total{result!=\"success\"}[1h])) or (max((leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))) * 0)",
+          "refId": "A",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "title": "Hook failures (1h)",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "id": 300,
+      "panels": [],
+      "title": "Blocked upgrades",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short",
+          "mappings": [],
+          "noValue": "—"
+        }
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 6
+      },
+      "id": 301,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value_and_name"
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "count(max by (upgrade_type, name, reason) ((tuppr_upgrade_progressing{reason=~\"Waiting.*|Suspended|HealthChecking|MaintenanceWindow\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))) == 0)) or (max((leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))) * 0)",
+          "legendFormat": "Blocked",
+          "refId": "A",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "title": "Blocked now",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "noValue": "—"
+        }
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 16,
+        "x": 8,
+        "y": 6
+      },
+      "id": 302,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "show": false,
+          "reducer": [
+            "sum"
+          ]
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "max by (upgrade_type, name, reason) ((tuppr_upgrade_progressing{reason=~\"Waiting.*|Suspended|HealthChecking|MaintenanceWindow\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))) == 0)",
+          "format": "table",
+          "instant": true,
+          "refId": "A",
+          "range": false
+        }
+      ],
+      "title": "Current blockers",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true,
+              "__name__": true,
+              "instance": true,
+              "job": true,
+              "namespace": true,
+              "pod": true,
+              "container": true,
+              "endpoint": true,
+              "service": true,
+              "prometheus": true
+            },
+            "indexByName": {
+              "upgrade_type": 0,
+              "name": 1,
+              "reason": 2
+            },
+            "renameByName": {
+              "upgrade_type": "Type",
+              "name": "Upgrade",
+              "reason": "Reason"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "id": 210,
+      "panels": [],
+      "title": "Cluster inventory",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.8
+              },
+              {
+                "color": "green",
+                "value": 0.95
+              }
+            ]
+          },
+          "min": 0,
+          "max": 1,
+          "unit": "percentunit",
+          "noValue": "No completions"
+        }
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 5,
+        "x": 0,
+        "y": 13
+      },
+      "id": 211,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "sum(increase_pure(tuppr_upgrades_completed_total{result=\"success\"}[7d])) / (sum(increase_pure(tuppr_upgrades_completed_total[7d])) > 0)",
+          "refId": "A",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "title": "Upgrade success rate (7d)",
+      "type": "stat",
+      "description": "Observed completions in the last 7 days."
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "s",
+          "noValue": "—"
+        }
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 5,
+        "x": 5,
+        "y": 13
+      },
+      "id": 212,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "time() - max((tuppr_upgrade_last_completion_timestamp_seconds{result=\"success\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))))",
+          "refId": "A",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "title": "Since last success",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "noValue": "—"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last completion"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Result"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "success": {
+                        "color": "green",
+                        "index": 0
+                      }
+                    }
+                  },
+                  {
+                    "type": "value",
+                    "options": {
+                      "failure": {
+                        "color": "red",
+                        "index": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 14,
+        "x": 10,
+        "y": 13
+      },
+      "id": 213,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "show": false,
+          "reducer": [
+            "sum"
+          ]
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "displayName": "Last completion",
+            "desc": true
+          }
+        ]
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "topk by (upgrade_type, name) (1, max by (upgrade_type, name, result) ((tuppr_upgrade_last_completion_timestamp_seconds and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))) > 0)) * 1000",
+          "format": "table",
+          "instant": true,
+          "refId": "A",
+          "range": false
+        }
+      ],
+      "title": "Recent upgrade completions",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "upgrade_type": 0,
+              "name": 1,
+              "result": 2,
+              "Value": 3
+            },
+            "renameByName": {
+              "upgrade_type": "Type",
+              "name": "Upgrade",
+              "result": "Result",
+              "Value": "Last completion"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "noValue": "—"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Role"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "control-plane": {
+                        "color": "purple",
+                        "index": 0
+                      }
+                    }
+                  },
+                  {
+                    "type": "value",
+                    "options": {
+                      "worker": {
+                        "color": "blue",
+                        "index": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      },
+      "id": 214,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "show": false,
+          "reducer": [
+            "sum"
+          ]
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "displayName": "Node",
+            "desc": false
+          }
+        ]
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "max by (node, role, talos_version, kubernetes_version) ((tuppr_node_info and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))))",
+          "format": "table",
+          "instant": true,
+          "refId": "A",
+          "range": false
+        }
+      ],
+      "title": "Node version inventory",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true,
+              "__name__": true,
+              "instance": true,
+              "job": true,
+              "namespace": true,
+              "pod": true,
+              "container": true,
+              "endpoint": true,
+              "service": true,
+              "prometheus": true,
+              "prometheus_replica": true
+            },
+            "indexByName": {
+              "node": 0,
+              "role": 1,
+              "talos_version": 2,
+              "kubernetes_version": 3
+            },
+            "renameByName": {
+              "node": "Node",
+              "role": "Role",
+              "talos_version": "Talos version",
+              "kubernetes_version": "Kubernetes version"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 26
+      },
+      "id": 101,
+      "panels": [],
+      "title": "Talos upgrades",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "color-text"
+            },
+            "filterable": true
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "Pending": {
+                  "color": "blue",
+                  "index": 0
+                }
+              }
+            },
+            {
+              "type": "value",
+              "options": {
+                "HealthChecking": {
+                  "color": "purple",
+                  "index": 1
+                }
+              }
+            },
+            {
+              "type": "value",
+              "options": {
+                "Draining": {
+                  "color": "orange",
+                  "index": 2
+                }
+              }
+            },
+            {
+              "type": "value",
+              "options": {
+                "Upgrading": {
+                  "color": "yellow",
+                  "index": 3
+                }
+              }
+            },
+            {
+              "type": "value",
+              "options": {
+                "Rebooting": {
+                  "color": "orange",
+                  "index": 4
+                }
+              }
+            },
+            {
+              "type": "value",
+              "options": {
+                "MaintenanceWindow": {
+                  "color": "blue",
+                  "index": 5
+                }
+              }
+            },
+            {
+              "type": "value",
+              "options": {
+                "Completed": {
+                  "color": "green",
+                  "index": 6
+                }
+              }
+            },
+            {
+              "type": "value",
+              "options": {
+                "Failed": {
+                  "color": "red",
+                  "index": 7
+                }
+              }
+            },
+            {
+              "type": "value",
+              "options": {
+                "PreHook": {
+                  "color": "purple",
+                  "index": 2
+                }
+              }
+            },
+            {
+              "type": "value",
+              "options": {
+                "PostHook": {
+                  "color": "purple",
+                  "index": 7
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "noValue": "—"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "auto"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Completed"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Failed"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 1
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 27
+      },
+      "id": 10,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "max by (name, phase, node_name) ((tuppr_talos_upgrade_phase{name=~\"$talos_upgrade\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))) == 1)",
+          "format": "table",
+          "instant": true,
+          "refId": "Phase",
+          "range": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "max by (name) ((tuppr_talos_upgrade_nodes{name=~\"$talos_upgrade\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))))",
+          "format": "table",
+          "instant": true,
+          "refId": "Total",
+          "range": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "max by (name) ((tuppr_talos_upgrade_nodes_completed{name=~\"$talos_upgrade\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))))",
+          "format": "table",
+          "instant": true,
+          "refId": "Completed",
+          "range": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "max by (name) ((tuppr_talos_upgrade_nodes_failed{name=~\"$talos_upgrade\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))))",
+          "format": "table",
+          "instant": true,
+          "refId": "Failed",
+          "range": false
+        }
+      ],
+      "title": "Talos upgrade status",
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "name",
+            "mode": "outerTabular"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time 1": true,
+              "Time 2": true,
+              "Time 3": true,
+              "Time 4": true,
+              "Time 5": true,
+              "Value #Phase": true,
+              "Time": true,
+              "Time 6": true,
+              "Value": true
+            },
+            "indexByName": {
+              "name": 0,
+              "phase": 1,
+              "node_name": 2,
+              "Value #Total": 3,
+              "Value #Completed": 4,
+              "Value #Failed": 5
+            },
+            "renameByName": {
+              "name": "Upgrade",
+              "phase": "Phase",
+              "node_name": "Node",
+              "Value #Total": "Total",
+              "Value #Completed": "Completed",
+              "Value #Failed": "Failed"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 80,
+            "lineWidth": 0,
+            "spanNulls": false
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "Active"
+                }
+              }
+            }
+          ],
+          "min": 0,
+          "max": 1,
+          "unit": "short",
+          "noValue": "—"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 33
+      },
+      "id": 11,
+      "options": {
+        "mergeValues": true,
+        "showValue": "never",
+        "rowHeight": 0.8,
+        "alignValue": "left",
+        "legend": {
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "max by (name, phase) ((tuppr_talos_upgrade_phase{name=~\"$talos_upgrade\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))) == 1)",
+          "legendFormat": "{{name}} / {{phase}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Talos upgrade phase",
+      "type": "state-timeline"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true
+          },
+          "noValue": "—"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mean duration"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Observations"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 41
+      },
+      "id": 13,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "footer": {
+          "show": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "sum by (name, phase) (increase_pure(tuppr_talos_upgrade_duration_seconds_sum{name=~\"$talos_upgrade\"}[$__range])) / (sum by (name, phase) (increase_pure(tuppr_talos_upgrade_duration_seconds_count{name=~\"$talos_upgrade\"}[$__range])) > 0)",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "Mean"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "sum by (name, phase) (increase_pure(tuppr_talos_upgrade_duration_seconds_count{name=~\"$talos_upgrade\"}[$__range])) > 0",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "Count"
+        }
+      ],
+      "title": "Talos phase durations (selected range)",
+      "type": "table",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "name": 0,
+              "phase": 1,
+              "Value #Mean": 2,
+              "Value #Count": 3
+            },
+            "renameByName": {
+              "name": "Upgrade",
+              "phase": "Phase",
+              "Value #Mean": "Mean duration",
+              "Value #Count": "Observations"
+            }
+          }
+        }
+      ],
+      "description": "Scraped observations; restarts can leave gaps."
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 49
+      },
+      "id": 102,
+      "panels": [],
+      "title": "Kubernetes upgrades",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "color-text"
+            },
+            "filterable": true
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "Pending": {
+                  "color": "blue",
+                  "index": 0
+                }
+              }
+            },
+            {
+              "type": "value",
+              "options": {
+                "HealthChecking": {
+                  "color": "purple",
+                  "index": 1
+                }
+              }
+            },
+            {
+              "type": "value",
+              "options": {
+                "Upgrading": {
+                  "color": "yellow",
+                  "index": 2
+                }
+              }
+            },
+            {
+              "type": "value",
+              "options": {
+                "MaintenanceWindow": {
+                  "color": "blue",
+                  "index": 3
+                }
+              }
+            },
+            {
+              "type": "value",
+              "options": {
+                "Completed": {
+                  "color": "green",
+                  "index": 4
+                }
+              }
+            },
+            {
+              "type": "value",
+              "options": {
+                "Failed": {
+                  "color": "red",
+                  "index": 5
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "noValue": "—"
+        }
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 50
+      },
+      "id": 20,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "max by (name, phase) ((tuppr_kubernetes_upgrade_phase{name=~\"$k8s_upgrade\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))) == 1)",
+          "format": "table",
+          "instant": true,
+          "refId": "A",
+          "range": false
+        }
+      ],
+      "title": "Kubernetes upgrade status",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true
+            },
+            "indexByName": {
+              "name": 0,
+              "phase": 1
+            },
+            "renameByName": {
+              "name": "Upgrade",
+              "phase": "Phase"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 80,
+            "lineWidth": 0,
+            "spanNulls": false
+          },
+          "min": 0,
+          "max": 1,
+          "unit": "short",
+          "noValue": "—",
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "Active"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 16,
+        "x": 8,
+        "y": 50
+      },
+      "id": 21,
+      "options": {
+        "mergeValues": true,
+        "showValue": "never",
+        "rowHeight": 0.8,
+        "alignValue": "left",
+        "legend": {
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "max by (name, phase) ((tuppr_kubernetes_upgrade_phase{name=~\"$k8s_upgrade\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))) == 1)",
+          "legendFormat": "{{name}} / {{phase}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Kubernetes upgrade phase",
+      "type": "state-timeline"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true
+          },
+          "noValue": "—"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mean duration"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Observations"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 56
+      },
+      "id": 22,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "footer": {
+          "show": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "sum by (name, phase) (increase_pure(tuppr_kubernetes_upgrade_duration_seconds_sum{name=~\"$k8s_upgrade\"}[$__range])) / (sum by (name, phase) (increase_pure(tuppr_kubernetes_upgrade_duration_seconds_count{name=~\"$k8s_upgrade\"}[$__range])) > 0)",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "Mean"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "sum by (name, phase) (increase_pure(tuppr_kubernetes_upgrade_duration_seconds_count{name=~\"$k8s_upgrade\"}[$__range])) > 0",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "Count"
+        }
+      ],
+      "title": "Kubernetes phase durations (selected range)",
+      "type": "table",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "name": 0,
+              "phase": 1,
+              "Value #Mean": 2,
+              "Value #Count": 3
+            },
+            "renameByName": {
+              "name": "Upgrade",
+              "phase": "Phase",
+              "Value #Mean": "Mean duration",
+              "Value #Count": "Observations"
+            }
+          }
+        }
+      ],
+      "description": "Scraped observations; restarts can leave gaps."
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 64
+      },
+      "id": 103,
+      "panels": [],
+      "title": "Health checks",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 30,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            }
+          },
+          "unit": "short",
+          "noValue": "—"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 65
+      },
+      "id": 30,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "sum by (upgrade_type, upgrade_name) (increase_pure(tuppr_health_check_failures_total[5m]))",
+          "legendFormat": "{{upgrade_type}} / {{upgrade_name}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Health check failures (5m)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true
+          },
+          "noValue": "—"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mean duration"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Observations"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 65
+      },
+      "id": 31,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "footer": {
+          "show": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "sum by (upgrade_type, upgrade_name) (increase_pure(tuppr_health_check_duration_seconds_sum[$__range])) / (sum by (upgrade_type, upgrade_name) (increase_pure(tuppr_health_check_duration_seconds_count[$__range])) > 0)",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "Mean"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "sum by (upgrade_type, upgrade_name) (increase_pure(tuppr_health_check_duration_seconds_count[$__range])) > 0",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "Count"
+        }
+      ],
+      "title": "Health check durations (selected range)",
+      "type": "table",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "upgrade_type": 0,
+              "upgrade_name": 1,
+              "Value #Mean": 2,
+              "Value #Count": 3
+            },
+            "renameByName": {
+              "upgrade_type": "Type",
+              "upgrade_name": "Upgrade",
+              "Value #Mean": "Mean duration",
+              "Value #Count": "Observations"
+            }
+          }
+        }
+      ],
+      "description": "Scraped observations; restarts can leave gaps."
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          },
+          "noValue": "—"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Failures (1h)"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 73
+      },
+      "id": 32,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "show": false,
+          "reducer": [
+            "sum"
+          ]
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "displayName": "Failures (1h)",
+            "desc": true
+          }
+        ]
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "sum by (upgrade_type, upgrade_name, check_index) (increase_pure(tuppr_health_check_failures_total[1h])) > 0",
+          "format": "table",
+          "instant": true,
+          "refId": "A",
+          "range": false
+        }
+      ],
+      "title": "Health check failures by check (1h)",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "upgrade_type": 0,
+              "upgrade_name": 1,
+              "check_index": 2,
+              "Value": 3
+            },
+            "renameByName": {
+              "upgrade_type": "Type",
+              "upgrade_name": "Upgrade",
+              "check_index": "Check #",
+              "Value": "Failures (1h)"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 81
+      },
+      "id": 104,
+      "panels": [],
+      "title": "Upgrade jobs",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 30,
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 1,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            }
+          },
+          "min": 0,
+          "unit": "short",
+          "noValue": "—"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 82
+      },
+      "id": 40,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "max by (upgrade_type) ((tuppr_upgrade_jobs_active and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))))",
+          "legendFormat": "{{upgrade_type}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Active upgrade jobs over time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true
+          },
+          "noValue": "—"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mean duration"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Observations"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 82
+      },
+      "id": 41,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "footer": {
+          "show": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "sum by (upgrade_type, result) (increase_pure(tuppr_upgrade_job_duration_seconds_sum[$__range])) / (sum by (upgrade_type, result) (increase_pure(tuppr_upgrade_job_duration_seconds_count[$__range])) > 0)",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "Mean"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "sum by (upgrade_type, result) (increase_pure(tuppr_upgrade_job_duration_seconds_count[$__range])) > 0",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "Count"
+        }
+      ],
+      "title": "Job durations (selected range)",
+      "type": "table",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "upgrade_type": 0,
+              "result": 1,
+              "Value #Mean": 2,
+              "Value #Count": 3
+            },
+            "renameByName": {
+              "upgrade_type": "Type",
+              "result": "Result",
+              "Value #Mean": "Mean duration",
+              "Value #Count": "Observations"
+            }
+          }
+        }
+      ],
+      "description": "Scraped observations; restarts can leave gaps."
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true
+          },
+          "noValue": "—"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mean duration"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Observations"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 90
+      },
+      "id": 42,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "footer": {
+          "show": false
+        }
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "sum by (upgrade_type, upgrade_name, node_name, result) (increase_pure(tuppr_upgrade_job_duration_seconds_sum[$__range])) / (sum by (upgrade_type, upgrade_name, node_name, result) (increase_pure(tuppr_upgrade_job_duration_seconds_count[$__range])) > 0)",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "Mean"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "sum by (upgrade_type, upgrade_name, node_name, result) (increase_pure(tuppr_upgrade_job_duration_seconds_count[$__range])) > 0",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "Count"
+        }
+      ],
+      "title": "Node job durations (selected range)",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "upgrade_type": 0,
+              "upgrade_name": 1,
+              "node_name": 2,
+              "result": 3,
+              "Value #Mean": 4,
+              "Value #Count": 5
+            },
+            "renameByName": {
+              "upgrade_type": "Type",
+              "upgrade_name": "Upgrade",
+              "node_name": "Node",
+              "result": "Result",
+              "Value #Mean": "Mean duration",
+              "Value #Count": "Observations"
+            }
+          }
+        }
+      ],
+      "type": "table",
+      "description": "Scraped observations; restarts can leave gaps."
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 98
+      },
+      "id": 105,
+      "panels": [],
+      "title": "Hooks",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "lineWidth": 0,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            }
+          },
+          "unit": "short",
+          "noValue": "—"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*success.*"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*(failure|error).*"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "red"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 99
+      },
+      "id": 50,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "sum by (hook_phase, result) (increase_pure(tuppr_hook_executions_total[5m]))",
+          "legendFormat": "{{hook_phase}} / {{result}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Hook executions (5m)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true
+          },
+          "noValue": "—"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Executions"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 107
+      },
+      "id": 52,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "footer": {
+          "show": false
+        }
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "sum by (upgrade_name, hook_phase, hook_name, result) (increase_pure(tuppr_hook_executions_total[$__range])) > 0",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Hook activity (selected range)",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "upgrade_name": 0,
+              "hook_phase": 1,
+              "hook_name": 2,
+              "result": 3,
+              "Value": 4
+            },
+            "renameByName": {
+              "upgrade_name": "Upgrade",
+              "hook_phase": "Phase",
+              "hook_name": "Hook",
+              "result": "Result",
+              "Value": "Executions"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 115
+      },
+      "id": 106,
+      "panels": [],
+      "title": "Maintenance windows",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "noValue": "—"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Active"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "blue",
+                        "text": "outside",
+                        "index": 0
+                      }
+                    }
+                  },
+                  {
+                    "type": "value",
+                    "options": {
+                      "1": {
+                        "color": "green",
+                        "text": "inside",
+                        "index": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Next open"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 116
+      },
+      "id": 61,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "show": false,
+          "reducer": [
+            "sum"
+          ]
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "label_join(max by (upgrade_type, name) ((tuppr_maintenance_window_active and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1)))) and on (upgrade_type, name) max by (upgrade_type, name) ((tuppr_maintenance_window_info and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1)))), \"upgrade\", \" / \", \"upgrade_type\", \"name\")",
+          "format": "table",
+          "instant": true,
+          "refId": "Active",
+          "range": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "label_join(max by (upgrade_type, name) ((tuppr_maintenance_window_next_open_timestamp and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))) * 1000), \"upgrade\", \" / \", \"upgrade_type\", \"name\")",
+          "format": "table",
+          "instant": true,
+          "refId": "NextOpen",
+          "range": false
+        }
+      ],
+      "title": "Last evaluated maintenance window",
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "upgrade",
+            "mode": "outerTabular"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Time 1": true,
+              "Time 2": true,
+              "name": true,
+              "name 1": true,
+              "name 2": true,
+              "upgrade_type": true,
+              "upgrade_type 1": true,
+              "upgrade_type 2": true
+            },
+            "indexByName": {
+              "upgrade": 0,
+              "Value #Active": 1,
+              "Value #NextOpen": 2
+            },
+            "renameByName": {
+              "upgrade": "Upgrade",
+              "Value #Active": "Active",
+              "Value #NextOpen": "Next open"
+            }
+          }
+        }
+      ],
+      "type": "table",
+      "description": "Active upgrades with configured windows; evaluated during reconciliation."
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "noValue": "—"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 116
+      },
+      "id": 62,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "show": false,
+          "reducer": [
+            "sum"
+          ]
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "Upgrade"
+          }
+        ]
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "max by (upgrade_type, name, index, start, duration, timezone) ((tuppr_maintenance_window_info and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))))",
+          "format": "table",
+          "instant": true,
+          "refId": "A",
+          "range": false
+        }
+      ],
+      "title": "Maintenance schedules for active upgrades",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true,
+              "__name__": true,
+              "job": true,
+              "instance": true,
+              "container": true,
+              "endpoint": true,
+              "namespace": true,
+              "pod": true,
+              "service": true
+            },
+            "indexByName": {
+              "upgrade_type": 0,
+              "name": 1,
+              "index": 2,
+              "start": 3,
+              "duration": 4,
+              "timezone": 5
+            },
+            "renameByName": {
+              "upgrade_type": "Type",
+              "name": "Upgrade",
+              "index": "#",
+              "start": "Start (cron)",
+              "duration": "Duration",
+              "timezone": "Timezone"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 124
+      },
+      "id": 110,
+      "panels": [],
+      "title": "Upgrade targets",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "noValue": "—"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 125
+      },
+      "id": 111,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "show": false,
+          "reducer": [
+            "sum"
+          ]
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "displayName": "Node",
+            "desc": false
+          }
+        ]
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "max by (node, role, talos_version) ((tuppr_node_info and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))))",
+          "format": "table",
+          "instant": true,
+          "refId": "Current",
+          "range": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "max by (node, version, upgrade_name) ((tuppr_node_target_version{kind=\"talos\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))))",
+          "format": "table",
+          "instant": true,
+          "refId": "Target",
+          "range": false
+        }
+      ],
+      "title": "Talos current and target versions",
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "node",
+            "mode": "outerTabular"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time 1": true,
+              "Time 2": true,
+              "Value #Current": true,
+              "Value #Target": true,
+              "__name__": true,
+              "instance": true,
+              "job": true,
+              "namespace": true,
+              "pod": true,
+              "container": true,
+              "endpoint": true,
+              "service": true,
+              "prometheus": true,
+              "prometheus_replica": true,
+              "Time": true,
+              "Time 6": true,
+              "Value": true
+            },
+            "indexByName": {
+              "node": 0,
+              "role": 1,
+              "talos_version": 2,
+              "version": 3,
+              "upgrade_name": 4
+            },
+            "renameByName": {
+              "node": "Node",
+              "role": "Role",
+              "talos_version": "Current",
+              "version": "Target",
+              "upgrade_name": "Upgrade"
+            }
+          }
+        }
+      ],
+      "type": "table",
+      "description": "Targets appear only for active upgrades."
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "noValue": "—"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 125
+      },
+      "id": 112,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "show": false,
+          "reducer": [
+            "sum"
+          ]
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "displayName": "Node",
+            "desc": false
+          }
+        ]
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "max by (node, role, kubernetes_version) ((tuppr_node_info and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))))",
+          "format": "table",
+          "instant": true,
+          "refId": "Current",
+          "range": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${datasource}"
+          },
+          "expr": "max by (node, version, upgrade_name) ((tuppr_node_target_version{kind=\"kubernetes\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))))",
+          "format": "table",
+          "instant": true,
+          "refId": "Target",
+          "range": false
+        }
+      ],
+      "title": "Kubernetes current and target versions",
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "node",
+            "mode": "outerTabular"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time 1": true,
+              "Time 2": true,
+              "Value #Current": true,
+              "Value #Target": true,
+              "__name__": true,
+              "instance": true,
+              "job": true,
+              "namespace": true,
+              "pod": true,
+              "container": true,
+              "endpoint": true,
+              "service": true,
+              "prometheus": true,
+              "prometheus_replica": true,
+              "Time": true,
+              "Time 6": true,
+              "Value": true
+            },
+            "indexByName": {
+              "node": 0,
+              "role": 1,
+              "kubernetes_version": 2,
+              "version": 3,
+              "upgrade_name": 4
+            },
+            "renameByName": {
+              "node": "Node",
+              "role": "Role",
+              "kubernetes_version": "Current",
+              "version": "Target",
+              "upgrade_name": "Upgrade"
+            }
+          }
+        }
+      ],
+      "type": "table",
+      "description": "Targets appear only for active upgrades."
+    }
+  ],
+  "preload": false,
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": [
+    "tuppr",
+    "talos",
+    "kubernetes",
+    "upgrade"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": "VictoriaMetrics",
+          "value": "victoriametrics-prom"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Datasource",
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "queryValue": "",
+        "refresh": 1,
+        "regex": "^VictoriaMetrics$",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "$${datasource}"
+        },
+        "definition": "label_values(tuppr_talos_upgrade_phase, name)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Talos upgrade",
+        "multi": true,
+        "name": "talos_upgrade",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(tuppr_talos_upgrade_phase, name)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query",
+        "allValue": ".*"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "$${datasource}"
+        },
+        "definition": "label_values(tuppr_kubernetes_upgrade_phase, name)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Kubernetes upgrade",
+        "multi": true,
+        "name": "k8s_upgrade",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(tuppr_kubernetes_upgrade_phase, name)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query",
+        "allValue": ".*"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "tuppr — Talos & Kubernetes upgrades",
+  "uid": "tuppr-overview",
+  "version": 2,
+  "weekStart": ""
+}
