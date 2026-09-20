@@ -9,6 +9,7 @@ spec:
   dependsOn:
     - name: longhorn
       namespace: longhorn-system
+    - name: cloudnative-pg-objectstore
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
@@ -25,6 +26,53 @@ spec:
     name: flux-system
     namespace: flux-system
   targetNamespace: *namespace
+  timeout: 5m
+  wait: true
+---
+# Plugin installation does not depend on the database Kustomization: that would
+# form a cycle. Install in db, alongside the existing CNPG operator.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cloudnative-pg-plugin
+  namespace: db
+spec:
+  dependsOn:
+    - name: cert-manager
+      namespace: cert-manager
+  interval: 1h
+  path: ./kubernetes/apps/db/cloudnative-pg/plugin
+  prune: true
+  retryInterval: 2m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: db
+  timeout: 10m
+  wait: true
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cloudnative-pg-objectstore
+  namespace: db
+spec:
+  dependsOn:
+    - name: cloudnative-pg-plugin
+  interval: 1h
+  path: ./kubernetes/apps/db/cloudnative-pg/objectstore
+  postBuild:
+    substituteFrom:
+      - name: cluster-secrets
+        kind: Secret
+  prune: true
+  retryInterval: 2m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: db
   timeout: 5m
   wait: true
 ---
