@@ -4,6 +4,16 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 configMapGenerator:
+  # Based on tuppr chart 0.5.7; preserve its UID and use a separate sidecar filename.
+  # MetricsQL increase_pure includes the first observation of lazily created counters.
+  - name: grafana-dashboard-tuppr
+    files:
+      - ./json/tuppr-operational.json
+
+  - name: grafana-dashboard-coredns
+    files:
+      - ./json/coredns.json
+
   # Spegel v0.7.4 chart dashboard, adapted for file provisioning (no import inputs).
   # Source: https://github.com/spegel-org/spegel/blob/v0.7.4/charts/spegel/monitoring/grafana-dashboard.json
   - name: grafana-dashboard-spegel
@@ -107,6 +117,13 @@ configMapGenerator:
     options:
       annotations:
         grafana_folder: "network"
+
+  - name: grafana-dashboard-external-filesystems
+    files:
+      - ./json/external-filesystems.json
+    options:
+      annotations:
+        grafana_folder: "storage"
 
   - name: grafana-dashboard-volsync
     files:
