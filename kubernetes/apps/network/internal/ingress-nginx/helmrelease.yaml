@@ -24,6 +24,17 @@ spec:
   values:
     fullnameOverride: internal-ingress-nginx
     controller:
+      replicaCount: 2
+      minAvailable: 1
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: ingress-nginx
+                  app.kubernetes.io/instance: internal-ingress-nginx
+                  app.kubernetes.io/component: controller
       service:
         annotations:
           lbipam.cilium.io/ips: "192.168.1.82"
@@ -74,6 +85,8 @@ spec:
           namespaceSelector:
             any: true
       extraArgs:
+        # Prevents ExternalDNS record deletion when the controller shuts down.
+        update-status-on-shutdown: "false"
         default-ssl-certificate: cert-manager/${SECRET_DOMAIN/./-}-production-tls
       resources:
         requests:

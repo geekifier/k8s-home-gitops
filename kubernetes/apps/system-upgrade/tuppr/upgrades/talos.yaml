@@ -6,7 +6,7 @@ metadata:
 spec:
   talos:
     # renovate: datasource=custom.talos-factory depName=siderolabs/talos
-    version: v1.12.12
+    version: v1.13.10
     # Use a similar pattern for KubernetesUpgrade with depName=ghcr.io/siderolabs/kubelet.
   parallelism: 1
   silences:
@@ -61,6 +61,13 @@ spec:
   # Admission checks BEFORE the next node; PostgreSQL 2/3 is expected while
   # the active Job drains/reboots its node. Talos uncordons on return.
   healthChecks:
+    - apiVersion: dragonflydb.io/v1alpha1
+      kind: Dragonfly
+      name: dragonfly-shared
+      namespace: db
+      description: Before starting another node, wait for Dragonfly to be Ready
+      timeout: 30m
+      expr: status.phase == 'Ready'
     - apiVersion: postgresql.cnpg.io/v1
       kind: Cluster
       name: postgres17
