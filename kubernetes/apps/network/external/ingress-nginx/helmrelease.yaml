@@ -78,6 +78,8 @@ spec:
           namespaceSelector:
             any: true
       extraArgs:
+        # Prevents ExternalDNS record deletion when the controller shuts down.
+        update-status-on-shutdown: "false"
         default-ssl-certificate: cert-manager/${SECRET_DOMAIN/./-}-production-tls
       resources:
         requests:
