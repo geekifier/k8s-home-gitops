@@ -1,0 +1,207 @@
+---
+# Shared admission gates for both upgrade kinds. Kubernetes checks run before its Job;
+# Talos also checks between node batches. These are not post-upgrade smoke tests.
+- op: add
+  path: /spec/healthChecks
+  value:
+    - apiVersion: dragonflydb.io/v1alpha1
+      kind: Dragonfly
+      name: dragonfly-shared
+      namespace: db
+      description: Dragonfly must be Ready
+      timeout: 30m
+      expr: status.phase == 'Ready'
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      name: postgres17
+      namespace: db
+      description: PostgreSQL must be healthy with all three instances ready
+      timeout: 30m
+      # Standby timeLineID comes from checkpoint metadata and can lag the
+      # streaming timeline after a healthy switchover; it is not a replay fence.
+      expr: >-
+        object.spec.instances == 3 && object.spec.enablePDB &&
+        (!has(object.spec.nodeMaintenanceWindow) ||
+          ((!has(object.spec.nodeMaintenanceWindow.inProgress) ||
+            !object.spec.nodeMaintenanceWindow.inProgress) &&
+           (!has(object.spec.nodeMaintenanceWindow.reusePVC) ||
+            object.spec.nodeMaintenanceWindow.reusePVC))) &&
+        object.spec.affinity.enablePodAntiAffinity &&
+        object.spec.affinity.podAntiAffinityType == 'required' &&
+        object.spec.affinity.topologyKey == 'kubernetes.io/hostname' &&
+        object.spec.storage.storageClass == 'longhorn-cluster-best-effort' &&
+        status.instances == 3 && status.readyInstances == 3 &&
+        status.topology.successfullyExtracted && status.topology.nodesUsed == 3 &&
+        status.currentPrimary != '' && status.currentPrimary == status.targetPrimary &&
+        status.phase == 'Cluster in healthy state' &&
+        status.conditions.exists(c, c.type == 'Ready' && c.status == 'True') &&
+        status.conditions.exists(c, c.type == 'ContinuousArchiving' && c.status == 'True') &&
+        size(status.instancesReportedState) == 3 &&
+        status.currentPrimary in status.instancesReportedState &&
+        status.instancesReportedState.all(n,
+          status.instancesReportedState[n].isPrimary == (n == status.currentPrimary))
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: cloudnative-pg
+      namespace: db
+      description: CNPG operator fully available to handle the next switchover
+      timeout: 30m
+      expr: >-
+        object.spec.replicas == 2 &&
+        status.observedGeneration == object.metadata.generation &&
+        status.replicas == 2 && status.updatedReplicas == 2 &&
+        status.readyReplicas == 2 && status.availableReplicas == 2
+    - apiVersion: v1
+      kind: Node
+      labelSelector: {}
+      description: All nodes must be Ready, uncordoned and pressure-free
+      timeout: 30m
+      expr: >-
+        !has(object.metadata.deletionTimestamp) &&
+        (!has(object.spec.unschedulable) || !object.spec.unschedulable) &&
+        status.conditions.exists(c, c.type == 'Ready' && c.status == 'True') &&
+        ['MemoryPressure', 'DiskPressure', 'PIDPressure'].all(t,
+          status.conditions.exists(c, c.type == t && c.status == 'False'))
+    - apiVersion: longhorn.io/v1beta2
+      kind: Setting
+      name: node-drain-policy
+      namespace: longhorn-system
+      description: Stopped replicas may remain on the returning node
+      expr: object.value == 'allow-if-replica-is-stopped'
+    - apiVersion: longhorn.io/v1beta2
+      kind: Setting
+      name: disable-scheduling-on-cordoned-node
+      namespace: longhorn-system
+      description: No new storage replicas on a cordoned node
+      expr: object.value == 'true'
+    - apiVersion: longhorn.io/v1beta2
+      kind: Node
+      namespace: longhorn-system
+      labelSelector: {}
+      description: Longhorn nodes and enabled disks must be Ready and Schedulable
+      timeout: 30m
+      expr: >-
+        object.spec.allowScheduling && !object.spec.evictionRequested &&
+        ['Ready', 'Schedulable'].all(t,
+          status.conditions.exists(c, c.type == t && c.status == 'True')) &&
+        size(object.spec.disks) > 0 &&
+        object.spec.disks.all(d,
+          !object.spec.disks[d].evictionRequested &&
+          (!object.spec.disks[d].allowScheduling ||
+            ['Ready', 'Schedulable'].all(t,
+              status.diskStatus[d].conditions.exists(c, c.type == t && c.status == 'True'))))
+    - apiVersion: longhorn.io/v1beta2
+      kind: Volume
+      namespace: longhorn-system
+      labelSelector: {}
+      description: Active volumes recovered; preserve PostgreSQL best-effort storage
+      timeout: 30m
+      expr: >-
+        !has(object.metadata.deletionTimestamp) &&
+        (status.state == 'detached' ?
+          object.spec.nodeID == '' && status.robustness != 'faulted' :
+          status.state == 'attached' && status.robustness == 'healthy' &&
+          object.spec.nodeID != '' && status.currentNodeID == object.spec.nodeID &&
+          (status.kubernetesStatus.namespace == 'db' &&
+           status.kubernetesStatus.pvcName.startsWith('postgres17-') ?
+            object.spec.numberOfReplicas == 1 && object.spec.dataLocality == 'best-effort' :
+            object.spec.numberOfReplicas >= 2 &&
+            object.spec.replicaSoftAntiAffinity != 'enabled'))
+    - apiVersion: longhorn.io/v1beta2
+      kind: Setting
+      name: replica-soft-anti-affinity
+      namespace: longhorn-system
+      description: Replicated volumes keep their copies on distinct nodes
+      expr: object.value == 'false'
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: cilium-operator
+      namespace: kube-system
+      description: Cilium operator must have all desired replicas updated and available
+      timeout: 30m
+      expr: >-
+        !has(object.metadata.deletionTimestamp) &&
+        object.spec.replicas > 0 &&
+        status.observedGeneration == object.metadata.generation &&
+        status.replicas == object.spec.replicas &&
+        status.updatedReplicas == object.spec.replicas &&
+        status.readyReplicas == object.spec.replicas &&
+        status.availableReplicas == object.spec.replicas
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: coredns
+      namespace: kube-system
+      description: Cluster DNS must have all desired replicas updated and available
+      timeout: 30m
+      expr: >-
+        !has(object.metadata.deletionTimestamp) &&
+        object.spec.replicas > 0 &&
+        status.observedGeneration == object.metadata.generation &&
+        status.replicas == object.spec.replicas &&
+        status.updatedReplicas == object.spec.replicas &&
+        status.readyReplicas == object.spec.replicas &&
+        status.availableReplicas == object.spec.replicas
+    # Discover networking workloads instead of requiring a particular ingress controller.
+    # No labelSelector: empty lists pass during ingress/Gateway migration.
+    - apiVersion: apps/v1
+      kind: Deployment
+      namespace: network
+      description: Active networking deployments must have their desired replicas available
+      timeout: 30m
+      expr: >-
+        has(object.metadata.deletionTimestamp) || object.spec.replicas == 0 ||
+        (status.observedGeneration == object.metadata.generation &&
+         status.updatedReplicas == object.spec.replicas &&
+         status.readyReplicas == object.spec.replicas &&
+         status.availableReplicas == object.spec.replicas)
+    - apiVersion: apps/v1
+      kind: DaemonSet
+      namespace: network
+      description: Active networking DaemonSets must be available on their desired nodes
+      timeout: 30m
+      expr: >-
+        has(object.metadata.deletionTimestamp) ||
+        (status.observedGeneration == object.metadata.generation &&
+         (status.desiredNumberScheduled == 0 ||
+          (status.updatedNumberScheduled == status.desiredNumberScheduled &&
+           status.numberReady == status.desiredNumberScheduled &&
+           status.numberAvailable == status.desiredNumberScheduled &&
+           status.numberMisscheduled == 0)))
+    - apiVersion: gateway.networking.k8s.io/v1
+      kind: Gateway
+      description: Existing Gateways must be accepted and programmed for their current generation
+      timeout: 30m
+      # Cluster-wide; no Gateways is valid while ingress-nginx remains in use.
+      expr: >-
+        has(object.metadata.deletionTimestamp) ||
+        ['Accepted', 'Programmed'].all(t,
+          status.conditions.exists(c, c.type == t && c.status == 'True' &&
+            c.observedGeneration == object.metadata.generation))
+    - apiVersion: apps/v1
+      kind: DaemonSet
+      name: cilium
+      namespace: kube-system
+      description: Cilium must be updated and available on all desired nodes
+      timeout: 30m
+      expr: >-
+        !has(object.metadata.deletionTimestamp) &&
+        status.observedGeneration == object.metadata.generation &&
+        status.desiredNumberScheduled > 0 &&
+        status.currentNumberScheduled == status.desiredNumberScheduled &&
+        status.updatedNumberScheduled == status.desiredNumberScheduled &&
+        status.numberReady == status.desiredNumberScheduled &&
+        status.numberAvailable == status.desiredNumberScheduled &&
+        status.numberMisscheduled == 0
+    - apiVersion: v1
+      kind: Pod
+      labelSelector: {}
+      description: No active pods may be reported Unschedulable
+      timeout: 30m
+      # Check explicit scheduler failures, not every transient Pending pod or finished Job.
+      expr: >-
+        has(object.metadata.deletionTimestamp) ||
+        status.phase in ['Succeeded', 'Failed'] ||
+        !has(status.conditions) ||
+        !status.conditions.exists(c,
+          c.type == 'PodScheduled' && c.status == 'False' &&
+          has(c.reason) && c.reason == 'Unschedulable')

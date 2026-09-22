@@ -221,12 +221,8 @@
                 "value": null
               },
               {
-                "color": "yellow",
-                "value": 1
-              },
-              {
                 "color": "red",
-                "value": 5
+                "value": 1
               }
             ]
           },
@@ -263,14 +259,15 @@
             "type": "prometheus",
             "uid": "$${datasource}"
           },
-          "expr": "sum(increase_pure(tuppr_health_check_failures_total[1h])) or (max((leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))) * 0)",
+          "expr": "sum(max by (__name__, name) ({__name__=~\"tuppr_(talos|kubernetes)_upgrade_phase\",phase=\"Failed\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1)))) or (max((leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))) * 0)",
           "refId": "A",
           "instant": true,
           "range": false
         }
       ],
-      "title": "Health check failures (1h)",
-      "type": "stat"
+      "title": "Upgrades currently failed",
+      "type": "stat",
+      "description": "Current Failed phases reported by the live tuppr leader. Resolved health-check polling attempts are not upgrade failures. No data is shown when no leader is being scraped."
     },
     {
       "datasource": {
@@ -1819,8 +1816,9 @@
           "refId": "A"
         }
       ],
-      "title": "Health check failures (5m)",
-      "type": "timeseries"
+      "title": "Unsuccessful health-check polls (5m)",
+      "type": "timeseries",
+      "description": "Historical unsuccessful polling attempts, including expected recovery waits and evaluation errors. One check can increment repeatedly before passing; counts do not indicate distinct or currently failing checks. Use current upgrade phases for status and tuppr logs/events to investigate persistent waits."
     },
     {
       "datasource": {
@@ -1941,7 +1939,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "fixed",
+            "fixedColor": "blue"
           },
           "custom": {
             "align": "auto",
@@ -1950,42 +1949,9 @@
             },
             "filterable": true
           },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 1
-              },
-              {
-                "color": "red",
-                "value": 5
-              }
-            ]
-          },
           "noValue": "—"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Failures (1h)"
-            },
-            "properties": [
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-background",
-                  "mode": "gradient"
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 8,
@@ -2006,7 +1972,7 @@
         "showHeader": true,
         "sortBy": [
           {
-            "displayName": "Failures (1h)",
+            "displayName": "Unsuccessful polls (1h)",
             "desc": true
           }
         ]
@@ -2025,7 +1991,7 @@
           "range": false
         }
       ],
-      "title": "Health check failures by check (1h)",
+      "title": "Unsuccessful health-check polls (by check, 1h)",
       "transformations": [
         {
           "id": "organize",
@@ -2043,12 +2009,13 @@
               "upgrade_type": "Type",
               "upgrade_name": "Upgrade",
               "check_index": "Check #",
-              "Value": "Failures (1h)"
+              "Value": "Unsuccessful polls (1h)"
             }
           }
         }
       ],
-      "type": "table"
+      "type": "table",
+      "description": "Historical unsuccessful polling attempts, including expected recovery waits and evaluation errors. One check can increment repeatedly before passing; counts do not indicate distinct or currently failing checks. Use current upgrade phases for status and tuppr logs/events to investigate persistent waits."
     },
     {
       "collapsed": false,
