@@ -248,12 +248,71 @@
       ],
       "versioning": "semver",
       "semanticCommitScope": "talos",
+      // Canonicalize the CLI's bare version to the cluster's v-prefixed form.
+      // Renovate otherwise drops differing version suffixes from the shared PR title.
+      "commitMessageExtra": "( v{{{replace '^v' '' currentVersion}}} ➔ v{{{replace '^v' '' newVersion}}} )",
       // Factory determines availability; GitHub supplies release notes.
       "sourceUrl": "https://github.com/siderolabs/talos",
       "separateMajorMinor": true,
       "separateMinorPatch": true,
       // Expose intermediate minor versions; upgrades must still be completed in order.
       "separateMultipleMinor": true
+    },
+    {
+      "description": "Keep topf and tuppr Kubernetes targets together, with sequential minor upgrade PRs",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "ghcr.io/siderolabs/kubelet"
+      ],
+      "versioning": "semver",
+      "semanticCommitScope": "kubernetes",
+      "sourceUrl": "https://github.com/kubernetes/kubernetes",
+      "automerge": false,
+      "separateMajorMinor": true,
+      "separateMinorPatch": true,
+      // Offer the latest patch in each minor stream; merge and complete upgrades in order.
+      "separateMultipleMinor": true,
+      "prBodyNotes": [
+        "Upgrade to the latest patch of the current Kubernetes minor first, then advance one minor at a time. Wait for tuppr to complete each upgrade before merging the next; these PRs do not enforce ordering. Keep talos/topf.yaml and KubernetesUpgrade on the same target and check Talos compatibility before merging."
+      ]
+    },
+    {
+      "description": "Offer Cilium updates per minor stream for sequential upgrades",
+      "matchDatasources": [
+        "helm"
+      ],
+      "matchPackageNames": [
+        "cilium"
+      ],
+      "separateMajorMinor": true,
+      "separateMinorPatch": true,
+      "separateMultipleMinor": true
+    },
+    {
+      "description": "Let the Talos Factory manager update talosctl with the cluster target",
+      "matchManagers": [
+        "mise"
+      ],
+      "matchDepNames": [
+        "talosctl"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Keep the CoreDNS builder on upstream's Go minor series; allow patch and digest updates",
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchFileNames": [
+        "containers/coredns/Dockerfile"
+      ],
+      "matchPackageNames": [
+        "golang"
+      ],
+      // Match .go-version in the pinned CoreDNS source; revisit on source upgrades.
+      "allowedVersions": "/^1\\.26\\./"
     },
     {
       "description": "Keep custom CoreDNS resolver image promotion manual",
@@ -359,6 +418,21 @@
   ],
   "customManagers": [
     {
+      "description": "Keep mise talosctl on the same Talos Factory release as the cluster target",
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^\\.mise\\.toml$/"
+      ],
+      "matchStrings": [
+        "talosctl = \"(?<currentValue>[0-9]+\\.[0-9]+\\.[0-9]+)\""
+      ],
+      "datasourceTemplate": "custom.talos-factory",
+      "depNameTemplate": "siderolabs/talos",
+      "versioningTemplate": "semver",
+      // Factory tags have a leading v; mise's tool pin does not.
+      "extractVersionTemplate": "^v?(?<version>[0-9]+\\.[0-9]+\\.[0-9]+)$"
+    },
+    {
       "description": "Process annotated dependencies",
       "customType": "regex",
       "managerFilePatterns": [
@@ -368,10 +442,6 @@
         "/(^|/).+\\.ya?ml(?:\\.j2)?$/"
       ],
       "matchStrings": [
-        // # renovate: datasource=github-releases depName=k3s-io/k3s
-        // k3s_release_version: &version v1.29.0+k3s1
-        // # renovate: datasource=helm depName=cilium repository=https://helm.cilium.io
-        // version: 1.15.1
         // # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
         // KUBERNETES_VERSION=v1.31.1
         "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( repository=(?<registryUrl>\\S+))?\\n.+(:\\s|=)(&\\S+\\s)?(?<currentValue>\\S+)",

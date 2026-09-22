@@ -1,0 +1,11 @@
+---
+apiVersion: tuppr.home-operations.com/v1alpha1
+kind: KubernetesUpgrade
+metadata:
+  name: kubernetes
+spec:
+  kubernetes:
+    # Keep in sync with talos/topf.yaml; upgrade patches first, then one minor at a time.
+    # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
+    version: v1.34.11
+  # Shared health checks are injected by kustomization.yaml.

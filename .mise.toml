@@ -35,8 +35,8 @@ helm-diff = "latest"
 "aqua:kubernetes-sigs/kustomize" = "5.7.1"
 kubectl = "1.37.0"
 "aqua:mikefarah/yq" = "4.53.6"
-"aqua:siderolabs/talos" = "1.14.1"
 "aqua:yannh/kubeconform" = "0.8.0"
 "github:postfinance/topf" = "v0.6.0"
 "go:github.com/VictoriaMetrics-Community/mcp-victoriametrics/cmd/mcp-victoriametrics" = { version = "latest" }
 "go:github.com/backube/volsync/kubectl-volsync" = { version = "latest" }
+talosctl = "1.13.10"
