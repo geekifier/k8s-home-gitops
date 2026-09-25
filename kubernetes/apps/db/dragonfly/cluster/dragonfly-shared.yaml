@@ -8,18 +8,11 @@ metadata:
 spec:
   labels:
     dragonflydb.io/cluster: dragonfly-shared
-  image: ghcr.io/dragonflydb/dragonfly:v1.38.1
-  # replicas=2 creates 1 primary and 1 replica Dragonly instance
+  image: ghcr.io/dragonflydb/dragonfly:v2.0.0
+  # replicas=2 creates 1 primary and 1 replica Dragonfly instance
   replicas: 2
-  env:
-    - name: MAX_MEMORY
-      valueFrom:
-        resourceFieldRef:
-          resource: limits.memory
-          divisor: 1Mi
   args:
-    - --maxmemory=$(MAX_MEMORY)Mi
-    - --proactor_threads=2
+    - --proactor_threads=1
     - --cluster_mode=emulated
     - --lock_on_hashtags
   resources:
@@ -27,7 +20,9 @@ spec:
       cpu: 250m
       memory: 32Mi
     limits:
-      memory: 512Mi
+      # Automatic maxmemory uses ~307Mi, above the 256Mi minimum for one thread.
+      # Leave ~77Mi for process and replication overhead.
+      memory: 384Mi
   topologySpreadConstraints:
     - maxSkew: 1
       topologyKey: "kubernetes.io/hostname"

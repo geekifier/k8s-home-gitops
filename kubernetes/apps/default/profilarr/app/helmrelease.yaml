@@ -76,4 +76,3 @@ spec:
         storageClass: longhorn-standard
         accessMode: ReadWriteOnce
         size: 512Mi
-

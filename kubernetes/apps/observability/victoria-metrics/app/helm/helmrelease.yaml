@@ -402,11 +402,11 @@ spec:
 
       # -- (object) Extra alert templates
       templateFiles: {}
-        # template_1.tmpl: |-
-        #   {{ define "hello" -}}
-        #   hello, Victoria!
-        #   {{- end }}
-        # template_2.tmpl: ""
+      # template_1.tmpl: |-
+      #   {{ define "hello" -}}
+      #   hello, Victoria!
+      #   {{- end }}
+      # template_2.tmpl: ""
 
       # -- (object) Alertmanager ingress configuration
       ingress:
@@ -453,21 +453,21 @@ spec:
 
       # -- (object) Extra VMAlert annotation templates
       templateFiles: {}
-        # template_1.tmpl: |-
-        #   {{ define "hello" -}}
-        #   hello, Victoria!
-        #   {{- end }}
-        # template_2.tmpl: ""
+      # template_1.tmpl: |-
+      #   {{ define "hello" -}}
+      #   hello, Victoria!
+      #   {{- end }}
+      # template_2.tmpl: ""
 
       # -- Allows to configure static notifiers, discover notifiers via Consul and DNS,
       # see specification [here](https://docs.victoriametrics.com/vmalert/#notifier-configuration-file).
       # This configuration will be created as separate secret and mounted to VMAlert pod.
       additionalNotifierConfigs: {}
-        # dns_sd_configs:
-        #   - names:
-        #       - my.domain.com
-        #     type: 'A'
-        #     port: 9093
+      # dns_sd_configs:
+      #   - names:
+      #       - my.domain.com
+      #     type: 'A'
+      #     port: 9093
       # -- (object) VMAlert ingress config
       ingress:
         enabled: true
@@ -476,8 +476,8 @@ spec:
         ingressClassName: internal
         # Values can be templated
         annotations: {}
-          # kubernetes.io/ingress.class: nginx
-          # kubernetes.io/tls-acme: "true"
+        # kubernetes.io/ingress.class: nginx
+        # kubernetes.io/tls-acme: "true"
         labels: {}
         path: ""
         pathType: Prefix
@@ -534,9 +534,9 @@ spec:
         selectAllByDefault: true
         scrapeInterval: 30s
         externalLabels: {}
-          # For multi-cluster setups it is useful to use "cluster" label to identify the metrics source.
-          # For example:
-          # cluster: cluster-name
+        # For multi-cluster setups it is useful to use "cluster" label to identify the metrics source.
+        # For example:
+        # cluster: cluster-name
         # extraArgs:
         ## switched to per-source streamParse toggle and automatic detection based on `promscrape.minResponseSizeForStreamParse`
         # promscrape.streamParse: "true"
@@ -576,8 +576,8 @@ spec:
         ingressClassName: internal
         # Values can be templated
         annotations: {}
-          # kubernetes.io/ingress.class: nginx
-          # kubernetes.io/tls-acme: "true"
+        # kubernetes.io/ingress.class: nginx
+        # kubernetes.io/tls-acme: "true"
         labels: {}
         path: ""
         pathType: Prefix
@@ -701,6 +701,9 @@ spec:
           label: grafana_datasource
           searchNamespace: ALL
         dashboards:
+          # Match label presence: charts such as Dragonfly use values other than "1".
+          label: grafana_dashboard
+          labelValue: ""
           provider:
             name: default
             orgid: 1

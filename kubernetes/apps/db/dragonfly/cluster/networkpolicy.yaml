@@ -27,3 +27,31 @@ spec:
       ports:
         - port: 9999
           protocol: TCP
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/networking.k8s.io/networkpolicy_v1.json
+# Operator >= v1.6.0 restricts client access to the Dragonfly namespace.
+# Clients opt in with access.policy.xenu.internal/<namespace>.<resource>: "true".
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dragonfly-shared-allow-clients
+spec:
+  podSelector:
+    matchLabels:
+      app: dragonfly-shared
+      app.kubernetes.io/name: dragonfly
+      app.kubernetes.io/part-of: dragonfly
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchExpressions:
+              - key: kubernetes.io/metadata.name
+                operator: In
+                values: ["auth", "infra"]
+          podSelector:
+            matchLabels:
+              access.policy.xenu.internal/db.dragonfly-shared: "true"
+      ports:
+        - port: 6379
+          protocol: TCP
