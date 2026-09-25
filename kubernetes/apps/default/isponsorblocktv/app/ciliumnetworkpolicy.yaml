@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: isponsorblocktv
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: isponsorblocktv
+  enableDefaultDeny:
+    ingress: true
+    egress: true
+  egress:
+    # Lounge API, SponsorBlock API, YouTube Data API (channel whitelist)
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s:k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns: &fqdns
+              - matchName: www.youtube.com
+              - matchName: sponsor.ajay.app
+              - matchName: www.googleapis.com
+    - toFQDNs: *fqdns
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+          serverNames:
+            - www.youtube.com
+            - sponsor.ajay.app
+            - www.googleapis.com

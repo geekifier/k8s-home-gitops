@@ -11,10 +11,12 @@ spec:
     enablePodAntiAffinity: true
     podAntiAffinityType: required
     topologyKey: kubernetes.io/hostname
-  imageName: ghcr.io/cloudnative-pg/postgresql:17.6
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.11
   primaryUpdateStrategy: unsupervised
   primaryUpdateMethod: switchover
-  smartShutdownTimeout: 10
+  # Skip smart shutdown so existing sessions cannot keep writing during its grace period after isolation.
+  # https://github.com/cloudnative-pg/cloudnative-pg/issues/11280
+  smartShutdownTimeout: 0
   storage:
     size: 20Gi
     storageClass: longhorn-cluster-best-effort

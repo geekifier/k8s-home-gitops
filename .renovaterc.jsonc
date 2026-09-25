@@ -259,7 +259,7 @@
       "separateMultipleMinor": true
     },
     {
-      "description": "Keep topf and tuppr Kubernetes targets together, with sequential minor upgrade PRs",
+      "description": "Keep kubectl, topf and tuppr Kubernetes targets together, with sequential minor upgrade PRs",
       "matchDatasources": [
         "docker"
       ],
@@ -268,6 +268,7 @@
       ],
       "versioning": "semver",
       "semanticCommitScope": "kubernetes",
+      "commitMessageExtra": "( v{{{replace '^v' '' currentVersion}}} ➔ v{{{replace '^v' '' newVersion}}} )",
       "sourceUrl": "https://github.com/kubernetes/kubernetes",
       "automerge": false,
       "separateMajorMinor": true,
@@ -275,7 +276,23 @@
       // Offer the latest patch in each minor stream; merge and complete upgrades in order.
       "separateMultipleMinor": true,
       "prBodyNotes": [
-        "Upgrade to the latest patch of the current Kubernetes minor first, then advance one minor at a time. Wait for tuppr to complete each upgrade before merging the next; these PRs do not enforce ordering. Keep talos/topf.yaml and KubernetesUpgrade on the same target and check Talos compatibility before merging."
+        "Upgrade to the latest patch of the current Kubernetes minor first, then advance one minor at a time. Wait for tuppr to complete each upgrade before merging the next; these PRs do not enforce ordering. Keep .mise.toml kubectl, talos/topf.yaml and KubernetesUpgrade on the same target and check Talos compatibility before merging."
+      ]
+    },
+    {
+      "description": "Keep the Flux CLI and cluster target on the same release",
+      "matchDatasources": [
+        "github-releases"
+      ],
+      "matchPackageNames": [
+        "fluxcd/flux2"
+      ],
+      "versioning": "semver",
+      "semanticCommitScope": "flux",
+      "commitMessageExtra": "( v{{{replace '^v' '' currentVersion}}} ➔ v{{{replace '^v' '' newVersion}}} )",
+      "automerge": false,
+      "prBodyNotes": [
+        "Keep the Flux CLI in .mise.toml and the FluxInstance distribution version on the same target. Review the Flux release notes and Flux Operator compatibility before merging."
       ]
     },
     {
@@ -301,6 +318,44 @@
       "enabled": false
     },
     {
+      "description": "Let the Kubernetes target manager update kubectl with the cluster",
+      "matchManagers": [
+        "mise"
+      ],
+      "matchDepNames": [
+        "kubectl"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Let the Flux release manager update the CLI with the cluster target",
+      "matchManagers": [
+        "mise"
+      ],
+      "matchPackageNames": [
+        "fluxcd/flux2"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Offer PostgreSQL maintenance updates within the existing major only; major upgrades require a migration",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "ghcr.io/cloudnative-pg/postgresql"
+      ],
+      "matchFileNames": [
+        "kubernetes/apps/db/cloudnative-pg/cluster/pg17-monolith.yaml"
+      ],
+      "allowedVersions": "/^17\\./",
+      "changelogUrl": "https://www.postgresql.org/docs/release/{{newVersion}}/",
+      "prBodyNotes": [
+        "Review the [PostgreSQL release notes](https://www.postgresql.org/docs/release/) for all intervening 17.x releases, including their migration instructions."
+      ],
+      "automerge": false
+    },
+    {
       "description": "Keep the CoreDNS builder on upstream's Go minor series; allow patch and digest updates",
       "matchManagers": [
         "dockerfile"
@@ -323,6 +378,24 @@
         "ghcr.io/geekifier/coredns"
       ],
       "enabled": false
+    },
+    // Keep bare registry versions valid while recognizing prefixed GitHub release
+    // tags for inline notes. changelogUrl alone only adds a link to the PR.
+    {
+      "description": "Use ExternalDNS chart release notes rather than application version tags",
+      "matchDatasources": [
+        "helm"
+      ],
+      "matchPackageNames": [
+        "external-dns"
+      ],
+      "sourceUrl": "https://github.com/kubernetes-sigs/external-dns",
+      "sourceDirectory": "charts/external-dns",
+      "extractVersion": "^(?:external-dns-helm-chart-)?(?<version>[0-9]+\\.[0-9]+\\.[0-9]+)$",
+      "changelogUrl": "https://github.com/kubernetes-sigs/external-dns/releases/tag/external-dns-helm-chart-{{newVersion}}",
+      "prBodyNotes": [
+        "The chart release notes link to the bundled ExternalDNS application release. Review its [application release notes](https://github.com/kubernetes-sigs/external-dns/releases) as well as chart changes; both DNS instances follow the chart appVersion."
+      ]
     },
     {
       "description": "Link csi-driver-smb to its GitHub repo",
@@ -373,7 +446,12 @@
       "matchPackageNames": [
         "ghcr.io/coredns/charts/coredns"
       ],
-      "sourceUrl": "https://github.com/coredns/helm"
+      "sourceUrl": "https://github.com/coredns/helm",
+      "extractVersion": "^(?:coredns-)?(?<version>[0-9]+\\.[0-9]+\\.[0-9]+)$",
+      "changelogUrl": "https://github.com/coredns/helm/releases/tag/coredns-{{newVersion}}",
+      "prBodyNotes": [
+        "Review [CoreDNS application release notes](https://github.com/coredns/coredns/releases) when the chart appVersion changes. The custom resolver image is promoted separately."
+      ]
     },
     {
       "description": "Link Reloader chart to its GitHub releases",
@@ -383,7 +461,9 @@
       "matchPackageNames": [
         "ghcr.io/stakater/charts/reloader"
       ],
-      "changelogUrl": "https://github.com/stakater/Reloader"
+      "sourceUrl": "https://github.com/stakater/Reloader",
+      "extractVersion": "^(?:chart-v)?(?<version>[0-9]+\\.[0-9]+\\.[0-9]+)$",
+      "changelogUrl": "https://github.com/stakater/Reloader/releases/tag/chart-v{{newVersion}}"
     },
     {
       "description": "Link Jellyfin image to the jellyfin/jellyfin repo",
@@ -418,6 +498,21 @@
   ],
   "customManagers": [
     {
+      "description": "Keep mise Flux CLI on the same GitHub release as the cluster target",
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^\\.mise\\.toml$/"
+      ],
+      "matchStrings": [
+        "\"aqua:fluxcd/flux2\" = \"(?<currentValue>[0-9]+\\.[0-9]+\\.[0-9]+)\""
+      ],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "fluxcd/flux2",
+      "versioningTemplate": "semver",
+      // GitHub releases have a leading v; mise's tool pin does not.
+      "extractVersionTemplate": "^v?(?<version>[0-9]+\\.[0-9]+\\.[0-9]+)$"
+    },
+    {
       "description": "Keep mise talosctl on the same Talos Factory release as the cluster target",
       "customType": "regex",
       "managerFilePatterns": [
@@ -433,7 +528,33 @@
       "extractVersionTemplate": "^v?(?<version>[0-9]+\\.[0-9]+\\.[0-9]+)$"
     },
     {
-      "description": "Process annotated dependencies",
+      "description": "Keep mise kubectl on the same Kubernetes release as topf and tuppr",
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^\\.mise\\.toml$/"
+      ],
+      "matchStrings": [
+        "kubectl = \"(?<currentValue>[0-9]+\\.[0-9]+\\.[0-9]+)\""
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "ghcr.io/siderolabs/kubelet",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^v?(?<version>[0-9]+\\.[0-9]+\\.[0-9]+)$"
+    },
+    {
+      "description": "Track only the CNPG postgres17 cluster imageName field",
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^kubernetes/apps/db/cloudnative-pg/cluster/pg17-monolith\\.yaml$/"
+      ],
+      "matchStrings": [
+        "(?:^|\\n)[ \\t]*imageName:[ \\t]*[\"\\x27]?(?<depName>ghcr\\.io/cloudnative-pg/postgresql):(?<currentValue>17\\.[0-9]+(?:\\.[0-9]+)?)(?:[\"\\x27]|[ \\t\\r\\n]|$)"
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
+    },
+    {
+      "description": "Process annotated scalar dependencies without capturing quotes or comments",
       "customType": "regex",
       "managerFilePatterns": [
         "/^containers/coredns/Dockerfile$/",
@@ -442,14 +563,25 @@
         "/(^|/).+\\.ya?ml(?:\\.j2)?$/"
       ],
       "matchStrings": [
-        // # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
-        // KUBERNETES_VERSION=v1.31.1
-        "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( repository=(?<registryUrl>\\S+))?\\n.+(:\\s|=)(&\\S+\\s)?(?<currentValue>\\S+)",
-        // # renovate: datasource=docker depName=ghcr.io/prometheus-operator/prometheus-operator
-        // https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.80.0/example/prometheus-operator-crd/monitoring.coreos.com_alertmanagerconfigs.yaml
-        "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n.+/(?<currentValue>(v|\\d)[^/]+)"
+        "(?:^|\\r?\\n)[ \\t]*# renovate: datasource=(?<datasource>[^\\s]+) depName=(?<depName>[^\\s]+)(?: repository=(?<registryUrl>[^\\s]+))?[ \\t]*\\r?\\n[ \\t]*(?:(?:export|ARG|ENV)[ \\t]+)?[A-Za-z_][A-Za-z0-9_.-]*[ \\t]*(?::[ \\t]+|=[ \\t]*)(?:&[^\\s]+[ \\t]+)?[\"\\x27]?(?<currentValue>[^\\s\"\\x27#]+)"
       ],
-      "datasourceTemplate": "{{#if datasource}}{{{datasource}}}{{else}}github-releases{{/if}}"
+      "datasourceTemplate": "{{{datasource}}}"
+    },
+    // Match the whole URL; Renovate globally replaces the bare version in the
+    // release path and asset filename, preserving any v prefix in either place.
+    {
+      "description": "Update annotated GitHub release URLs, including matching versions in asset filenames",
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/(^|/).+\\.sh(?:\\.j2)?$/",
+        "/(^|/).+\\.ya?ml(?:\\.j2)?$/"
+      ],
+      "matchStrings": [
+        "(?:^|\\r?\\n)[ \\t]*# renovate: datasource=(?<datasource>[^\\s]+) depName=(?<depName>[^\\s]+)(?: repository=(?<registryUrl>[^\\s]+))?[ \\t]*\\r?\\n[ \\t]*(?:#[ \\t]*)?https://(?:github\\.com/[^/\\s]+/[^/\\s]+/releases/download|raw\\.githubusercontent\\.com/[^/\\s]+/[^/\\s]+)/v?(?<currentValue>[0-9]+(?:\\.[0-9]+)+(?:[-+][0-9A-Za-z.-]+)?)/[^\\s\"\\x27#]+"
+      ],
+      "datasourceTemplate": "{{{datasource}}}",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^v?(?<version>[0-9]+(?:\\.[0-9]+)+(?:[-+][0-9A-Za-z.-]+)?)$"
     },
     {
       "customType": "regex",

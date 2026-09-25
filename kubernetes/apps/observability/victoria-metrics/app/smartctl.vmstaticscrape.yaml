@@ -20,7 +20,7 @@ spec:
           action: replace
           target_label: device
           regex: "bus_(\\d+)_sat.*_(\\d+)"
-          replacement: "bus_${1}_sas_${2}"
+          replacement: "bus_$${1}_sas_$${2}"
 
 metadata:
   name: *jobName

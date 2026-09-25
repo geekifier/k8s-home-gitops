@@ -11,3 +11,4 @@ resources:
   - ../resources/longhorn.prometheusrule.yaml
   - ../resources/longhorn.snapshotclass.yaml
   - ../resources/longhorn.recurringjob-trim.yaml
+  - ../resources/longhorn.networkpolicy.yaml

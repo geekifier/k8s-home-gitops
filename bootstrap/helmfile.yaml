@@ -24,32 +24,32 @@ releases:
     atomic: true
     inherit:
       - template: default
-    needs: ['kube-system/cilium']
+    needs: ["kube-system/cilium"]
 
   - name: spegel
     namespace: kube-system
     atomic: true
     inherit:
       - template: default
-    needs: ['kube-system/coredns']
+    needs: ["kube-system/coredns"]
 
   - name: cert-manager
     namespace: cert-manager
     atomic: true
     inherit:
       - template: default
-    needs: ['kube-system/spegel']
+    needs: ["kube-system/spegel"]
 
   - name: flux-operator
     namespace: flux-system
     atomic: true
     inherit:
       - template: default
-    needs: ['cert-manager/cert-manager']
+    needs: ["cert-manager/cert-manager"]
 
   - name: flux-instance
     namespace: flux-system
     atomic: true
     inherit:
       - template: default
-    needs: ['flux-system/flux-operator']
+    needs: ["flux-system/flux-operator"]
