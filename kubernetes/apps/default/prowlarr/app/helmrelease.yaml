@@ -40,6 +40,10 @@ spec:
         strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
+        pod:
+          labels:
+            access.policy.xenu.internal/default.radarr: "true"
+            access.policy.xenu.internal/default.sonarr: "true"
         containers:
           app:
             image:
@@ -94,6 +98,36 @@ spec:
         ports:
           http:
             port: *containerPort
+    networkpolicies:
+      app:
+        controller: *app
+        policyTypes:
+          - Ingress
+        rules:
+          ingress:
+            - from:
+                - namespaceSelector:
+                    matchLabels:
+                      kubernetes.io/metadata.name: network
+                  podSelector:
+                    matchLabels:
+                      app.kubernetes.io/instance: internal-ingress-nginx
+                      app.kubernetes.io/component: controller
+                - namespaceSelector:
+                    matchLabels:
+                      kubernetes.io/metadata.name: network
+                  podSelector:
+                    matchLabels:
+                      gateway.envoyproxy.io/owning-gateway-name: envoy-internal
+                - namespaceSelector:
+                    matchLabels:
+                      kubernetes.io/metadata.name: default
+                  podSelector:
+                    matchLabels:
+                      access.policy.xenu.internal/default.prowlarr: "true"
+              ports:
+                - port: *containerPort
+                  protocol: TCP
     persistence:
       config:
         enabled: true

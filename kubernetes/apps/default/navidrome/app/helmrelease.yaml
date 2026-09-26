@@ -72,6 +72,30 @@ spec:
         ports:
           http:
             port: *port
+    networkpolicies:
+      app:
+        controller: *app
+        policyTypes:
+          - Ingress
+        rules:
+          ingress:
+            - from:
+                - namespaceSelector:
+                    matchLabels:
+                      kubernetes.io/metadata.name: network
+                  podSelector:
+                    matchLabels:
+                      app.kubernetes.io/instance: internal-ingress-nginx
+                      app.kubernetes.io/component: controller
+                - namespaceSelector:
+                    matchLabels:
+                      kubernetes.io/metadata.name: network
+                  podSelector:
+                    matchLabels:
+                      gateway.envoyproxy.io/owning-gateway-name: envoy-internal
+              ports:
+                - port: *port
+                  protocol: TCP
     ingress:
       app:
         annotations:

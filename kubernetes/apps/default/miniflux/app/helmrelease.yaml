@@ -91,6 +91,36 @@ spec:
     #         path: /metrics
     #         interval: 1m
     #         scrapeTimeout: 10s
+    networkpolicies:
+      app:
+        controller: *app
+        policyTypes:
+          - Ingress
+        rules:
+          ingress:
+            - from:
+                - namespaceSelector:
+                    matchLabels:
+                      kubernetes.io/metadata.name: network
+                  podSelector:
+                    matchLabels:
+                      app.kubernetes.io/instance: internal-ingress-nginx
+                      app.kubernetes.io/component: controller
+                - namespaceSelector:
+                    matchLabels:
+                      kubernetes.io/metadata.name: network
+                  podSelector:
+                    matchLabels:
+                      gateway.envoyproxy.io/owning-gateway-name: envoy-internal
+                - namespaceSelector:
+                    matchLabels:
+                      kubernetes.io/metadata.name: default
+                  podSelector:
+                    matchLabels:
+                      app.kubernetes.io/name: homepage
+              ports:
+                - port: *port
+                  protocol: TCP
     ingress:
       app:
         annotations:
