@@ -15,11 +15,11 @@ data:
       client:
         ignore-redirect: true
       conditions:
-        - "[STATUS] == any(200, 301, 302)"
+        - "[STATUS] == 200"
     endpoints:
       - name: Grafana
-        url: "https://grafana-k8s.${SECRET_DOMAIN_INT}"
+        url: "https://grafana-k8s.${SECRET_DOMAIN_INT}/api/health"
         <<: *defaults
       - name: VictoriaMetrics Historical
-        url: "https://vme.${SECRET_DOMAIN_INT}"
+        url: "https://vme.${SECRET_DOMAIN_INT}/-/healthy"
         <<: *defaults

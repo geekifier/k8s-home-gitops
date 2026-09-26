@@ -276,7 +276,11 @@ spec:
                       values: ["tinykube02"]
       ingress:
         enabled: true
-        annotations: {}
+        annotations: &authelia
+          nginx.ingress.kubernetes.io/auth-method: "GET"
+          nginx.ingress.kubernetes.io/auth-url: "http://authelia.auth.svc.cluster.local:9091/api/authz/auth-request"
+          nginx.ingress.kubernetes.io/auth-signin: "https://auth-k8s.${SECRET_DOMAIN_INT}?rm=$request_method"
+          nginx.ingress.kubernetes.io/auth-response-headers: "Remote-User,Remote-Name,Remote-Groups,Remote-Email"
         labels: {}
         path: ""
         pathType: Prefix
@@ -412,6 +416,7 @@ spec:
       ingress:
         enabled: true
         ingressClassName: internal
+        annotations: *authelia
         labels: {}
         path: '{{ .Values.alertmanager.spec.routePrefix | default "/" }}'
         pathType: Prefix
@@ -475,7 +480,7 @@ spec:
         # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
         ingressClassName: internal
         # Values can be templated
-        annotations: {}
+        annotations: *authelia
         # kubernetes.io/ingress.class: nginx
         # kubernetes.io/tls-acme: "true"
         labels: {}
@@ -575,7 +580,7 @@ spec:
         enabled: true
         ingressClassName: internal
         # Values can be templated
-        annotations: {}
+        annotations: *authelia
         # kubernetes.io/ingress.class: nginx
         # kubernetes.io/tls-acme: "true"
         labels: {}

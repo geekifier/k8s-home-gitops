@@ -30,24 +30,45 @@ access_control:
   rules:
     - domain: "flux.${SECRET_DOMAIN_INT}"
       policy: one_factor
+    # Resources match path + query: anchor every bypass at "^/".
+    # Health probes (Gatus)
     - domain: "*.${SECRET_DOMAIN_INT}"
-      policy: bypass
-      networks:
-        - "${SECRET_MONITOR_IP}/32"
+      methods: [GET, HEAD]
       resources:
-        - "^/health.*$"
-        - "^/$"
-        - "^/login.*$"
+        - "^/(ping|health|health/ready|healthz|healthcheck|health_check|-/healthy|api/v1/health)$"
+      policy: bypass
+    # APIs that enforce their own API key
+    - domain:
+        - "sonarr.${SECRET_DOMAIN_INT}"
+        - "radarr.${SECRET_DOMAIN_INT}"
+        - "prowlarr.${SECRET_DOMAIN_INT}"
+        - "nzb.${SECRET_DOMAIN_INT}"
+        - "grafana-k8s.${SECRET_DOMAIN_INT}"
+      resources:
+        - "^/api([/?].*)?$"
+      policy: bypass
+    # Alloy remote write
+    - domain: "vm-k8s.${SECRET_DOMAIN_INT}"
+      methods: [POST]
+      resources:
+        - "^/api/v1/write([?].*)?$"
+      policy: bypass
+    # Read-only query API (victoriametrics MCP)
+    - domain: "vm-k8s.${SECRET_DOMAIN_INT}"
+      methods: [GET]
+      resources:
+        - "^/api/v1/(query|query_range|series|labels|label/[^/?]+/values|export|rules|alerts|status/[^/?]+)([?].*)?$"
+        - "^/vmalert/api/v1/[^/?]+([?].*)?$"
+      policy: bypass
+    # Homepage Gatus widget
+    - domain: "gatus.${SECRET_DOMAIN_INT}"
+      methods: [GET]
+      resources:
+        - "^/api/v1/endpoints/statuses([?].*)?$"
+      policy: bypass
     - domain: "music.${SECRET_DOMAIN_INT}"
       resources:
-        - "^.*/rest.*$"
-        - "^.*/share.*$"
-      policy: bypass
-    - domain: "*.${SECRET_DOMAIN_INT}"
-      resources:
-        - "^.*/api([/?].*)?$"
-        - '^.*\/health.?$'
-        - '^.*\/.\/download.*$'
+        - "^/(rest|share)/"
       policy: bypass
     - domain: "books.${SECRET_DOMAIN_INT}"
       resources:
@@ -56,6 +77,12 @@ access_control:
     - domain: "konflate.${SECRET_DOMAIN_INT}"
       resources:
         - "^/mcp([/?].*)?$"
+      policy: bypass
+    # PWA manifests (fetched without cookies)
+    - domain: "*.${SECRET_DOMAIN_INT}"
+      methods: [GET, HEAD]
+      resources:
+        - '^/([\w-]+/)*(manifest|site)\.webmanifest$'
       policy: bypass
     - domain: "*.${SECRET_DOMAIN_INT}"
       policy: one_factor

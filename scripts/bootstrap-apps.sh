@@ -88,10 +88,13 @@ function apply_crds() {
     log debug "Applying CRDs"
 
     local -r crds=(
-        # renovate: datasource=github-releases depName=kubernetes-sigs/gateway-api
-        # https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.6.2/experimental-install.yaml
         # renovate: datasource=github-releases depName=prometheus-operator/prometheus-operator
         https://github.com/prometheus-operator/prometheus-operator/releases/download/v0.94.0/stripped-down-crds.yaml
+    )
+
+    # Charts whose bundled CRDs are applied at the version pinned by their OCIRepository
+    local -r charts=(
+        "${ROOT_DIR}/kubernetes/apps/network/envoy-gateway/app/helmrelease.yaml"
     )
 
     for crd in "${crds[@]}"; do
@@ -103,6 +106,24 @@ function apply_crds() {
             log info "CRDs applied" "crd=${crd}"
         else
             log error "Failed to apply CRDs" "crd=${crd}"
+        fi
+    done
+
+    local url tag manifest
+    for chart in "${charts[@]}"; do
+        url="$(yq eval 'select(.kind == "OCIRepository") | .spec.url' "${chart}")"
+        tag="$(yq eval 'select(.kind == "OCIRepository") | .spec.ref.tag' "${chart}")"
+        if ! manifest="$(helm show crds "${url}" --version "${tag}" 2>/dev/null)"; then
+            log error "Failed to fetch chart CRDs" "chart=${url}:${tag}"
+        fi
+        if kubectl diff --filename - <<<"${manifest}" &>/dev/null; then
+            log info "CRDs are up-to-date" "chart=${url}:${tag}"
+            continue
+        fi
+        if kubectl apply --server-side --filename - <<<"${manifest}" &>/dev/null; then
+            log info "CRDs applied" "chart=${url}:${tag}"
+        else
+            log error "Failed to apply CRDs" "chart=${url}:${tag}"
         fi
     done
 }
@@ -125,7 +146,7 @@ function apply_helm_releases() {
 }
 
 function main() {
-    check_cli helmfile kubectl kustomize sops yq
+    check_cli helm helmfile kubectl kustomize sops yq
 
     # Apply resources and Helm releases
     wait_for_nodes

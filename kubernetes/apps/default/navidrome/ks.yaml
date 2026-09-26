@@ -16,6 +16,7 @@ spec:
     substitute:
       APP: *app
       GATUS_HOST: music
+      GATUS_PATH: "/ping"
     substituteFrom:
       - name: cluster-settings
         kind: ConfigMap
