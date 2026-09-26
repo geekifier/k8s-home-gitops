@@ -5,6 +5,7 @@ kind: CiliumLoadBalancerIPPool
 metadata:
   name: pool
 spec:
+  # Reserved: 192.168.1.90 for the envoy-internal Gateway.
   blocks:
     - start: "192.168.1.81"
       stop: "192.168.1.99"

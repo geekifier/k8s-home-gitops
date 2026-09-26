@@ -4,6 +4,20 @@ theme: light
 
 server:
   address: "tcp://0.0.0.0:9091"
+  endpoints:
+    authz:
+      auth-request:
+        implementation: AuthRequest
+        authn_strategies:
+          - name: CookieSession
+      ext-authz:
+        implementation: ExtAuthz
+        authn_strategies:
+          - name: CookieSession
+      forward-auth:
+        implementation: ForwardAuth
+        authn_strategies:
+          - name: CookieSession
 
 telemetry:
   metrics:
@@ -22,6 +36,7 @@ authentication_backend:
     timeout: 5s
     start_tls: false
     base_dn: ${SECRET_AD_BASEDN}
+    # users_filter is set from env vars in the secret.
     tls:
       skip_verify: true
 

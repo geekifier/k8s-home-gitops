@@ -42,6 +42,10 @@ spec:
         strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
+        pod:
+          labels:
+            access.policy.xenu.internal/default.radarr: "true"
+            access.policy.xenu.internal/default.sonarr: "true"
         containers:
           app:
             image:

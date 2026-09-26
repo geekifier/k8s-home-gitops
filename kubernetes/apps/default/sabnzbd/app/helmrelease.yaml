@@ -104,6 +104,42 @@ spec:
         ports:
           http:
             port: *containerPort
+    networkpolicies:
+      app:
+        controller: *app
+        policyTypes:
+          - Ingress
+        rules:
+          ingress:
+            - from:
+                - namespaceSelector:
+                    matchLabels:
+                      kubernetes.io/metadata.name: network
+                  podSelector:
+                    matchLabels:
+                      app.kubernetes.io/instance: internal-ingress-nginx
+                      app.kubernetes.io/component: controller
+                - namespaceSelector:
+                    matchLabels:
+                      kubernetes.io/metadata.name: network
+                  podSelector:
+                    matchLabels:
+                      gateway.envoyproxy.io/owning-gateway-name: envoy-internal
+                - namespaceSelector:
+                    matchLabels:
+                      kubernetes.io/metadata.name: default
+                  podSelector:
+                    matchLabels:
+                      app.kubernetes.io/name: homepage
+                - namespaceSelector:
+                    matchLabels:
+                      kubernetes.io/metadata.name: default
+                  podSelector:
+                    matchLabels:
+                      access.policy.xenu.internal/default.sabnzbd: "true"
+              ports:
+                - port: *containerPort
+                  protocol: TCP
     persistence:
       config:
         enabled: true
