@@ -16,6 +16,7 @@ spec:
     substitute:
       APP: *app
       GATUS_HOST: jelly
+      GATUS_PATH: "/health"
     substituteFrom:
       - name: cluster-settings
         kind: ConfigMap
