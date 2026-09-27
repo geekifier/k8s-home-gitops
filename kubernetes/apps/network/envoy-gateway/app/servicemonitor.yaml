@@ -1,0 +1,15 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/monitoring.coreos.com/servicemonitor_v1.json
+# Controller metrics. honorLabels stays false: the dashboard filters by the controller's namespace,
+# and a proxy resource's namespace moves to exported_namespace.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: envoy-gateway
+spec:
+  endpoints:
+    - port: metrics
+      path: /metrics
+  selector:
+    matchLabels:
+      control-plane: envoy-gateway

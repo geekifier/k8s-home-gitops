@@ -1,0 +1,66 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/gateway.envoyproxy.io/securitypolicy_v1alpha1.json
+# Default Authelia SSO for internal routes.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: authelia-extauthz-by-gateway
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: envoy-internal
+      sectionName: https
+  extAuth:
+    failOpen: false
+    # Envoy also sends Host, Method, Path, Content-Length and Authorization.
+    headersToExtAuth:
+      - cookie
+      - accept
+      - x-forwarded-proto
+      - x-forwarded-for
+    http:
+      backendRefs:
+        - name: authelia
+          namespace: auth
+          port: 9091
+      path: /api/authz/ext-authz/
+      headersToBackend:
+        - Remote-User
+        - Remote-Groups
+        - Remote-Name
+        - Remote-Email
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/gateway.envoyproxy.io/securitypolicy_v1alpha1.json
+# Public routes are denied unless an HTTPRoute-scoped SecurityPolicy exists.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: default-deny-by-gateway
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: envoy-external
+      sectionName: https
+  authorization:
+    defaultAction: Deny
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/gateway.envoyproxy.io/securitypolicy_v1alpha1.json
+# HTTPRoutes whose auth.xenu.internal/method label is none, app or signature.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: allow-by-route-label
+spec:
+  targetSelectors:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      matchExpressions:
+        - key: auth.xenu.internal/method
+          operator: In
+          values: ["none", "app", "signature"]
+      namespaces:
+        from: All
+  authorization:
+    defaultAction: Allow

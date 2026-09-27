@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/validatingadmissionpolicy-admissionregistration-v1.json
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: httproute-auth-methods
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["gateway.networking.k8s.io"]
+        apiVersions: ["*"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["httproutes"]
+  variables:
+    - name: labels
+      expression: object.metadata.?labels.orValue({})
+    - name: method
+      expression: variables.labels[?'auth.xenu.internal/method'].orValue('')
+  validations:
+    - expression: >-
+        !('auth.xenu.internal/method' in variables.labels)
+        || variables.method in ['sso', 'none', 'app', 'signature', 'token', 'custom']
+      message: >-
+        The HTTPRoute label auth.xenu.internal/method is sso, none, app, signature, token or
+        custom.
+    # sso states the Gateway default, which is Authelia only on envoy-internal/https.
+    - expression: >-
+        variables.method != 'sso' || object.spec.?parentRefs.orValue([]).all(p,
+        p.name == 'envoy-internal' && p.?sectionName.orValue('') == 'https')
+      message: HTTPRoutes labeled sso attach only to envoy-internal, sectionName https.
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/validatingadmissionpolicybinding-admissionregistration-v1.json
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: httproute-auth-methods
+spec:
+  policyName: httproute-auth-methods
+  validationActions: ["Deny"]

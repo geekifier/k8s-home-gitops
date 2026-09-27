@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/validatingadmissionpolicy-admissionregistration-v1.json
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: securitypolicy-auth-methods
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["gateway.envoyproxy.io"]
+        apiVersions: ["*"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["securitypolicies"]
+  matchConditions:
+    - name: route-scoped-or-selector
+      expression: >-
+        object.spec.?targetRefs.orValue([]).exists(t, t.kind != 'Gateway')
+        || size(object.spec.?targetSelectors.orValue([])) > 0
+        || object.spec.?targetRef.kind.orValue('Gateway') != 'Gateway'
+  variables:
+    - name: selector
+      expression: size(object.spec.?targetSelectors.orValue([])) > 0
+    - name: method
+      expression: object.metadata.?labels[?'auth.xenu.internal/method'].orValue('')
+  validations:
+    - expression: "!variables.selector || object.metadata.namespace == 'network'"
+      message: Only SecurityPolicies in network select targets by label (targetSelectors).
+    - expression: variables.selector || variables.method in ['token', 'custom']
+      message: >-
+        Route-scoped SecurityPolicies set the label auth.xenu.internal/method to token or custom.
+        For none, app and signature, label the HTTPRoute instead.
+    - expression: >-
+        variables.method != 'token' || (!('targetRef' in object.spec)
+        && !variables.selector && !('mergeType' in object.spec)
+        && object.spec.?targetRefs.orValue([]).all(t, t.kind == 'HTTPRoute'))
+      message: The token method targets HTTPRoutes by targetRefs, without mergeType.
+    - expression: >-
+        variables.method != 'token'
+        || (object.spec.all(k, k in ['targetRefs', 'jwt', 'authorization'])
+        && 'jwt' in object.spec && !object.spec.jwt.?failOpen.orValue(false)
+        && !object.spec.jwt.?optional.orValue(false)
+        && object.spec.jwt.?providers.orValue([]).all(p, size(p.?audiences.orValue([])) > 0)
+        && object.spec.?authorization.defaultAction.orValue('') == 'Deny')
+      message: >-
+        The token method checks JWTs with an audience, without failOpen or optional, and sets
+        authorization.defaultAction Deny.
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/validatingadmissionpolicybinding-admissionregistration-v1.json
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: securitypolicy-auth-methods
+spec:
+  policyName: securitypolicy-auth-methods
+  validationActions: ["Deny"]

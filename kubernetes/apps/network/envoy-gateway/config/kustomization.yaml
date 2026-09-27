@@ -1,0 +1,14 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./certificate.yaml
+  - ./cloudflared.networkpolicy.yaml
+  - ./envoy.yaml
+  - ./httproute-auth-methods.validatingadmissionpolicy.yaml
+  - ./podmonitor.yaml
+  - ./public-httproutes.validatingadmissionpolicy.yaml
+  - ./route-listeners.validatingadmissionpolicy.yaml
+  - ./securitypolicy-auth-methods.validatingadmissionpolicy.yaml
+  - ./securitypolicy.yaml

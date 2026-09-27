@@ -1,0 +1,89 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/monitoring.coreos.com/prometheusrule_v1.json
+# No critical alerts: proxies keep serving their last configuration while the controller is down.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: envoy-gateway
+spec:
+  groups:
+    - name: envoy-gateway
+      rules:
+        - alert: EnvoyGatewayControllerDown
+          expr: |
+            absent(up{job="envoy-gateway", namespace="network"} == 1)
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: Envoy Gateway controller is down
+            description: >-
+              No Envoy Gateway controller has been scraped for 15 minutes. Proxies keep their last
+              configuration but receive no route or policy changes, and a restarted proxy serves
+              no traffic until the controller returns.
+        - alert: EnvoyProxyControlPlaneDisconnected
+          expr: |
+            envoy_control_plane_connected_state{namespace="network"} == 0
+            and on () (count(up{job="envoy-gateway", namespace="network"} == 1) > 0)
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: Envoy proxy {{ $labels.pod }} is disconnected from the controller
+            description: >-
+              Proxy {{ $labels.pod }} has had no xDS connection to a running Envoy Gateway
+              controller for 15 minutes. It serves its last configuration and receives no changes.
+        - alert: EnvoyGatewayXdsRejected
+          expr: |
+            sum by (nodeID, typeURL) (increase(xds_nack_total{job="envoy-gateway"}[15m])) > 0
+          labels:
+            severity: warning
+          annotations:
+            summary: Envoy proxy {{ $labels.nodeID }} rejected an xDS update
+            description: >-
+              Proxy {{ $labels.nodeID }} rejected {{ $labels.typeURL }} configuration from Envoy
+              Gateway in the last 15 minutes and keeps its previous version. Check the proxy logs.
+        - alert: EnvoyGatewayPanicRecovered
+          expr: |
+            sum by (runner, message) (increase(watchable_panics_recovered_total{job="envoy-gateway"}[15m])) > 0
+          labels:
+            severity: info
+          annotations:
+            summary: Envoy Gateway recovered from a panic in the {{ $labels.runner }} runner
+            description: >-
+              The {{ $labels.runner }} runner panicked while it handled a {{ $labels.message }}
+              update and did not apply it. Check the controller logs.
+        - alert: EnvoyGatewayRunnerErrors
+          expr: |
+            sum by (runner, message) (increase(watchable_subscribe_total{job="envoy-gateway", status="failure"}[15m])) > 0
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: Envoy Gateway {{ $labels.runner }} runner keeps failing
+            description: >-
+              The {{ $labels.runner }} runner has failed to handle {{ $labels.message }} updates
+              for 30 minutes. For the infrastructure runner, proxy Deployments or Services are
+              not being updated. Check the controller logs.
+        - alert: EnvoyGatewayStatusUpdateErrors
+          expr: |
+            sum by (kind) (increase(status_update_total{job="envoy-gateway", status="failure"}[15m])) > 0
+          for: 30m
+          labels:
+            severity: info
+          annotations:
+            summary: Envoy Gateway cannot update {{ $labels.kind }} status
+            description: >-
+              Envoy Gateway has failed to write {{ $labels.kind }} status conditions for
+              30 minutes, so resource status might be stale. Check the controller logs.
+        - alert: EnvoyGatewayReconcileErrors
+          expr: |
+            sum by (controller) (increase(controller_runtime_reconcile_errors_total{job="envoy-gateway"}[15m])) > 0
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: Envoy Gateway reconciler {{ $labels.controller }} keeps failing
+            description: >-
+              Reconciler {{ $labels.controller }} has returned errors for 30 minutes, so Gateway
+              API changes might not reach the proxies. Check the controller logs.

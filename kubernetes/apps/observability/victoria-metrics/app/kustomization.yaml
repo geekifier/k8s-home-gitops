@@ -6,6 +6,7 @@ resources:
   - ./external.vmauth.yaml
   - ./external.vmsingle.yaml
   - ./gatus.configmap.yaml
+  - ./grafana.networkpolicy.yaml
   - ./grafana.secret.sops.yaml
   - ./helm/helmrelease.yaml
   - ./home-assistant.vmstaticscrape.yaml

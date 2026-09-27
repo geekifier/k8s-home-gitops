@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/kustomize.toolkit.fluxcd.io/kustomization_v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -19,4 +19,49 @@ spec:
     namespace: flux-system
   targetNamespace: *namespace
   timeout: 5m
+  wait: true
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app envoy-gateway-config
+  namespace: &namespace network
+spec:
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  dependsOn:
+    - name: envoy-gateway
+      namespace: network
+    - name: cert-manager
+      namespace: cert-manager
+  healthCheckExprs:
+    - apiVersion: cert-manager.io/v1
+      kind: Certificate
+      # Issuing a Certificate that is not yet Ready is in progress, not failed.
+      inProgress: >-
+        status.conditions.exists(e, e.type == 'Issuing' && e.status == 'True') &&
+        !status.conditions.exists(e, e.type == 'Ready' && e.status == 'True' &&
+        e.observedGeneration == metadata.generation)
+      failed: >-
+        status.conditions.exists(e, e.type == 'Ready' && e.status == 'False' &&
+        e.observedGeneration == metadata.generation)
+      current: >-
+        status.conditions.exists(e, e.type == 'Ready' && e.status == 'True' &&
+        e.observedGeneration == metadata.generation)
+  interval: 1h
+  path: ./kubernetes/apps/network/envoy-gateway/config
+  postBuild:
+    substituteFrom:
+      - name: cluster-secrets
+        kind: Secret
+  prune: true
+  retryInterval: 2m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: *namespace
+  timeout: 15m
   wait: true

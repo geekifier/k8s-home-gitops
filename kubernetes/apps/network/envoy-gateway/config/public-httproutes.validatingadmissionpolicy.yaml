@@ -1,0 +1,36 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/validatingadmissionpolicy-admissionregistration-v1.json
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: public-httproutes
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["gateway.networking.k8s.io"]
+        apiVersions: ["*"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["httproutes"]
+  variables:
+    - name: external
+      expression: object.spec.?parentRefs.orValue([]).exists(p, p.name == 'envoy-external')
+    - name: public
+      expression: >-
+        object.metadata.?labels[?'exposure.xenu.internal/public'].orValue('') == 'true'
+  validations:
+    - expression: variables.external == variables.public
+      message: Only HTTPRoutes labeled exposure.xenu.internal/public=true attach to envoy-external.
+    - expression: >-
+        !variables.public || object.spec.?parentRefs.orValue([]).all(p,
+        p.name == 'envoy-external' && p.?sectionName.orValue('') == 'https')
+      message: Public HTTPRoutes attach only to envoy-external, sectionName https.
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/validatingadmissionpolicybinding-admissionregistration-v1.json
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: public-httproutes
+spec:
+  policyName: public-httproutes
+  validationActions: ["Deny"]

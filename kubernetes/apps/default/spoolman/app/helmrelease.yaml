@@ -23,7 +23,7 @@ spec:
           app:
             image:
               repository: ghcr.io/donkie/spoolman
-              tag: 0.26.1
+              tag: 0.27.0
             env:
               TZ: "${CLUSTER_TZ}"
             envFrom:
@@ -50,23 +50,18 @@ spec:
         ports:
           http:
             port: &port 8000
-    ingress:
+    route:
       app:
         annotations:
-          nginx.ingress.kubernetes.io/auth-method: "GET"
-          nginx.ingress.kubernetes.io/auth-url: "http://authelia.auth.svc.cluster.local:9091/api/authz/auth-request"
-          nginx.ingress.kubernetes.io/auth-signin: "https://auth-k8s.${SECRET_DOMAIN_INT}?rm=$request_method"
-          nginx.ingress.kubernetes.io/auth-response-headers: "Remote-User,Remote-Name,Remote-Groups,Remote-Email"
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Home
           gethomepage.dev/icon: spoolman
           gethomepage.dev/description: Filament Manager
-        className: internal
-        hosts:
-          # TODO: parameterize this
-          - host: &url "spoolman.${SECRET_DOMAIN_INT}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
+        labels:
+          auth.xenu.internal/method: sso
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+            sectionName: https
+        hostnames:
+          - "spoolman.${SECRET_DOMAIN_INT}"
