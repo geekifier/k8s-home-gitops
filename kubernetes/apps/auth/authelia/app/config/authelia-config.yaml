@@ -4,6 +4,22 @@ theme: light
 
 server:
   address: "tcp://0.0.0.0:9091"
+  buffers:
+    read: 16384
+  endpoints:
+    authz:
+      auth-request:
+        implementation: AuthRequest
+        authn_strategies:
+          - name: CookieSession
+      ext-authz:
+        implementation: ExtAuthz
+        authn_strategies:
+          - name: CookieSession
+      forward-auth:
+        implementation: ForwardAuth
+        authn_strategies:
+          - name: CookieSession
 
 telemetry:
   metrics:
@@ -22,6 +38,7 @@ authentication_backend:
     timeout: 5s
     start_tls: false
     base_dn: ${SECRET_AD_BASEDN}
+    # users_filter is set from env vars in the secret.
     tls:
       skip_verify: true
 
@@ -43,9 +60,13 @@ access_control:
         - "radarr.${SECRET_DOMAIN_INT}"
         - "prowlarr.${SECRET_DOMAIN_INT}"
         - "nzb.${SECRET_DOMAIN_INT}"
-        - "grafana-k8s.${SECRET_DOMAIN_INT}"
       resources:
         - "^/api([/?].*)?$"
+      policy: bypass
+    # Grafana HTTP and app-platform APIs (gcx)
+    - domain: "grafana-k8s.${SECRET_DOMAIN_INT}"
+      resources:
+        - "^/apis?([/?].*)?$"
       policy: bypass
     # Alloy remote write
     - domain: "vm-k8s.${SECRET_DOMAIN_INT}"

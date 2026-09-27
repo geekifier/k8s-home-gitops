@@ -1,0 +1,26 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/gateway.networking.k8s.io/httproute_v1.json
+# GitHub App webhook; Konflate verifies the request signature.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: konflate-webhook
+  labels:
+    auth.xenu.internal/method: signature
+    exposure.xenu.internal/public: "true"
+spec:
+  parentRefs:
+    - name: envoy-external
+      namespace: network
+      sectionName: https
+  hostnames:
+    - "konflate.${SECRET_DOMAIN}"
+  rules:
+    - matches:
+        - method: POST
+          path:
+            type: Exact
+            value: /hooks
+      backendRefs:
+        - name: konflate
+          port: 8080

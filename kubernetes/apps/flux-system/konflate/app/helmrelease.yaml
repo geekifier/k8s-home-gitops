@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/source.toolkit.fluxcd.io/ocirepository_v1.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/source.toolkit.fluxcd.io/ocirepository_v1.json
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: OCIRepository
 metadata:
@@ -13,7 +13,7 @@ spec:
     tag: 0.6.4
   url: oci://ghcr.io/home-operations/charts/konflate
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/helm.toolkit.fluxcd.io/helmrelease_v2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -39,7 +39,7 @@ spec:
       kubeVersion: "{{ .Capabilities.KubeVersion.Version }}"
       verifyImages: true
       # Read-only MCP endpoint at /mcp; only reachable via the internal ingress
-      # (the external ingress exposes /hooks alone).
+      # (the public HTTPRoute matches only POST /hooks).
       mcp: true
       # Copy-to-merge command shown in the UI (konflate never runs it); rebase-only repo.
       mergeCommand: "gh pr merge {{.Number}} -r --repo {{.Repo}}"

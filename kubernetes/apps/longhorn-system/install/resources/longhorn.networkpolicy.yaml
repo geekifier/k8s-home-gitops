@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/networking.k8s.io/networkpolicy_v1.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/networkpolicy-networking-v1.json
 # Longhorn's manager NetworkPolicy blocks cross-namespace metrics scrapes.
 # Allow vmagent through an additive policy, preserving the chart's restrictions.
 apiVersion: networking.k8s.io/v1

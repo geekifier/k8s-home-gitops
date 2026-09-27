@@ -90,7 +90,7 @@ spec:
         externalTrafficPolicy: Cluster
         annotations:
           lbipam.cilium.io/ips: "192.168.1.85"
-          external-dns.alpha.kubernetes.io/hostname: "mc-router.${SECRET_DOMAIN_INT},mc-deadly.${SECRET_DOMAIN_INT},mc-friendly.${SECRET_DOMAIN_INT}"
+          external-dns.kubernetes.io/hostname: "mc-router.${SECRET_DOMAIN_INT},mc-deadly.${SECRET_DOMAIN_INT},mc-friendly.${SECRET_DOMAIN_INT}"
         ports:
           minecraft:
             port: *containerPort

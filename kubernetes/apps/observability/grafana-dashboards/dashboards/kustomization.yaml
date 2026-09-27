@@ -39,6 +39,23 @@ configMapGenerator:
     files:
       - ./json/ha-house.json
 
+  # Envoy Gateway 1.9.1 gateway-addons-helm controller dashboard; datasource, defaults and Runner
+  # filter adapted.
+  - name: grafana-dashboard-envoy-gateway
+    files:
+      - ./json/envoy-gateway-global.json
+    options:
+      annotations:
+        grafana_folder: "network"
+
+  # Envoy Gateway 1.9.1 gateway-addons-helm proxy dashboard; datasource adapted.
+  - name: grafana-dashboard-envoy-proxy
+    files:
+      - ./json/envoy-proxy-global.json
+    options:
+      annotations:
+        grafana_folder: "network"
+
   - name: grafana-dashboard-ping-exporter
     files:
       - ./json/network-ping-exporter.json

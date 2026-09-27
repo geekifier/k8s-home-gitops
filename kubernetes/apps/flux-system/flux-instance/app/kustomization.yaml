@@ -5,6 +5,6 @@ kind: Kustomization
 resources:
   - ./helmrelease.yaml
   - ./secret.sops.yaml
-  - ./ingress.yaml
+  - ./httproute.yaml
   - ./receiver.yaml
   - ./prometheusrule.yaml

@@ -1,2 +1,3 @@
 mode: cluster
 ingress: true
+gateway: true

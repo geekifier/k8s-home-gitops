@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/kustomize.toolkit.fluxcd.io/kustomization_v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -30,7 +30,7 @@ spec:
   timeout: 15m
   wait: true
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/kustomize.toolkit.fluxcd.io/kustomization_v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -46,8 +46,17 @@ spec:
   healthCheckExprs:
     - apiVersion: cert-manager.io/v1
       kind: Certificate
-      failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
-      current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
+      # Issuing a Certificate that is not yet Ready is in progress, not failed.
+      inProgress: >-
+        status.conditions.exists(e, e.type == 'Issuing' && e.status == 'True') &&
+        !status.conditions.exists(e, e.type == 'Ready' && e.status == 'True' &&
+        e.observedGeneration == metadata.generation)
+      failed: >-
+        status.conditions.exists(e, e.type == 'Ready' && e.status == 'False' &&
+        e.observedGeneration == metadata.generation)
+      current: >-
+        status.conditions.exists(e, e.type == 'Ready' && e.status == 'True' &&
+        e.observedGeneration == metadata.generation)
   interval: 1h
   path: ./kubernetes/apps/cert-manager/cert-manager/tls
   postBuild:

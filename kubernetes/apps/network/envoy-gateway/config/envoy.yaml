@@ -1,0 +1,262 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/gateway.envoyproxy.io/envoyproxy_v1alpha1.json
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: envoy
+spec:
+  logging:
+    level:
+      default: info
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyDeployment:
+        replicas: 2
+        container:
+          imageRepository: mirror.gcr.io/envoyproxy/envoy
+          resources:
+            requests:
+              cpu: 100m
+            limits:
+              memory: 1Gi
+        pod:
+          affinity:
+            podAntiAffinity:
+              # One proxy per node for each Gateway.
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - topologyKey: kubernetes.io/hostname
+                  labelSelector:
+                    matchLabels:
+                      app.kubernetes.io/name: envoy
+                      app.kubernetes.io/component: proxy
+                  matchLabelKeys: ["gateway.envoyproxy.io/owning-gateway-name"]
+      envoyPDB:
+        minAvailable: 1
+      envoyService:
+        externalTrafficPolicy: Cluster
+  shutdown:
+    drainTimeout: 180s
+  telemetry:
+    metrics:
+      prometheus:
+        compression:
+          type: Zstd
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/gateway.envoyproxy.io/envoyproxy_v1alpha1.json
+# Merged over the shared EnvoyProxy; only the Service type changes.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: envoy-external
+spec:
+  # The CRD defaults logging to warn, which would override the shared level.
+  logging:
+    level:
+      default: info
+  mergeType: StrategicMerge
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyService:
+        type: ClusterIP
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/gateway.networking.k8s.io/gatewayclass_v1.json
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: envoy
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+  parametersRef:
+    group: gateway.envoyproxy.io
+    kind: EnvoyProxy
+    name: envoy
+    namespace: network
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/gateway.networking.k8s.io/gateway_v1.json
+# Public traffic enters only through cloudflared, which connects to the Service by DNS name.
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: envoy-external
+  annotations:
+    external-dns.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+spec:
+  gatewayClassName: envoy
+  infrastructure:
+    parametersRef:
+      group: gateway.envoyproxy.io
+      kind: EnvoyProxy
+      name: envoy-external
+  listeners:
+    - name: https
+      protocol: HTTPS
+      port: 443
+      allowedRoutes:
+        # The public-route admission policy checks HTTPRoutes only.
+        kinds:
+          - kind: HTTPRoute
+        namespaces:
+          from: All
+      tls:
+        certificateRefs:
+          - kind: Secret
+            name: envoy-external-tls
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/gateway.networking.k8s.io/gateway_v1.json
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: envoy-internal
+spec:
+  gatewayClassName: envoy
+  infrastructure:
+    annotations:
+      lbipam.cilium.io/ips: "192.168.1.90"
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: Same
+    - name: https
+      protocol: HTTPS
+      port: 443
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        certificateRefs:
+          - kind: Secret
+            name: envoy-internal-tls
+    # Authelia ForwardAuth for the upstream Traefik proxies. A separate port keeps HTTP/2
+    # connections for app hostnames from reaching this listener.
+    - name: authz
+      protocol: HTTPS
+      port: 8443
+      hostname: "authz.${SECRET_DOMAIN_INT}"
+      allowedRoutes:
+        kinds:
+          - kind: HTTPRoute
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              kubernetes.io/metadata.name: auth
+      tls:
+        certificateRefs:
+          - kind: Secret
+            name: envoy-internal-tls
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/gateway.envoyproxy.io/backendtrafficpolicy_v1alpha1.json
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: envoy
+spec:
+  compressor:
+    - type: Zstd
+      zstd: {}
+    - type: Brotli
+      brotli: {}
+    - type: Gzip
+      gzip: {}
+  targetSelectors:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+  tcpKeepalive: {}
+  timeout:
+    http:
+      requestTimeout: 0s
+      # Required: with requestTimeout 0s and no idle timeout, streams never expire.
+      streamIdleTimeout: 5m
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/gateway.envoyproxy.io/clienttrafficpolicy_v1alpha1.json
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: ClientTrafficPolicy
+metadata:
+  name: envoy
+spec:
+  clientIPDetection:
+    xForwardedFor:
+      trustedCIDRs: ["100.64.0.0/16"]
+  headers:
+    withUnderscoresAction: DropHeader
+    # Removed before routing and authentication, so only Authelia sets identity headers.
+    # Add any new identity header that an app reads.
+    earlyRequestHeaders:
+      remove:
+        - Remote-User
+        - Remote-Name
+        - Remote-Groups
+        - Remote-Email
+        - X-Forwarded-User
+        - X-Remote-User
+        - X-WEBAUTH-USER
+        - X-Forwarded-Host
+        - X-Forwarded-Port
+        - X-Forwarded-Prefix
+        - X-Forwarded-Uri
+        - X-Original-URL
+  http2:
+    onInvalidMessage: TerminateStream
+  targetSelectors:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+  tcpKeepalive: {}
+  tls:
+    minVersion: "1.2"
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/gateway.envoyproxy.io/clienttrafficpolicy_v1alpha1.json
+# Replaces the shared policy on this listener, so it repeats the shared settings.
+# ForwardAuth needs the client's X-Forwarded-* headers; only identity headers are removed.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: ClientTrafficPolicy
+metadata:
+  name: envoy-internal-authz
+spec:
+  clientIPDetection:
+    xForwardedFor:
+      trustedCIDRs: ["100.64.0.0/16"]
+  headers:
+    withUnderscoresAction: DropHeader
+    earlyRequestHeaders:
+      remove:
+        - Remote-User
+        - Remote-Name
+        - Remote-Groups
+        - Remote-Email
+        - X-Forwarded-User
+        - X-Remote-User
+        - X-WEBAUTH-USER
+  http2:
+    onInvalidMessage: TerminateStream
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: envoy-internal
+      sectionName: authz
+  tcpKeepalive: {}
+  tls:
+    minVersion: "1.2"
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/gateway.networking.k8s.io/httproute_v1.json
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: https-redirect
+  annotations:
+    external-dns.kubernetes.io/controller: none
+spec:
+  parentRefs:
+    - name: envoy-internal
+      namespace: network
+      sectionName: http
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301

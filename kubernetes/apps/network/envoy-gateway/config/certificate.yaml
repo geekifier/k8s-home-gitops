@@ -1,0 +1,31 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/cert-manager.io/certificate_v1.json
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: envoy-internal
+spec:
+  dnsNames: ["*.${SECRET_DOMAIN_INT}"]
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  privateKey:
+    algorithm: ECDSA
+  secretName: envoy-internal-tls
+  usages: ["digital signature"]
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/cert-manager.io/certificate_v1.json
+# cloudflared sends this name as SNI and verifies it (originServerName).
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: envoy-external
+spec:
+  dnsNames: ["external.${SECRET_DOMAIN}"]
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  privateKey:
+    algorithm: ECDSA
+  secretName: envoy-external-tls
+  usages: ["digital signature"]

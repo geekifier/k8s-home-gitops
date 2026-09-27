@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/helm.toolkit.fluxcd.io/helmrelease_v2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -26,9 +26,6 @@ spec:
       retries: 3
   values:
     fullnameOverride: *app
-    # v0.22 defaults to the GA prefix without fallback. Keep existing annotations
-    # valid regardless of Flux reconciliation order (and during Helm rollback).
-    annotationPrefix: external-dns.alpha.kubernetes.io/
     provider:
       name: cloudflare
     env:
@@ -43,13 +40,15 @@ spec:
       - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
       - --crd-source-kind=DNSEndpoint
       - --events
-      - --ignore-ingress-tls-spec
-      - --ingress-class=external
+      - --gateway-name=envoy-external
     policy: sync
-    sources: ["crd", "ingress"]
+    sources: ["crd", "gateway-httproute"]
+    gatewayNamespace: network
     txtPrefix: k8s.
     txtOwnerId: default
     domainFilters: ["${SECRET_DOMAIN}"]
+    # Internal names stay out of public DNS.
+    excludeDomains: ["${SECRET_DOMAIN_INT}"]
     serviceMonitor:
       enabled: true
     podAnnotations:
