@@ -17,13 +17,9 @@ spec:
       strategy: rollback
       retries: 3
   values:
-    ingress:
+    route:
       app:
         annotations:
-          nginx.ingress.kubernetes.io/auth-method: "GET"
-          nginx.ingress.kubernetes.io/auth-url: "http://authelia.auth.svc.cluster.local:9091/api/authz/auth-request"
-          nginx.ingress.kubernetes.io/auth-signin: "https://auth-k8s.${SECRET_DOMAIN_INT}?rm=$request_method"
-          nginx.ingress.kubernetes.io/auth-response-headers: "Remote-User,Remote-Name,Remote-Groups,Remote-Email"
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Arrr
           gethomepage.dev/description: Usenet Client
@@ -31,16 +27,14 @@ spec:
           gethomepage.dev/widget.key: '{{ "{{" }}HOMEPAGE_VAR_SABNZBD_API_KEY{{ "}}" }}'
           gethomepage.dev/widget.url: http://sabnzbd.default.svc.cluster.local:80
           gethomepage.dev/icon: sabnzbd
-        enabled: true
-        className: internal
-        hosts:
-          - host: &host "nzb.${SECRET_DOMAIN_INT}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
-
+        labels:
+          auth.xenu.internal/method: sso
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+            sectionName: https
+        hostnames:
+          - "nzb.${SECRET_DOMAIN_INT}"
     controllers:
       sabnzbd:
         replicas: 1
@@ -112,13 +106,6 @@ spec:
         rules:
           ingress:
             - from:
-                - namespaceSelector:
-                    matchLabels:
-                      kubernetes.io/metadata.name: network
-                  podSelector:
-                    matchLabels:
-                      app.kubernetes.io/instance: internal-ingress-nginx
-                      app.kubernetes.io/component: controller
                 - namespaceSelector:
                     matchLabels:
                       kubernetes.io/metadata.name: network

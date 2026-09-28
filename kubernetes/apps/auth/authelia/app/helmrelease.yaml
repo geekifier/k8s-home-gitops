@@ -86,22 +86,6 @@ spec:
             port: *port
           metrics:
             port: 9959
-    ingress:
-      app:
-        className: internal
-        # annotations:
-        #   nginx.ingress.kubernetes.io/configuration-snippet: |
-        #     add_header Cache-Control "no-store";
-        #     add_header Pragma "no-cache";
-        #     add_header X-Frame-Options "SAMEORIGIN";
-        #     add_header X-XSS-Protection "1; mode=block";
-        hosts:
-          - host: auth-k8s.${SECRET_DOMAIN_INT}
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
     route:
       # ForwardAuth for the upstream Traefik proxies, with special handling
       # for the authz listener.
@@ -122,6 +106,16 @@ spec:
               - path:
                   type: Exact
                   value: /api/authz/forward-auth
+      portal:
+        forceRename: authelia
+        labels:
+          auth.xenu.internal/method: app
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+            sectionName: https
+        hostnames:
+          - auth-k8s.${SECRET_DOMAIN_INT}
     serviceMonitor:
       app:
         serviceName: authelia

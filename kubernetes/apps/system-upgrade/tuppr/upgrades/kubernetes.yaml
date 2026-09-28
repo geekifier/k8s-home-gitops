@@ -7,5 +7,5 @@ spec:
   kubernetes:
     # Keep in sync with talos/topf.yaml; upgrade patches first, then one minor at a time.
     # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
-    version: v1.34.11
+    version: v1.35.9
   # Shared health checks are injected by kustomization.yaml.

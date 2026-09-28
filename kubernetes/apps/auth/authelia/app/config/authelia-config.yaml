@@ -95,10 +95,6 @@ access_control:
       resources:
         - "^/kobo/.*"
       policy: bypass
-    - domain: "konflate.${SECRET_DOMAIN_INT}"
-      resources:
-        - "^/mcp([/?].*)?$"
-      policy: bypass
     # PWA manifests (fetched without cookies)
     - domain: "*.${SECRET_DOMAIN_INT}"
       methods: [GET, HEAD]

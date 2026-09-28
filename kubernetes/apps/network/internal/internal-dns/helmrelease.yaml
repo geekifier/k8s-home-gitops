@@ -55,7 +55,7 @@ spec:
     domainFilters:
       - ${SECRET_DOMAIN_INT}
     policy: sync
-    sources: ["service", "ingress", "gateway-httproute"]
+    sources: ["service", "gateway-httproute"]
     gatewayNamespace: network
     # need to template this
     txtOwnerId: tinykube01

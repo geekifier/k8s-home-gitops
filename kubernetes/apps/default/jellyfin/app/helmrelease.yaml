@@ -17,9 +17,8 @@ spec:
       strategy: rollback
       retries: 3
   values:
-    ingress:
+    route:
       app:
-        enabled: true
         annotations:
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Media
@@ -28,14 +27,14 @@ spec:
           gethomepage.dev/widget.key: '{{ "{{" }}HOMEPAGE_VAR_JELLYFIN_API_KEY{{ "}}" }}'
           gethomepage.dev/widget.url: "http://jellyfin.default.svc.cluster.local:8096"
           gethomepage.dev/icon: jellyfin
-        className: internal
-        hosts:
-          - host: &host "jelly.${SECRET_DOMAIN_INT}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
+        labels:
+          auth.xenu.internal/method: app
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+            sectionName: https
+        hostnames:
+          - "jelly.${SECRET_DOMAIN_INT}"
 
     controllers:
       jellyfin:

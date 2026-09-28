@@ -21,20 +21,24 @@ spec:
     defaultPodOptions:
       # Homepage uses in-cluster discovery and Kubernetes widgets.
       automountServiceAccountToken: true
-    ingress:
+    route:
       app:
-        annotations:
-          # affinity fixes the constant page refresh issue
-          nginx.ingress.kubernetes.io/affinity: cookie
-        enabled: true
-        className: internal
-        hosts:
-          - host: &host "start.${SECRET_DOMAIN_INT}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
+        labels:
+          auth.xenu.internal/method: none
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+            sectionName: https
+        hostnames:
+          - &host "start.${SECRET_DOMAIN_INT}"
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: http
+            # Keeps each browser on one replica, which stops the page refresh loop.
+            sessionPersistence:
+              sessionName: homepage-affinity
+              type: Cookie
     controllers:
       homepage:
         replicas: 2
