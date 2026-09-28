@@ -118,7 +118,8 @@ spec:
           - auth-k8s.${SECRET_DOMAIN_INT}
     serviceMonitor:
       app:
-        serviceName: authelia
+        service:
+          identifier: app
         endpoints:
           - port: metrics
             scheme: http

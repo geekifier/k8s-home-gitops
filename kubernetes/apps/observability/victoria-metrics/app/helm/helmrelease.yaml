@@ -8,7 +8,7 @@ spec:
   interval: 5m
   url: oci://ghcr.io/victoriametrics/helm-charts/victoria-metrics-k8s-stack
   ref:
-    tag: 0.87.0
+    tag: 0.93.0
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/helm.toolkit.fluxcd.io/helmrelease_v2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
@@ -40,16 +40,6 @@ spec:
     # -- VictoriaMetrics Operator dependency chart configuration. More values can be found [here](https://docs.victoriametrics.com/helm/victoriametrics-operator#parameters). Also checkout [here](https://docs.victoriametrics.com/operator/vars) possible ENV variables to configure operator behaviour
     victoria-metrics-operator:
       enabled: true
-      # Chart 0.87.0 vendors operator subchart 0.66.* (appVersion v0.73.1), whose
-      # generated Role grants the config-reloader only [get, watch] on the config
-      # Secret. Its reflector also needs `list`, so vmagent/vmsingle silently keep
-      # their boot-time scrape config forever. Subchart pins can't be overridden
-      # (Helm resolves them at package time), so pin the image instead.
-      # https://github.com/VictoriaMetrics/operator/issues/2384 (fixed in v0.74.0)
-      # https://github.com/VictoriaMetrics/helm-charts/issues/3136 (chart side, open)
-      # REMOVE once the stack chart vendors operator subchart >= 0.67.0.
-      image:
-        tag: v0.74.0
       crds:
         plain: true
         cleanup:

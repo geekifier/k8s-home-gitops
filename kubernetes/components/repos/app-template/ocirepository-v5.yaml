@@ -3,7 +3,6 @@
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: OCIRepository
 metadata:
-  # Migrate each HelmRelease explicitly; keep the v4 source during the rollout.
   name: app-template-v5
 spec:
   interval: 5m
@@ -11,7 +10,7 @@ spec:
     mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
     operation: copy
   ref:
-    tag: 5.1.0
+    tag: 5.2.1
   url: oci://ghcr.io/bjw-s-labs/helm/app-template
   verify:
     provider: cosign
