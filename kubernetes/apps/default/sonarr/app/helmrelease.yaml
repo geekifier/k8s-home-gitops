@@ -17,13 +17,9 @@ spec:
       strategy: rollback
       retries: 3
   values:
-    ingress:
+    route:
       app:
         annotations:
-          nginx.ingress.kubernetes.io/auth-method: "GET"
-          nginx.ingress.kubernetes.io/auth-url: "http://authelia.auth.svc.cluster.local:9091/api/authz/auth-request"
-          nginx.ingress.kubernetes.io/auth-signin: "https://auth-k8s.${SECRET_DOMAIN_INT}?rm=$request_method"
-          nginx.ingress.kubernetes.io/auth-response-headers: "Remote-User,Remote-Name,Remote-Groups,Remote-Email"
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Arrr
           gethomepage.dev/description: TV Show Manager
@@ -31,16 +27,14 @@ spec:
           gethomepage.dev/widget.key: '{{ "{{" }}HOMEPAGE_VAR_SONARR_API_KEY{{ "}}" }}'
           gethomepage.dev/widget.url: http://sonarr.default.svc.cluster.local:80
           gethomepage.dev/icon: sonarr
-        enabled: true
-        className: internal
-        hosts:
-          - host: &host "sonarr.${SECRET_DOMAIN_INT}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
-
+        labels:
+          auth.xenu.internal/method: sso
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+            sectionName: https
+        hostnames:
+          - "sonarr.${SECRET_DOMAIN_INT}"
     controllers:
       sonarr:
         replicas: 1
@@ -60,6 +54,9 @@ spec:
             env:
               TZ: ${CLUSTER_TZ}
               SONARR__SERVER__PORT: &containerPort 80
+              SONARR__SERVER__ALLOWEDHOSTS: >-
+                {{ join "," .Values.route.app.hostnames }},
+                {{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local
               SONARR__APP__INSTANCENAME: sonarr-K8s
               SONARR__APP__THEME: dark
               SONARR__AUTH__METHOD: External
@@ -78,6 +75,9 @@ spec:
                   httpGet:
                     path: /ping
                     port: *containerPort
+                    httpHeaders:
+                      - name: Host
+                        value: localhost
                   initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1
@@ -114,13 +114,6 @@ spec:
         rules:
           ingress:
             - from:
-                - namespaceSelector:
-                    matchLabels:
-                      kubernetes.io/metadata.name: network
-                  podSelector:
-                    matchLabels:
-                      app.kubernetes.io/instance: internal-ingress-nginx
-                      app.kubernetes.io/component: controller
                 - namespaceSelector:
                     matchLabels:
                       kubernetes.io/metadata.name: network

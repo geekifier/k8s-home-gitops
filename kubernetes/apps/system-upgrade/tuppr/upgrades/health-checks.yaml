@@ -171,7 +171,6 @@
       kind: Gateway
       description: Existing Gateways must be accepted and programmed for their current generation
       timeout: 30m
-      # Cluster-wide; no Gateways is valid while ingress-nginx remains in use.
       expr: >-
         has(object.metadata.deletionTimestamp) ||
         ['Accepted', 'Programmed'].all(t,

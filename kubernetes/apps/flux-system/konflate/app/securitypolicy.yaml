@@ -1,0 +1,38 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/gateway.envoyproxy.io/securitypolicy_v1alpha1.json
+# Admits konflate-mcp ServiceAccount tokens with the konflate-mcp audience.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: konflate-mcp
+  labels:
+    auth.xenu.internal/method: token
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: konflate-mcp
+  jwt:
+    providers:
+      - name: kubernetes
+        issuer: https://192.168.1.80:6443
+        audiences:
+          - konflate-mcp
+        localJWKS:
+          type: ValueRef
+          valueRef:
+            group: ""
+            kind: ConfigMap
+            name: konflate-mcp-jwks
+  authorization:
+    defaultAction: Deny
+    rules:
+      - name: konflate-mcp
+        action: Allow
+        principal:
+          jwt:
+            provider: kubernetes
+            claims:
+              - name: sub
+                values:
+                  - system:serviceaccount:flux-system:konflate-mcp

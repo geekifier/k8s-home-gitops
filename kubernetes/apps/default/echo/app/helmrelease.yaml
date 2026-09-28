@@ -67,6 +67,28 @@ spec:
         ports:
           http:
             port: *port
+    networkpolicies:
+      app:
+        controller: echo
+        policyTypes:
+          - Ingress
+          - Egress
+        rules:
+          ingress:
+            - from:
+                - namespaceSelector:
+                    matchLabels:
+                      kubernetes.io/metadata.name: network
+                  podSelector:
+                    matchLabels:
+                      gateway.envoyproxy.io/owning-gateway-name: envoy-external
+                - namespaceSelector:
+                    matchLabels:
+                      kubernetes.io/metadata.name: observability
+              ports:
+                - port: *port
+                  protocol: TCP
+          egress: []
     serviceMonitor:
       app:
         serviceName: echo

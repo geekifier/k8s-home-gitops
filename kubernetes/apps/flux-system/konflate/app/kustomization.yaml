@@ -6,3 +6,12 @@ resources:
   - ./helmrelease.yaml
   - ./httproute.yaml
   - ./secret.sops.yaml
+  - ./securitypolicy.yaml
+  - ./serviceaccount.yaml
+configMapGenerator:
+  # Output of `kubectl get --raw /openid/v1/jwks`; update when the signing key rotates.
+  - name: konflate-mcp-jwks
+    files:
+      - jwks=./jwks.json
+    options:
+      disableNameSuffixHash: true

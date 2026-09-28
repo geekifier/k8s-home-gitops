@@ -104,13 +104,6 @@ spec:
                       kubernetes.io/metadata.name: network
                   podSelector:
                     matchLabels:
-                      app.kubernetes.io/instance: internal-ingress-nginx
-                      app.kubernetes.io/component: controller
-                - namespaceSelector:
-                    matchLabels:
-                      kubernetes.io/metadata.name: network
-                  podSelector:
-                    matchLabels:
                       gateway.envoyproxy.io/owning-gateway-name: envoy-internal
                 - namespaceSelector:
                     matchLabels:
@@ -121,13 +114,9 @@ spec:
               ports:
                 - port: *port
                   protocol: TCP
-    ingress:
+    route:
       app:
         annotations:
-          nginx.ingress.kubernetes.io/auth-method: "GET"
-          nginx.ingress.kubernetes.io/auth-url: "http://authelia.auth.svc.cluster.local:9091/api/authz/auth-request"
-          nginx.ingress.kubernetes.io/auth-signin: "https://auth-k8s.${SECRET_DOMAIN_INT}?rm=$request_method"
-          nginx.ingress.kubernetes.io/auth-response-headers: "Remote-User,Remote-Name,Remote-Groups,Remote-Email"
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Media
           gethomepage.dev/description: RSS Reader
@@ -136,12 +125,11 @@ spec:
           gethomepage.dev/widget.headers.host: rss.${SECRET_DOMAIN_INT}
           gethomepage.dev/widget.url: http://miniflux.default.svc.cluster.local:8080
           gethomepage.dev/icon: miniflux
-        className: internal
-        hosts:
-          # TODO: parameterize this
-          - host: &url "rss.${SECRET_DOMAIN_INT}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
+        labels:
+          auth.xenu.internal/method: sso
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+            sectionName: https
+        hostnames:
+          - "rss.${SECRET_DOMAIN_INT}"

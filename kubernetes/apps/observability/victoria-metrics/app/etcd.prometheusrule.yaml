@@ -1,0 +1,40 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/monitoring.coreos.com/prometheusrule_v1.json
+#
+# Upstream etcdHighNumberOfFailedGRPCRequests (disabled in the HelmRelease defaultRules),
+# restricted to unary RPCs.
+
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: etcd-rules
+spec:
+  groups:
+    - name: etcd.grpc
+      rules:
+        - alert: etcdHighNumberOfFailedGRPCRequests
+          expr: |
+            (
+              100 * sum(rate(grpc_server_handled_total{job=~".*etcd.*", grpc_type="unary", grpc_code=~"Unknown|FailedPrecondition|ResourceExhausted|Internal|Unavailable|DataLoss|DeadlineExceeded"}[5m])) without (grpc_type, grpc_code)
+              /
+              sum(rate(grpc_server_handled_total{job=~".*etcd.*", grpc_type="unary"}[5m])) without (grpc_type, grpc_code)
+            ) > 1
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: etcd cluster has high number of failed grpc requests.
+            description: 'etcd cluster "{{ $labels.job }}": {{ $value }}% of requests for {{ $labels.grpc_method }} failed on etcd instance {{ $labels.instance }}.'
+        - alert: etcdHighNumberOfFailedGRPCRequests
+          expr: |
+            (
+              100 * sum(rate(grpc_server_handled_total{job=~".*etcd.*", grpc_type="unary", grpc_code=~"Unknown|FailedPrecondition|ResourceExhausted|Internal|Unavailable|DataLoss|DeadlineExceeded"}[5m])) without (grpc_type, grpc_code)
+              /
+              sum(rate(grpc_server_handled_total{job=~".*etcd.*", grpc_type="unary"}[5m])) without (grpc_type, grpc_code)
+            ) > 5
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: etcd cluster has high number of failed grpc requests.
+            description: 'etcd cluster "{{ $labels.job }}": {{ $value }}% of requests for {{ $labels.grpc_method }} failed on etcd instance {{ $labels.instance }}.'

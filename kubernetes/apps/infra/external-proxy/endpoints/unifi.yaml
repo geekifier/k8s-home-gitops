@@ -10,39 +10,88 @@ spec:
     - name: https
       port: 443
       targetPort: 443
+      # Makes Envoy use HTTP/1.1 upstream; UniFi rejects websockets over HTTP/2.
+      appProtocol: kubernetes.io/wss
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/endpoints-v1.json
-kind: Endpoints
-apiVersion: v1
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/endpointslice-discovery-v1.json
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
 metadata:
-  name: unifi-proxy
-subsets:
+  name: unifi-proxy-lan
+  labels:
+    kubernetes.io/service-name: unifi-proxy
+addressType: IPv4
+endpoints:
   - addresses:
-      - ip: 192.168.0.2
-    ports:
-      - port: 443
-        name: https
-        protocol: TCP
+      - 192.168.0.2
+    conditions:
+      ready: true
+ports:
+  - name: https
+    port: 443
+    protocol: TCP
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/ingress-networking-v1.json
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/configmap-v1.json
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: unifi-proxy-ca
+data:
+  # UniFi's self-signed certificate (CN=unifi.local), valid until 2027-11-19.
+  ca.crt: |
+    -----BEGIN CERTIFICATE-----
+    MIIDNTCCAh2gAwIBAgIJKUlx68GTkOE0MA0GCSqGSIb3DQEBCwUAMBYxFDASBgNV
+    BAMTC3VuaWZpLmxvY2FsMB4XDTI1MDgxNjA2MDg0NFoXDTI3MTExOTA2MDg0NFow
+    FjEUMBIGA1UEAxMLdW5pZmkubG9jYWwwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAw
+    ggEKAoIBAQC0jUoOyum+qbPwMiL2MMJRPnMe/BrXnbvvsuN0S46GhOd0A2nF1EKM
+    f7KPUMY9bZArRPd4+V11N1tEynw/4EzosE9S+yz6LVjzBc5nJr7uLcIXWLYY6LM+
+    nbL8Ip2cgPxNoiJWMpMWa/hPiy6V0JHn2syvpY8bLPf0Mj2QPIHMe9GkbjVE0sgz
+    +f1xplOoR0FfqQwLOhwKlbV0eDeKrHx/CzsI3Mshnzwx9WlwD2pvq77YyqWc7Lrj
+    4lKUxM/xD/PmYGSzSPW/6qVSQ5+BYTO5rYn9Ad28Im4fXxNPXpokhxCmDviejeh5
+    c2Q7OxYZZJGBpj9tuoEaiym6KODzi8DPAgMBAAGjgYUwgYIwCwYDVR0PBAQDAgL0
+    MDEGA1UdJQQqMCgGCCsGAQUFBwMBBggrBgEFBQcDAgYIKwYBBQUHAwMGCCsGAQUF
+    BwMIMEAGA1UdEQQ5MDeCC3VuaWZpLmxvY2Fsgglsb2NhbGhvc3SCBVs6OjFdhwR/
+    AAABhxD+gAAAAAAAAAAAAAAAAAABMA0GCSqGSIb3DQEBCwUAA4IBAQB054eML3pe
+    FagVTPjqG4DxTld689+rPPkxaqHKJpuiBG5LHEew3uZaN5BK+GinSnUJqXRo3Mvz
+    tWIjMJc3PzsSGra93HjkdHLW9Hgq+/MGdsVXDeJYRGoXPCItlID6hZq6t4REhkoW
+    wCBKY1dPUV+f83fHInKvUonD43OCPqIuHTtq+b2Yllmv7Y8onzIrc9tP7hUf+1p1
+    s0lXSyC18Rx8nmxpMf/Ssb6CTO6twtXXC/+/KrZ2GeO1O/f6NDI4Ozj2+8RNiGmj
+    1YOQMqF3emTTc+JKdTqUxi7MGKDJlAiKtv0oqVkRaM3rHOveCQ6Ip+IPG5TPPuUw
+    C9XZA+cm4siQ
+    -----END CERTIFICATE-----
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/gateway.networking.k8s.io/backendtlspolicy_v1.json
+apiVersion: gateway.networking.k8s.io/v1
+kind: BackendTLSPolicy
 metadata:
   name: unifi-proxy
-  namespace: infra
-  annotations:
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-    nginx.ingress.kubernetes.io/proxy-ssl-verify: "false"
 spec:
-  ingressClassName: internal
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: unifi-proxy
+  validation:
+    caCertificateRefs:
+      - group: ""
+        kind: ConfigMap
+        name: unifi-proxy-ca
+    hostname: unifi.local
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/gateway.networking.k8s.io/httproute_v1.json
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: unifi
+  labels:
+    auth.xenu.internal/method: app
+spec:
+  parentRefs:
+    - name: envoy-internal
+      namespace: network
+      sectionName: https
+  hostnames:
+    - unifi.${SECRET_DOMAIN_INT}
   rules:
-    - host: unifi.${SECRET_DOMAIN_INT}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: unifi-proxy
-                port:
-                  name: https
+    - backendRefs:
+        - name: unifi-proxy
+          port: 443

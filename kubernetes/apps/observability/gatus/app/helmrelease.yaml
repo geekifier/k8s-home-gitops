@@ -96,16 +96,30 @@ spec:
         ports:
           http-config:
             port: 8080
-    ingress:
+    route:
       app:
-        className: internal
-        hosts:
-          - host: &host "gatus-config.${SECRET_DOMAIN_INT}"
-            paths:
-              - path: /config
-                service:
-                  identifier: config
-                  port: http-config
+        labels:
+          auth.xenu.internal/method: none
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+            sectionName: https
+        hostnames:
+          - "gatus-config.${SECRET_DOMAIN_INT}"
+        rules:
+          # Read-only access to the configuration; one method per match.
+          - backendRefs:
+              - identifier: config
+                port: http-config
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /config
+                method: GET
+              - path:
+                  type: PathPrefix
+                  value: /config
+                method: HEAD
     rbac:
       roles:
         gatus:
