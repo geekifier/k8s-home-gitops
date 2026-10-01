@@ -21,6 +21,7 @@ spec:
       app:
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/href: "https://{{ index .Values.route.app.hostnames 0 }}"
           gethomepage.dev/group: Media
           gethomepage.dev/description: Media Library
           gethomepage.dev/widget.type: jellyfin

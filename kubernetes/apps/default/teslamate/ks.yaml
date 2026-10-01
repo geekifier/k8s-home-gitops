@@ -22,6 +22,9 @@ spec:
     substitute:
       APP: *app
       GATUS_PATH: "/health_check"
+      # Image tag and Grafana dashboard release
+      # renovate: datasource=docker depName=teslamate/teslamate
+      TESLAMATE_VERSION: 4.2.0
     substituteFrom:
       - name: cluster-settings
         kind: ConfigMap

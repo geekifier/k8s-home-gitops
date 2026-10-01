@@ -42,6 +42,21 @@ spec:
       mcp: true
       # Copy-to-merge command shown in the UI (konflate never runs it); rebase-only repo.
       mergeCommand: "gh pr merge {{.Number}} -r --repo {{.Repo}}"
+      # Registry credentials for verifyImages (private ghcr.io images).
+      extraEnv:
+        - name: DOCKER_CONFIG
+          value: /etc/konflate/docker
+    volumes:
+      - name: ghcr-login
+        secret:
+          secretName: ghcr-login-secret
+          items:
+            - key: .dockerconfigjson
+              path: config.json
+    volumeMounts:
+      - name: ghcr-login
+        mountPath: /etc/konflate/docker
+        readOnly: true
     secret:
       existingSecret: konflate-secret
     httpRoute:

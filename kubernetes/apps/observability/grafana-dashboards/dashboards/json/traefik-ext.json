@@ -87,7 +87,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "",
       "fieldConfig": {
@@ -138,7 +138,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "expr": "count(traefik_config_reloads_total)",
@@ -153,7 +153,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "",
       "fieldConfig": {
@@ -238,7 +238,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "expr": "sum(rate(traefik_entrypoint_requests_total{instance=\"$INSTANCE\", entrypoint=~\"$entrypoint\"}[1m])) by (entrypoint)",
@@ -253,7 +253,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "https://medium.com/@tristan_96324/prometheus-apdex-alerting-d17a065e39d0",
       "fieldConfig": {
@@ -337,7 +337,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "expr": "(sum(rate(traefik_entrypoint_request_duration_seconds_bucket{le=\"0.3\",code=\"200\",entrypoint=~\"$entrypoint\"}[5m])) by (method) + \n sum(rate(traefik_entrypoint_request_duration_seconds_bucket{le=\"1.2\",code=\"200\",entrypoint=~\"$entrypoint\"}[5m])) by (method)) / 2 / \n sum(rate(traefik_entrypoint_request_duration_seconds_count{code=\"200\",entrypoint=~\"$entrypoint\"}[5m])) by (method)\n",
@@ -352,7 +352,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "Mean Distribution",
       "fieldConfig": {
@@ -403,7 +403,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "expr": "sum(rate(traefik_service_requests_total{instance=\"$INSTANCE\", service=~\"$service.*\",protocol=\"http\"}[1m])) by (method, code)",
@@ -418,7 +418,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "",
       "fieldConfig": {
@@ -501,7 +501,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "expr": "topk(15,\n    label_replace(\n        traefik_service_request_duration_seconds_sum{instance=\"$INSTANCE\", service=~\"$service.*\",protocol=\"http\"} / \n          traefik_service_request_duration_seconds_count{instance=\"$INSTANCE\", service=~\"$service.*\",protocol=\"http\"},\n        \"service\", \"$1\", \"service\", \"([^-]+-[^-]+).*\")\n)\n\n",
@@ -516,7 +516,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "",
       "fieldConfig": {
@@ -599,7 +599,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "expr": "topk(15,\n    label_replace(\n        sum by (service,code) \n          (rate(traefik_service_requests_total{instance=\"$INSTANCE\", service=~\"$service.*\",protocol=\"http\"}[5m])) > 0,\n        \"service\", \"$1\", \"service\", \"([^-]+-[^-]+).*\")\n)",
@@ -627,7 +627,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "",
       "fieldConfig": {
@@ -712,7 +712,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "expr": "topk(15,\n    label_replace(\n        sum by (service,method,code) \n          (rate(traefik_service_requests_total{instance=\"$INSTANCE\", service=~\"$service.*\",code=~\"2..\",protocol=\"http\"}[5m])) > 0,\n        \"service\", \"$1\", \"service\", \"([^-]+-[^-]+).*\")\n)",
@@ -727,7 +727,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "",
       "fieldConfig": {
@@ -813,7 +813,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "expr": "topk(15,\n    label_replace(\n        sum by (service,method,code) \n          (rate(traefik_service_requests_total{instance=\"$INSTANCE\", service=~\"$service.*\",code=~\"5..\",protocol=\"http\"}[5m])) > 0,\n        \"service\", \"$1\", \"service\", \"([^-]+-[^-]+).*\")\n)",
@@ -828,7 +828,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "",
       "fieldConfig": {
@@ -914,7 +914,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "expr": "topk(15,\n    label_replace(\n        sum by (service,method,code) \n          (rate(traefik_service_requests_total{instance=\"$INSTANCE\", service=~\"$service.*\",code!~\"2..|5..\",protocol=\"http\"}[5m])) > 0,\n        \"service\", \"$1\", \"service\", \"([^-]+-[^-]+).*\")\n)",
@@ -929,7 +929,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "",
       "fieldConfig": {
@@ -1015,7 +1015,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "expr": "topk(15,\n    label_replace(\n        sum by (service,method) \n          (rate(traefik_service_requests_bytes_total{instance=\"$INSTANCE\", service=~\"$service.*\",protocol=\"http\"}[1m])) > 0,\n        \"service\", \"$1\", \"service\", \"([^-]+-[^-]+).*\")\n)",
@@ -1030,7 +1030,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "",
       "fieldConfig": {
@@ -1116,7 +1116,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "expr": "topk(15,\n    label_replace(\n        sum by (service,method) \n          (rate(traefik_service_responses_bytes_total{instance=\"$INSTANCE\", service=~\"$service.*\",protocol=\"http\"}[1m])) > 0,\n        \"service\", \"$1\", \"service\", \"([^-]+-[^-]+).*\")\n)",
@@ -1131,7 +1131,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "",
       "fieldConfig": {
@@ -1216,7 +1216,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "expr": "sum(traefik_entrypoint_open_connections{instance=\"$INSTANCE\", entrypoint=~\"$entrypoint\"}) by (entrypoint)\n",
@@ -1241,7 +1241,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "description": "",
           "fieldConfig": {
@@ -1322,7 +1322,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "$${DS_PROMETHEUS}"
+                "uid": "${DS_PROMETHEUS}"
               },
               "editorMode": "code",
               "expr": "label_replace(\n  1 - (sum by (service)\n    (rate(traefik_service_request_duration_seconds_bucket{le=\"1.2\",service=~\"$service.*\"}[5m])) / sum by (service) \n    (rate(traefik_service_request_duration_seconds_count{instance=\"$INSTANCE\", service=~\"$service.*\"}[5m]))\n  ) > 0,\n  \"service\", \"$1\", \"service\", \"([^-]+-[^-]+).*\"\n)",
@@ -1337,7 +1337,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "description": "",
           "fieldConfig": {
@@ -1418,7 +1418,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "$${DS_PROMETHEUS}"
+                "uid": "${DS_PROMETHEUS}"
               },
               "editorMode": "code",
               "expr": "label_replace(\n  1 - (sum by (service)\n    (rate(traefik_service_request_duration_seconds_bucket{le=\"0.3\",service=~\"$service.*\"}[5m])) / sum by (service) \n    (rate(traefik_service_request_duration_seconds_count{service=~\"$service.*\"}[5m]))\n  ) > 0,\n  \"service\", \"$1\", \"service\", \"([^-]+-[^-]+).*\"\n)",
@@ -1472,7 +1472,7 @@
         "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "$${DS_PROMETHEUS}"
+          "uid": "${DS_PROMETHEUS}"
         },
         "definition": "label_values(traefik_entrypoint_open_connections{instance=\"$INSTANCE\"},entrypoint)",
         "includeAll": true,
@@ -1491,7 +1491,7 @@
         "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "$${DS_PROMETHEUS}"
+          "uid": "${DS_PROMETHEUS}"
         },
         "definition": "label_values(traefik_service_requests_total{instance=\"$INSTANCE\"},service)",
         "includeAll": true,

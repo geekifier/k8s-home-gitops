@@ -21,6 +21,7 @@ spec:
       app:
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/href: "https://{{ index .Values.route.app.hostnames 0 }}"
           gethomepage.dev/group: Arrr
           gethomepage.dev/description: TV Show Manager
           gethomepage.dev/widget.type: sonarr

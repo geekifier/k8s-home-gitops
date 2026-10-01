@@ -1,0 +1,22 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: mumble
+spec:
+  cluster:
+    name: postgres17
+  name: mumble
+  login: true
+  passwordSecret:
+    name: mumble-pgsql
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: mumble
+spec:
+  cluster:
+    name: postgres17
+  name: mumble
+  owner: mumble

@@ -7,9 +7,11 @@ components:
   - ../../components/common
   - ../../components/repos/app-template
 resources:
+  - ./prometheus-operator-crds/ks.yaml
   - ./victoria-metrics/ks.yaml
   - ./grafana-alloy/ks.yaml
   - ./grafana-dashboards/kustomization.yaml
+  - ./grafana-operator/ks.yaml
   - ./smartctl-exporter/ks.yaml
   - ./prometheus-pve-exporter/ks.yaml
   - ./snmp-exporter/ks.yaml

@@ -64,7 +64,7 @@
       }
     ]
   },
-  "description": "Dashboard for the Samba Server at $${SAMBA_SERVER}",
+  "description": "Dashboard for the Samba Server at ${SAMBA_SERVER}",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
@@ -75,7 +75,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -152,10 +152,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "exemplar": true,
-          "expr": "samba_locks_per_share_count{instance=\"$${SAMBA_SERVER}\"}",
+          "expr": "samba_locks_per_share_count{instance=\"${SAMBA_SERVER}\"}",
           "interval": "",
           "legendFormat": "Locks on  {{share}}",
           "refId": "A"
@@ -167,7 +167,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -260,10 +260,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "exemplar": true,
-          "expr": "samba_client_count{instance=\"$${SAMBA_SERVER}\"}",
+          "expr": "samba_client_count{instance=\"${SAMBA_SERVER}\"}",
           "interval": "",
           "legendFormat": "Client Count",
           "refId": "A"
@@ -275,7 +275,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -368,10 +368,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "exemplar": true,
-          "expr": "samba_individual_user_count{instance=\"$${SAMBA_SERVER}\"}",
+          "expr": "samba_individual_user_count{instance=\"${SAMBA_SERVER}\"}",
           "interval": "",
           "legendFormat": "Samba Users ",
           "refId": "A"
@@ -383,7 +383,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "Samba Resource Usage in percent",
       "fieldConfig": {
@@ -462,10 +462,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "samba_smbd_sum_cpu_usage_percentage{instance=\"$${SAMBA_SERVER}\"}",
+          "expr": "samba_smbd_sum_cpu_usage_percentage{instance=\"${SAMBA_SERVER}\"}",
           "legendFormat": "CPU usage in %",
           "range": true,
           "refId": "A"
@@ -473,10 +473,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "samba_smbd_sum_virtual_memory_usage_percent{instance=\"$${SAMBA_SERVER}\"}",
+          "expr": "samba_smbd_sum_virtual_memory_usage_percent{instance=\"${SAMBA_SERVER}\"}",
           "hide": false,
           "legendFormat": "RAM usage in %",
           "range": true,
@@ -489,7 +489,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "",
       "fieldConfig": {
@@ -583,11 +583,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "samba_pid_count{instance=\"$${SAMBA_SERVER}\"}",
+          "expr": "samba_pid_count{instance=\"${SAMBA_SERVER}\"}",
           "interval": "",
           "legendFormat": "Share PID Count",
           "range": true,
@@ -596,10 +596,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "samba_smbd_unique_process_id_count{instance=\"$${SAMBA_SERVER}\"}",
+          "expr": "samba_smbd_unique_process_id_count{instance=\"${SAMBA_SERVER}\"}",
           "hide": false,
           "legendFormat": "smbd PID count",
           "range": true,
@@ -612,7 +612,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -706,10 +706,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "exemplar": true,
-          "expr": "samba_share_count{instance=\"$${SAMBA_SERVER}\"}",
+          "expr": "samba_share_count{instance=\"${SAMBA_SERVER}\"}",
           "interval": "",
           "legendFormat": "Used Shares",
           "refId": "A"
@@ -721,7 +721,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "RAM usage of all smbd PIDs",
       "fieldConfig": {
@@ -800,10 +800,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "samba_smbd_virtual_memory_usage_bytes{instance=\"$${SAMBA_SERVER}\"}",
+          "expr": "samba_smbd_virtual_memory_usage_bytes{instance=\"${SAMBA_SERVER}\"}",
           "legendFormat": "PID: {{pid}}",
           "range": true,
           "refId": "A"
@@ -811,10 +811,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "samba_smbd_sum_virtual_memory_usage_bytes{instance=\"$${SAMBA_SERVER}\"}",
+          "expr": "samba_smbd_sum_virtual_memory_usage_bytes{instance=\"${SAMBA_SERVER}\"}",
           "hide": false,
           "legendFormat": "Sum",
           "range": true,
@@ -827,7 +827,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "Shows the IO usage of the smbd process",
       "fieldConfig": {
@@ -906,10 +906,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "rate(samba_smbd_sum_io_counter_read_bytes{instance=\"$${SAMBA_SERVER}\"} [5m])",
+          "expr": "rate(samba_smbd_sum_io_counter_read_bytes{instance=\"${SAMBA_SERVER}\"} [5m])",
           "legendFormat": "Read Bytes per minute",
           "range": true,
           "refId": "A"
@@ -917,10 +917,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "rate(samba_smbd_sum_io_counter_write_bytes{instance=\"$${SAMBA_SERVER}\"} [5m])",
+          "expr": "rate(samba_smbd_sum_io_counter_write_bytes{instance=\"${SAMBA_SERVER}\"} [5m])",
           "hide": false,
           "legendFormat": "Write Bytes per minute",
           "range": true,
@@ -933,7 +933,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "Open files of all smbd process",
       "fieldConfig": {
@@ -1011,10 +1011,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "samba_smbd_sum_open_file_count{instance=\"$${SAMBA_SERVER}\"}",
+          "expr": "samba_smbd_sum_open_file_count{instance=\"${SAMBA_SERVER}\"}",
           "legendFormat": "Open files",
           "range": true,
           "refId": "A"
@@ -1026,7 +1026,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1075,10 +1075,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "exemplar": true,
-          "expr": "samba_signing_method_count{instance=\"$${SAMBA_SERVER}\"}",
+          "expr": "samba_signing_method_count{instance=\"${SAMBA_SERVER}\"}",
           "interval": "",
           "legendFormat": "Signing: {{signing}}",
           "refId": "A"
@@ -1086,10 +1086,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "exemplar": true,
-          "expr": "samba_encryption_method_count{instance=\"$${SAMBA_SERVER}\"}",
+          "expr": "samba_encryption_method_count{instance=\"${SAMBA_SERVER}\"}",
           "hide": false,
           "interval": "",
           "legendFormat": "Encryption: {{encryption}}",
@@ -1098,10 +1098,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "exemplar": true,
-          "expr": "samba_protocol_version_count{instance=\"$${SAMBA_SERVER}\"}",
+          "expr": "samba_protocol_version_count{instance=\"${SAMBA_SERVER}\"}",
           "hide": false,
           "interval": "",
           "legendFormat": "Version: {{protocol_version}}",
@@ -1114,7 +1114,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "Client connected since",
       "fieldConfig": {
@@ -1160,10 +1160,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "samba_client_connected_since_seconds{instance=\"$${SAMBA_SERVER}\"}",
+          "expr": "samba_client_connected_since_seconds{instance=\"${SAMBA_SERVER}\"}",
           "legendFormat": "{{client}} ",
           "range": true,
           "refId": "A"
@@ -1175,7 +1175,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "Lock created since",
       "fieldConfig": {
@@ -1221,10 +1221,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "samba_lock_created_since_seconds{instance=\"$${SAMBA_SERVER}\"}",
+          "expr": "samba_lock_created_since_seconds{instance=\"${SAMBA_SERVER}\"}",
           "legendFormat": "{{share}} - {{user}} ",
           "range": true,
           "refId": "A"
@@ -1236,7 +1236,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "Versions of samba and samba_exporter",
       "fieldConfig": {
@@ -1289,10 +1289,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "samba_server_information{instance=\"$${SAMBA_SERVER}\"}",
+          "expr": "samba_server_information{instance=\"${SAMBA_SERVER}\"}",
           "legendFormat": "samba Version: {{version}}",
           "range": true,
           "refId": "A"
@@ -1300,10 +1300,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "samba_exporter_information{instance=\"$${SAMBA_SERVER}\"}",
+          "expr": "samba_exporter_information{instance=\"${SAMBA_SERVER}\"}",
           "hide": false,
           "legendFormat": "samba_exporter Version: {{version}}",
           "range": true,
@@ -1316,7 +1316,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "States of the samba and samba_statusd services",
       "fieldConfig": {
@@ -1376,10 +1376,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "samba_server_up{instance=\"$${SAMBA_SERVER}\"}",
+          "expr": "samba_server_up{instance=\"${SAMBA_SERVER}\"}",
           "legendFormat": "Samba server up",
           "range": true,
           "refId": "A"
@@ -1387,10 +1387,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "samba_satutsd_up{instance=\"$${SAMBA_SERVER}\"}",
+          "expr": "samba_satutsd_up{instance=\"${SAMBA_SERVER}\"}",
           "hide": false,
           "legendFormat": "Samba statusd up",
           "range": true,
@@ -1403,7 +1403,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "",
       "fieldConfig": {
@@ -1483,10 +1483,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "exemplar": true,
-          "expr": "samba_request_time{instance=\"$${SAMBA_SERVER}\"}",
+          "expr": "samba_request_time{instance=\"${SAMBA_SERVER}\"}",
           "interval": "",
           "legendFormat": "Request Time",
           "refId": "A"
@@ -1515,7 +1515,7 @@
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "$${DS_PROMETHEUS}"
+          "uid": "${DS_PROMETHEUS}"
         },
         "definition": "label_values(samba_exporter_information,instance)",
         "description": "",

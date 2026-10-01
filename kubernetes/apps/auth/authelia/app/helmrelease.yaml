@@ -142,7 +142,7 @@ spec:
             readOnly: true
       dbsecret:
         type: secret
-        name: pgsql-authelia
+        name: authelia-pgsql
         globalMounts:
           - path: /config/pgsqlsecret
             readOnly: true

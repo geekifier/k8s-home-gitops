@@ -50,7 +50,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -97,7 +97,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "max by (version) (tuppr_build_info and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))",
           "format": "table",
@@ -112,7 +112,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -191,7 +191,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "max by (role) ((tuppr_managed_nodes and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))))",
           "legendFormat": "{{role}}",
@@ -206,7 +206,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -257,7 +257,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "sum(max by (__name__, name) ({__name__=~\"tuppr_(talos|kubernetes)_upgrade_phase\",phase=\"Failed\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1)))) or (max((leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))) * 0)",
           "refId": "A",
@@ -272,7 +272,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -323,7 +323,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "sum(increase_pure(tuppr_hook_executions_total{result!=\"success\"}[1h])) or (max((leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))) * 0)",
           "refId": "A",
@@ -350,7 +350,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -401,7 +401,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "count(max by (upgrade_type, name, reason) ((tuppr_upgrade_progressing{reason=~\"Waiting.*|Suspended|HealthChecking|MaintenanceWindow\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))) == 0)) or (max((leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))) * 0)",
           "legendFormat": "Blocked",
@@ -416,7 +416,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -465,7 +465,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "max by (upgrade_type, name, reason) ((tuppr_upgrade_progressing{reason=~\"Waiting.*|Suspended|HealthChecking|MaintenanceWindow\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))) == 0)",
           "format": "table",
@@ -523,7 +523,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -579,7 +579,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "sum(increase_pure(tuppr_upgrades_completed_total{result=\"success\"}[7d])) / (sum(increase_pure(tuppr_upgrades_completed_total[7d])) > 0)",
           "refId": "A",
@@ -594,7 +594,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -640,7 +640,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "time() - max((tuppr_upgrade_last_completion_timestamp_seconds{result=\"success\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))))",
           "refId": "A",
@@ -654,7 +654,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -760,7 +760,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "topk by (upgrade_type, name) (1, max by (upgrade_type, name, result) ((tuppr_upgrade_last_completion_timestamp_seconds and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))) > 0)) * 1000",
           "format": "table",
@@ -797,7 +797,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -891,7 +891,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "max by (node, role, talos_version, kubernetes_version) ((tuppr_node_info and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))))",
           "format": "table",
@@ -952,7 +952,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1159,7 +1159,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "max by (name, phase, node_name) ((tuppr_talos_upgrade_phase{name=~\"$talos_upgrade\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))) == 1)",
           "format": "table",
@@ -1170,7 +1170,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "max by (name) ((tuppr_talos_upgrade_nodes{name=~\"$talos_upgrade\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))))",
           "format": "table",
@@ -1181,7 +1181,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "max by (name) ((tuppr_talos_upgrade_nodes_completed{name=~\"$talos_upgrade\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))))",
           "format": "table",
@@ -1192,7 +1192,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "max by (name) ((tuppr_talos_upgrade_nodes_failed{name=~\"$talos_upgrade\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))))",
           "format": "table",
@@ -1248,7 +1248,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1300,7 +1300,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "max by (name, phase) ((tuppr_talos_upgrade_phase{name=~\"$talos_upgrade\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))) == 1)",
           "legendFormat": "{{name}} / {{phase}}",
@@ -1313,7 +1313,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1371,7 +1371,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "sum by (name, phase) (increase_pure(tuppr_talos_upgrade_duration_seconds_sum{name=~\"$talos_upgrade\"}[$__range])) / (sum by (name, phase) (increase_pure(tuppr_talos_upgrade_duration_seconds_count{name=~\"$talos_upgrade\"}[$__range])) > 0)",
           "format": "table",
@@ -1382,7 +1382,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "sum by (name, phase) (increase_pure(tuppr_talos_upgrade_duration_seconds_count{name=~\"$talos_upgrade\"}[$__range])) > 0",
           "format": "table",
@@ -1437,7 +1437,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1540,7 +1540,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "max by (name, phase) ((tuppr_kubernetes_upgrade_phase{name=~\"$k8s_upgrade\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))) == 1)",
           "format": "table",
@@ -1574,7 +1574,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1626,7 +1626,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "max by (name, phase) ((tuppr_kubernetes_upgrade_phase{name=~\"$k8s_upgrade\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))) == 1)",
           "legendFormat": "{{name}} / {{phase}}",
@@ -1639,7 +1639,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1697,7 +1697,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "sum by (name, phase) (increase_pure(tuppr_kubernetes_upgrade_duration_seconds_sum{name=~\"$k8s_upgrade\"}[$__range])) / (sum by (name, phase) (increase_pure(tuppr_kubernetes_upgrade_duration_seconds_count{name=~\"$k8s_upgrade\"}[$__range])) > 0)",
           "format": "table",
@@ -1708,7 +1708,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "sum by (name, phase) (increase_pure(tuppr_kubernetes_upgrade_duration_seconds_count{name=~\"$k8s_upgrade\"}[$__range])) > 0",
           "format": "table",
@@ -1763,7 +1763,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1809,7 +1809,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "sum by (upgrade_type, upgrade_name) (increase_pure(tuppr_health_check_failures_total[5m]))",
           "legendFormat": "{{upgrade_type}} / {{upgrade_name}}",
@@ -1823,7 +1823,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1881,7 +1881,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "sum by (upgrade_type, upgrade_name) (increase_pure(tuppr_health_check_duration_seconds_sum[$__range])) / (sum by (upgrade_type, upgrade_name) (increase_pure(tuppr_health_check_duration_seconds_count[$__range])) > 0)",
           "format": "table",
@@ -1892,7 +1892,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "sum by (upgrade_type, upgrade_name) (increase_pure(tuppr_health_check_duration_seconds_count[$__range])) > 0",
           "format": "table",
@@ -1934,7 +1934,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1982,7 +1982,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "sum by (upgrade_type, upgrade_name, check_index) (increase_pure(tuppr_health_check_failures_total[1h])) > 0",
           "format": "table",
@@ -2033,7 +2033,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2080,7 +2080,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "max by (upgrade_type) ((tuppr_upgrade_jobs_active and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))))",
           "legendFormat": "{{upgrade_type}}",
@@ -2093,7 +2093,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2151,7 +2151,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "sum by (upgrade_type, result) (increase_pure(tuppr_upgrade_job_duration_seconds_sum[$__range])) / (sum by (upgrade_type, result) (increase_pure(tuppr_upgrade_job_duration_seconds_count[$__range])) > 0)",
           "format": "table",
@@ -2162,7 +2162,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "sum by (upgrade_type, result) (increase_pure(tuppr_upgrade_job_duration_seconds_count[$__range])) > 0",
           "format": "table",
@@ -2204,7 +2204,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2263,7 +2263,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "sum by (upgrade_type, upgrade_name, node_name, result) (increase_pure(tuppr_upgrade_job_duration_seconds_sum[$__range])) / (sum by (upgrade_type, upgrade_name, node_name, result) (increase_pure(tuppr_upgrade_job_duration_seconds_count[$__range])) > 0)",
           "format": "table",
@@ -2274,7 +2274,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "sum by (upgrade_type, upgrade_name, node_name, result) (increase_pure(tuppr_upgrade_job_duration_seconds_count[$__range])) > 0",
           "format": "table",
@@ -2333,7 +2333,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2410,7 +2410,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "sum by (hook_phase, result) (increase_pure(tuppr_hook_executions_total[5m]))",
           "legendFormat": "{{hook_phase}} / {{result}}",
@@ -2423,7 +2423,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2470,7 +2470,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "sum by (upgrade_name, hook_phase, hook_name, result) (increase_pure(tuppr_hook_executions_total[$__range])) > 0",
           "format": "table",
@@ -2522,7 +2522,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2624,7 +2624,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "label_join(max by (upgrade_type, name) ((tuppr_maintenance_window_active and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1)))) and on (upgrade_type, name) max by (upgrade_type, name) ((tuppr_maintenance_window_info and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1)))), \"upgrade\", \" / \", \"upgrade_type\", \"name\")",
           "format": "table",
@@ -2635,7 +2635,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "label_join(max by (upgrade_type, name) ((tuppr_maintenance_window_next_open_timestamp and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))) * 1000), \"upgrade\", \" / \", \"upgrade_type\", \"name\")",
           "format": "table",
@@ -2686,7 +2686,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2742,7 +2742,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "max by (upgrade_type, name, index, start, duration, timezone) ((tuppr_maintenance_window_info and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))))",
           "format": "table",
@@ -2805,7 +2805,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2859,7 +2859,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "max by (node, role, talos_version) ((tuppr_node_info and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))))",
           "format": "table",
@@ -2870,7 +2870,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "max by (node, version, upgrade_name) ((tuppr_node_target_version{kind=\"talos\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))))",
           "format": "table",
@@ -2933,7 +2933,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${datasource}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2987,7 +2987,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "max by (node, role, kubernetes_version) ((tuppr_node_info and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))))",
           "format": "table",
@@ -2998,7 +2998,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${datasource}"
+            "uid": "${datasource}"
           },
           "expr": "max by (node, version, upgrade_name) ((tuppr_node_target_version{kind=\"kubernetes\"} and on (namespace, pod) (leader_election_master_status{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1 and on (namespace, pod) (up{namespace=\"system-upgrade\",service=\"tuppr-metrics-service\"} == 1))))",
           "format": "table",
@@ -3097,7 +3097,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "$${datasource}"
+          "uid": "${datasource}"
         },
         "definition": "label_values(tuppr_talos_upgrade_phase, name)",
         "hide": 0,
@@ -3126,7 +3126,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "$${datasource}"
+          "uid": "${datasource}"
         },
         "definition": "label_values(tuppr_kubernetes_upgrade_phase, name)",
         "hide": 0,

@@ -34,7 +34,8 @@ spec:
       envoyPDB:
         minAvailable: 1
       envoyService:
-        externalTrafficPolicy: Cluster
+        # Preserves LAN client source IPs.
+        externalTrafficPolicy: Local
   shutdown:
     drainTimeout: 180s
   telemetry:

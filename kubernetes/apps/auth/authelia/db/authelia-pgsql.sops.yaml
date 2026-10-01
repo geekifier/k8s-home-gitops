@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: authelia-pgsql
+  labels:
+    cnpg.io/reload: "true"
+type: kubernetes.io/basic-auth
+stringData:
+  username: ENC[AES256_GCM,data:SaMYeC4jNNE=,iv:3/VlM2uSqNwY+ECC4LaZMZmDABVwjbqFa4/ZFn5O5kc=,tag:2LwLOaUd5kVO90DdrgfZwg==,type:str]
+  password: ENC[AES256_GCM,data:QRc6JJgkiD6q7eoQtOxBTxq+rgOyiQfKzuOwu8fmgicE39wnCDtedm2KS+h7jE7N,iv:yoU0TZpNoLDflYhBh6+KccXXsKOaSxzGr74mbQx7dq0=,tag:yGfZ4vH4O6/0XWGZQptnZw==,type:str]
+sops:
+  age:
+    - enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBPVTZZN2VXeGVXejhtZ0Vv
+        VHBHMWlzby9hYTE5RkN0clRjZ3RuZlFLSkRrClpoWTl0bktGekxkWHlGYVRMWDZ1
+        VHVETWRpajNnaG1FeUhqYmNNRXNqQW8KLS0tIFUwZzM0bjYxZVRFUVA4ajF1bGlV
+        cUZXaE80WVZicWphd1AxVVUvWGV5ZGMKyxrwOk0crBZp69nFgubaPrFlyrBccoxY
+        Fij7ypbiSKsUEO0tVZpRFAxxjfqc7F7L64oImB/hvoRACEPNEtFwXw==
+        -----END AGE ENCRYPTED FILE-----
+      recipient: age1a68j5zasa55y39u5ecus7g4dzl3rqp0u6h6jwpuw3743cdf9dd4sykfhr4
+  encrypted_regex: ^(data|stringData)$
+  lastmodified: "2026-10-01T02:40:16Z"
+  mac: ENC[AES256_GCM,data:4TzQ2LiqkHXxdIMTirtxGMLWrf6t/90yNjPyHZfcF/mE9ueZKmInV2uqvwMjEdPNBQQJdpnLtCTkXhYihpGvfRnIyttBWVZzIDp9clpLnV3L1zLfOssXwf5OgMEcLRAhHL7R5AOo82Vvjbed2B1b3odKpURpi5GNIFxfsC3QfO8=,iv:i0MV4HWSpjy95NYTVGw/xxt786EzQHk74bcJOAJl3VM=,tag:xNECutcZM9wlThrZNoxO8g==,type:str]
+  mac_only_encrypted: true
+  version: 3.13.3

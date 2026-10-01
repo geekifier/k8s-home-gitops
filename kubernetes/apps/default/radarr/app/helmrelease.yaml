@@ -21,12 +21,12 @@ spec:
       app:
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/href: "https://{{ index .Values.route.app.hostnames 0 }}"
           gethomepage.dev/group: Arrr
           gethomepage.dev/description: Movie Manager
           gethomepage.dev/widget.type: radarr
           gethomepage.dev/name: radarr
           gethomepage.dev/widget.key: '{{ "{{" }}HOMEPAGE_VAR_RADARR_API_KEY{{ "}}" }}'
-          gethomepage.dev/widget.headers.host: radarr.${SECRET_DOMAIN_INT}
           gethomepage.dev/widget.url: http://radarr.default.svc.cluster.local:80
           gethomepage.dev/icon: radarr
         labels:

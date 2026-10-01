@@ -21,6 +21,7 @@ spec:
       app:
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/href: "https://{{ index .Values.route.app.hostnames 0 }}"
           gethomepage.dev/pod-selector: app.kubernetes.io/name=archivis
           gethomepage.dev/group: Media
           gethomepage.dev/name: Archivis

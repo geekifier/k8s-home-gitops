@@ -1,0 +1,38 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/fluxcd.controlplane.io/resourceset_v1.json
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: envoy-dashboards
+spec:
+  # dashboards_out/envoy-<name>.json in adinhodovic/envoy-mixin
+  inputs:
+    - dashboards:
+        - downstream
+        - overview
+        - upstream
+  resourcesTemplate: |
+    <<- range inputs.dashboards >>
+    ---
+    apiVersion: grafana.integreatly.org/v1beta1
+    kind: GrafanaDashboard
+    metadata:
+      name: envoy-<< . >>
+      namespace: << inputs.provider.namespace >>
+    spec:
+      # The Grafana CR lives in observability
+      allowCrossNamespaceImport: true
+      instanceSelector:
+        matchLabels:
+          dashboards: grafana
+      folder: network
+      url: https://raw.githubusercontent.com/adinhodovic/envoy-mixin/refs/heads/main/dashboards_out/envoy-<< . >>.json
+      # Refetch the branch daily
+      contentCacheDuration: 24h
+      <<- if eq . "downstream" >>
+      # Upstream has no All option; default to the Gateways' 443 listeners
+      variables:
+        - name: envoy_http_conn_manager_prefix
+          value: https-10443
+      <<- end >>
+    <<- end >>

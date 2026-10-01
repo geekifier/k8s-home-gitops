@@ -1,0 +1,27 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: spoolman
+spec:
+  cluster:
+    name: postgres17
+  name: spoolman
+  login: true
+  connectionLimit: 20
+  passwordSecret:
+    name: spoolman-pgsql
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: spoolman
+spec:
+  cluster:
+    name: postgres17
+  name: spoolman
+  owner: spoolman
+  schemas:
+    - name: public
+      owner: spoolman
+      ensure: present

@@ -50,22 +50,20 @@ spec:
   database: teslamate
   secretName: pgsql
   privileges: READ
-  labels:
-    grafana_datasource: "1"
-    test: foo
   annotations:
     reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
     reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
-    reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "default,observability"
+    reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "observability"
 
-  # formatted data for Grafana sidecar consumption
+  # Grafana datasource; only this key is mounted into Grafana (victoria-metrics HelmRelease).
   secretTemplate:
     pg-db.yaml: |-
       apiVersion: 1
       datasources:
         - name: TeslaMate
           type: postgres
-          url: {{ .Host }}.db.svc.cluster.local:5432
+          # CNPG -r service (any instance), derived from the operator's -rw host
+          url: {{ slice .Hostname 0 (len (slice .Hostname 1)) }}.db.svc.cluster.local:{{ .Port }}
           user: {{ .Role }}
           secureJsonData:
             password: '{{ .Password }}'

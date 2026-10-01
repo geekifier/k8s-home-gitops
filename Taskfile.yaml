@@ -118,42 +118,6 @@ tasks:
       - which yq
       - which python3
 
-  dashboard-prep:
-    desc: Prepares Grafana dashboard JSON files for use in ConfigMaps
-    summary: |
-      Escape vars in Grafana dashboard JSON and build a YAML list for processing by ConfigMapGenerator.
-      Usage: task dashboard-prep -- path/to/dashboard/directory
-      Example: task dashboard-prep -- kubernetes/apps/observability/grafana-dashboards/dashboards/
-      The dir you specify should be the dir containing the kustomization file (assuming it's in the same or parent dir).
-    preconditions:
-      - sh: test -d '{{.JSON_PATH }}'
-        msg: "Directory {{ .JSON_PATH }} does not exist"
-      - sh: '[ "{{ OS }}" != "darwin" ] || command -v gsed'
-        msg: gsed is required when running on macOS
-    vars:
-      JSON_PATH: '{{.CLI_ARGS | default "./kubernetes/apps/default/teslamate/app/dashboards"}}'
-    cmds:
-      - for: { var: JSON_PATH }
-        cmd: |
-          [[ "{{ OS }}" == "darwin" ]] && SEDCMD="gsed" || SEDCMD="sed"
-          echo "Running in dir: {{ .ITEM }}"
-          echo "files:"
-          for f in $(find {{ .ITEM }} -type f -name '*.json' | sort); do
-            "$SEDCMD" -i -r \
-              '/\$\{[^\}]+\}/ s/([^$])\$\{([^}]+)\}/\1\$\${\2}/g' \
-              "$f"
-            # Get the path structure by analyzing the filename
-            FULL_PATH="${f}"
-            BASE_PATH="{{ .ITEM }}"
-
-            # Remove the base path from the full path
-            REL_PATH="${FULL_PATH#$BASE_PATH}"
-            # Remove leading slash if present
-            REL_PATH="${REL_PATH#/}"
-
-            echo -e "- name: grafana-dashboard-$(basename "$f" .json)"
-            echo -e "  files:\n    - ./$REL_PATH"
-          done
   local-diff-hr:
     desc: Use flate to diff HelmRelease resources against origin/master
     cmd: |

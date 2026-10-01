@@ -83,9 +83,24 @@ metadata:
   name: &app pgsql-dbs
   namespace: &namespace db
 spec:
+  dependsOn:
+    - name: cloudnative-pg
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  healthCheckExprs:
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Database
+      failed: &failed >-
+        has(status.applied) && !status.applied &&
+        has(status.observedGeneration) && status.observedGeneration == metadata.generation
+      current: &current >-
+        has(status.applied) && status.applied &&
+        has(status.observedGeneration) && status.observedGeneration == metadata.generation
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: DatabaseRole
+      failed: *failed
+      current: *current
   interval: 30m
   path: ./kubernetes/apps/db/cloudnative-pg/db
   prune: true

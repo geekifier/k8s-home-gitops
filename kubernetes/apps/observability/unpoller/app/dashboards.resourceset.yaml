@@ -1,0 +1,39 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/fluxcd.controlplane.io/resourceset_v1.json
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: unpoller-dashboards
+spec:
+  # "v2.0.0/UniFi-Poller_ <name> - Prometheus.json" in unpoller/dashboards
+  inputs:
+    - dashboards:
+        - Client DPI
+        - Client Insights
+        - Network Sites
+        - UAP Insights
+        - USG Insights
+        - USW Insights
+  resourcesTemplate: |
+    <<- range inputs.dashboards >>
+    ---
+    apiVersion: grafana.integreatly.org/v1beta1
+    kind: GrafanaDashboard
+    metadata:
+      name: unpoller-<< . | lower | replace " " "-" >>
+      namespace: << inputs.provider.namespace >>
+    spec:
+      instanceSelector:
+        matchLabels:
+          dashboards: grafana
+      folder: network
+      url: https://raw.githubusercontent.com/unpoller/dashboards/master/v2.0.0/UniFi-Poller_%20<< . | replace " " "%20" >>%20-%20Prometheus.json
+      # Refetch the branch daily
+      contentCacheDuration: 24h
+      datasources:
+        - inputName: DS_PROMETHEUS
+          datasourceName: victoriametrics-prom
+        # USG Insights has a few leftover references to this undeclared input
+        - inputName: DS_UNIFI_POLLER
+          datasourceName: victoriametrics-prom
+    <<- end >>

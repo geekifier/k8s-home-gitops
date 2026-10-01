@@ -1,0 +1,33 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/fluxcd.controlplane.io/resourceset_v1.json
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: monitoring-dashboards
+spec:
+  # Name: path on raw.githubusercontent.com
+  inputs:
+    - dashboards:
+        victoriametrics-single-node: VictoriaMetrics/VictoriaMetrics/master/dashboards/victoriametrics.json
+        victoriametrics-vmagent: VictoriaMetrics/VictoriaMetrics/master/dashboards/vmagent.json
+        victoriametrics-vmalert: VictoriaMetrics/VictoriaMetrics/master/dashboards/vmalert.json
+        victoriametrics-operator: VictoriaMetrics/VictoriaMetrics/master/dashboards/operator.json
+        alertmanager-overview: monitoring-mixins/website/master/assets/alertmanager/dashboards/alertmanager-overview.json
+        grafana-overview: monitoring-mixins/website/master/assets/grafana/dashboards/grafana-overview.json
+  resourcesTemplate: |
+    <<- range $name, $path := inputs.dashboards >>
+    ---
+    apiVersion: grafana.integreatly.org/v1beta1
+    kind: GrafanaDashboard
+    metadata:
+      name: << $name >>
+      namespace: << inputs.provider.namespace >>
+    spec:
+      instanceSelector:
+        matchLabels:
+          dashboards: grafana
+      folder: monitoring
+      url: https://raw.githubusercontent.com/<< $path >>
+      # Refetch the branch daily
+      contentCacheDuration: 24h
+    <<- end >>

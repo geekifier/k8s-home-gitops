@@ -68,6 +68,12 @@ access_control:
       resources:
         - "^/apis?([/?].*)?$"
       policy: bypass
+    # Workaround for noisy logs due to silly `gcx` requests https://github.com/grafana/gcx/issues/545
+    - domain: "grafana-k8s.${SECRET_DOMAIN_INT}"
+      methods: [GET]
+      resources:
+        - "^/bootdata/?([?].*)?$"
+      policy: bypass
     # Alloy remote write
     - domain: "vm-k8s.${SECRET_DOMAIN_INT}"
       methods: [POST]
@@ -128,10 +134,10 @@ session:
 
 storage:
   postgres:
-    address: 'tcp://{{ secret "/config/pgsqlsecret/PGSQL_HOST"}}.db.svc.cluster.local:5432'
-    database: '{{ secret "/config/pgsqlsecret/PGSQL_DB"}}'
-    username: '{{ secret "/config/pgsqlsecret/PGSQL_USER"}}'
-    password: '{{ secret "/config/pgsqlsecret/PGSQL_PASSWORD"}}'
+    address: "tcp://postgres17-rw.db.svc.cluster.local:5432"
+    database: "authelia"
+    username: '{{ secret "/config/pgsqlsecret/username" }}'
+    password: '{{ secret "/config/pgsqlsecret/password" }}'
     tls:
       skip_verify: true
 

@@ -8,7 +8,7 @@ components:
   - ../../components/repos/app-template
 resources:
   - ./_persistence/ks.yaml
-  - ./echo/ks.yaml
+  # - ./echo/ks.yaml
   - ./echo-internal/ks.yaml
   - ./miniflux/ks.yaml
   - ./homepage/ks.yaml
