@@ -61,7 +61,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -271,7 +271,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -286,7 +286,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "code",
@@ -310,7 +310,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -439,7 +439,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "code",
@@ -458,7 +458,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -473,7 +473,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "code",
@@ -494,7 +494,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -576,7 +576,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -595,7 +595,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -698,7 +698,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "expr": "binary_sensor.heat_pump_water_heater_running_value{entity_id=\"heat_pump_water_heater_running\", instance=\"$INSTANCE\"}",
@@ -710,7 +710,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -730,7 +730,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -781,7 +781,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "expr": "sum_over_time(binary_sensor.heat_pump_water_heater_running_value{entity_id=\"heat_pump_water_heater_running\", instance=\"$INSTANCE\"}[$__range])\n",
@@ -818,7 +818,7 @@
         "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "$${DS_PROMETHEUS}"
+          "uid": "${DS_PROMETHEUS}"
         },
         "definition": "label_values({job=\"home-assistant\"},instance)",
         "label": "Instance",

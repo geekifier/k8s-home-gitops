@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: teslamate/teslamate
-              tag: 4.2.0
+              tag: ${TESLAMATE_VERSION}
             env:
               TZ: "${CLUSTER_TZ}"
             envFrom:
@@ -63,6 +63,7 @@ spec:
       app:
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/href: "https://{{ index .Values.route.app.hostnames 0 }}"
           gethomepage.dev/group: Home
           gethomepage.dev/icon: teslamate
           gethomepage.dev/description: Vehicle Stats

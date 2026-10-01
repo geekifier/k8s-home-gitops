@@ -1,4 +1,3 @@
-# Remember to escape Grafana variables with $${} to avoid interpolation by Kustomize.
 ---
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
@@ -12,49 +11,14 @@ configMapGenerator:
 
   - name: grafana-dashboard-coredns
     files:
-      - ./json/coredns.json
-
-  # Spegel v0.7.4 chart dashboard, adapted for file provisioning (no import inputs).
-  # Source: https://github.com/spegel-org/spegel/blob/v0.7.4/charts/spegel/monitoring/grafana-dashboard.json
-  - name: grafana-dashboard-spegel
-    files:
-      - ./json/spegel-operational.json
-
-  - name: grafana-dashboard-longhorn
-    files:
-      - ./json/onzack-longhorn-monitoring.json
+      - ./json/coredns-resolver.json
     options:
       annotations:
-        grafana_folder: "storage"
-
-  - name: flux-cluster
-    files:
-      - ./json/flux-cluster.json
-
-  - name: flux-control-plane
-    files:
-      - ./json/flux-control-plane.json
+        grafana_folder: "infra"
 
   - name: grafana-dashboard-ha-house
     files:
       - ./json/ha-house.json
-
-  # Envoy Gateway 1.9.1 gateway-addons-helm controller dashboard; datasource, defaults and Runner
-  # filter adapted.
-  - name: grafana-dashboard-envoy-gateway
-    files:
-      - ./json/envoy-gateway-global.json
-    options:
-      annotations:
-        grafana_folder: "network"
-
-  # Envoy Gateway 1.9.1 gateway-addons-helm proxy dashboard; datasource adapted.
-  - name: grafana-dashboard-envoy-proxy
-    files:
-      - ./json/envoy-proxy-global.json
-    options:
-      annotations:
-        grafana_folder: "network"
 
   - name: grafana-dashboard-ping-exporter
     files:
@@ -70,81 +34,30 @@ configMapGenerator:
       annotations:
         grafana_folder: "network"
 
-  - name: grafana-dashboard-network-edgerouter
-    files:
-      - ./json/network-edgerouter.json
-    options:
-      annotations:
-        grafana_folder: "network"
-
   - name: grafana-dashboard-proxmox-cluster
     files:
       - ./json/proxmox-cluster.json
+    options:
+      annotations:
+        grafana_folder: "infra"
 
   - name: grafana-dashboard-samba
     files:
       - ./json/samba-service.json
-
-  - name: grafana-dashboard-smarctl-exporter
-    files:
-      - ./json/smarctl-exporter.json
-
-  - name: grafana-dashboard-traefik-ext
-    files:
-      - ./json/traefik-ext.json
-
-  - name: grafana-dashboard-unpoller-dpi-client
-    files:
-      - ./json/unpoller-dpi-client.json
-    options:
-      annotations:
-        grafana_folder: "network"
-
-  - name: grafana-dashboard-unpoller-client-insights
-    files:
-      - ./json/unpoller-client-insights.json
-    options:
-      annotations:
-        grafana_folder: "network"
-
-  - name: grafana-dashboard-unpoller-network-sites
-    files:
-      - ./json/unpoller-network-sites.json
-    options:
-      annotations:
-        grafana_folder: "network"
-
-  - name: grafana-dashboard-unpoller-uap-insights
-    files:
-      - ./json/unpoller-uap-insights.json
-    options:
-      annotations:
-        grafana_folder: "network"
-
-  - name: grafana-dashboard-unpoller-usg-insights
-    files:
-      - ./json/unpoller-usg-insights.json
-    options:
-      annotations:
-        grafana_folder: "network"
-
-  - name: grafana-dashboard-unpoller-usw-insights
-    files:
-      - ./json/unpoller-usw-insights.json
-    options:
-      annotations:
-        grafana_folder: "network"
-
-  - name: grafana-dashboard-external-filesystems
-    files:
-      - ./json/external-filesystems.json
     options:
       annotations:
         grafana_folder: "storage"
 
-  - name: grafana-dashboard-volsync
+  - name: grafana-dashboard-traefik-ext
     files:
-      - ./json/volsync.json
+      - ./json/traefik-ext.json
+    options:
+      annotations:
+        grafana_folder: "infra"
+
+  - name: grafana-dashboard-external-filesystems
+    files:
+      - ./json/external-filesystems.json
     options:
       annotations:
         grafana_folder: "storage"

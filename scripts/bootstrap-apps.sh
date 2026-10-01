@@ -83,44 +83,34 @@ function apply_sops_secrets() {
     done
 }
 
-# CRDs to be applied before the helmfile charts are installed
+# CRDs to be applied before the helmfile charts are installed, so Flux Kustomizations using them need
+# no dependsOn. Each chart's CRDs are rendered at its OCIRepository tag with its HelmRelease values;
+# the HelmRelease then upgrades them.
 function apply_crds() {
     log debug "Applying CRDs"
 
-    local -r crds=(
-        # renovate: datasource=github-releases depName=prometheus-operator/prometheus-operator
-        https://github.com/prometheus-operator/prometheus-operator/releases/download/v0.94.1/stripped-down-crds.yaml
-    )
-
-    # Charts whose bundled CRDs are applied at the version pinned by their OCIRepository
     local -r charts=(
         "${ROOT_DIR}/kubernetes/apps/network/envoy-gateway/app/helmrelease.yaml"
+        "${ROOT_DIR}/kubernetes/apps/observability/grafana-operator/app/helmrelease.yaml"
+        "${ROOT_DIR}/kubernetes/apps/observability/prometheus-operator-crds/app/helmrelease.yaml"
+        "${ROOT_DIR}/kubernetes/apps/observability/victoria-metrics/app/helm/helmrelease.yaml"
     )
-
-    for crd in "${crds[@]}"; do
-        if kubectl diff --filename "${crd}" &>/dev/null; then
-            log info "CRDs are up-to-date" "crd=${crd}"
-            continue
-        fi
-        if kubectl apply --server-side --filename "${crd}" &>/dev/null; then
-            log info "CRDs applied" "crd=${crd}"
-        else
-            log error "Failed to apply CRDs" "crd=${crd}"
-        fi
-    done
 
     local url tag manifest
     for chart in "${charts[@]}"; do
         url="$(yq eval 'select(.kind == "OCIRepository") | .spec.url' "${chart}")"
         tag="$(yq eval 'select(.kind == "OCIRepository") | .spec.ref.tag' "${chart}")"
-        if ! manifest="$(helm show crds "${url}" --version "${tag}" 2>/dev/null)"; then
-            log error "Failed to fetch chart CRDs" "chart=${url}:${tag}"
+        # --include-crds covers crds/ directories; templated CRDs render with the chart
+        if ! manifest="$(helm template crds "${url}" --version "${tag}" --include-crds --no-hooks \
+            --values <(yq eval 'select(.kind == "HelmRelease") | explode(.) | .spec.values // {}' "${chart}") 2>/dev/null |
+            yq eval 'select(.kind == "CustomResourceDefinition")' -)" || [[ -z "${manifest}" ]]; then
+            log error "Failed to render chart CRDs" "chart=${url}:${tag}"
         fi
         if kubectl diff --filename - <<<"${manifest}" &>/dev/null; then
             log info "CRDs are up-to-date" "chart=${url}:${tag}"
             continue
         fi
-        if kubectl apply --server-side --filename - <<<"${manifest}" &>/dev/null; then
+        if kubectl apply --server-side --force-conflicts --filename - <<<"${manifest}" &>/dev/null; then
             log info "CRDs applied" "chart=${url}:${tag}"
         else
             log error "Failed to apply CRDs" "chart=${url}:${tag}"

@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mumble-pgsql
+  labels:
+    cnpg.io/reload: "true"
+type: kubernetes.io/basic-auth
+stringData:
+  username: ENC[AES256_GCM,data:8n0OyEGq,iv:5ZiEi5ZetT+mSbwJ9BPMKSOsE9VGVrfDRExFjsANS5M=,tag:5DhcG+xb+8TqfaDoy1ESsg==,type:str]
+  password: ENC[AES256_GCM,data:zvNMzLJp+VU5i2MHipHMoWoZIl88u8oYfYs21eL80xE/JWtUWGv+bHRgo5MFltk9,iv:x0FKxqbwRlH9chpysgvwoQKB//Ammlzv04fbC8BfJxE=,tag:GtJoMZ+G8hxSmQHJjzKD6w==,type:str]
+sops:
+  age:
+    - enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBqbkc5alFKNUZOVkFzcW91
+        NVcrM1JwZ1dQOUZZOXM3bWJrcy9TMlgxU1hzClAxSnJuLytDSnJTOUdBMjBrYkcr
+        SG5xN3o0TE1KTkFxTnZFYUJVV2NJVlUKLS0tIE5laE94S0czSnVHNjcyNEFRTG5x
+        N1RZRHFFWmIxcWk5Z3lFY3hESjV0V0EKphDdO7hYA0+vcT7cuL7vNtlMS1WpnvBk
+        xrO4T7fkfhR67JmNL4+5svqMjD+YXxNaRc2r0DxpXavbix1iWt4ASg==
+        -----END AGE ENCRYPTED FILE-----
+      recipient: age1a68j5zasa55y39u5ecus7g4dzl3rqp0u6h6jwpuw3743cdf9dd4sykfhr4
+  encrypted_regex: ^(data|stringData)$
+  lastmodified: "2026-10-01T01:31:37Z"
+  mac: ENC[AES256_GCM,data:4+RyK3RFhEDywqk2XKdjEO9yTQqPcG6gvS9u+KlbStSiS2huVxGko25UT5lkInuunpgYZr1vlcrHOJdHCsP7ZUvQjvCRp/NrspHmh/ekJWykY5XlGI8HBdJJIZEqxAWLzlgONqdv4Miq+iCTGl7aLiSOvo54GvdyWC8M3DYCAgc=,iv:gVT1NS31Aj7En9tTw0ggmo6FjeFNH23qbWq/QfE2QAo=,tag:01dUDDQmmmZ0AKB9fgD3Zg==,type:str]
+  mac_only_encrypted: true
+  version: 3.13.3

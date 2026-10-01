@@ -38,6 +38,16 @@
       "/^kustomization\\.ya?ml(?:\\.j2)?$/"
     ]
   },
+  "customDatasources": {
+    // The CoreDNS version required by the redis_cache plugin's default branch.
+    "redis-cache-plugin-coredns": {
+      "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/dragoangel/coredns-redis-cache-plugin/HEAD/go.mod",
+      "format": "plain",
+      "transformTemplates": [
+        "{\"releases\": [releases.$match(version, /^(?:require\\s+)?github\\.com\\/coredns\\/coredns\\s+(v[0-9][^\\s]*)/).{\"version\": groups[0]}]}"
+      ]
+    }
+  },
   "packageRules": [
     {
       "description": "Override Helmfile Dependency Name",
@@ -370,14 +380,31 @@
       "allowedVersions": "/^1\\.26\\./"
     },
     {
-      "description": "Keep custom CoreDNS resolver image promotion manual",
+      "description": "Follow the redis_cache plugin's CoreDNS pin",
+      "matchDatasources": [
+        "custom.redis-cache-plugin-coredns"
+      ],
+      "versioning": "semver",
+      "sourceUrl": "https://github.com/coredns/coredns",
+      "prBodyNotes": [
+        "Version taken from the `github.com/coredns/coredns` requirement in [the redis_cache plugin's go.mod](https://github.com/dragoangel/coredns-redis-cache-plugin/blob/HEAD/go.mod)."
+      ]
+    },
+    {
+      "description": "Promote the custom CoreDNS resolver image",
       "matchDatasources": [
         "docker"
       ],
       "matchPackageNames": [
         "ghcr.io/geekifier/coredns"
       ],
-      "enabled": false
+      "schedule": [
+        "at any time"
+      ],
+      "automerge": false,
+      "prBodyNotes": [
+        "Built by `.github/workflows/container-coredns.yaml`; a digest-only update is a rebuild of the same CoreDNS version (plugin or Go builder change). The run summary lists the `-redis_cache-<plugin>` tag."
+      ]
     },
     // Keep bare registry versions valid while recognizing prefixed GitHub release
     // tags for inline notes. changelogUrl alone only adds a link to the PR.
@@ -413,6 +440,7 @@
         "docker"
       ],
       "matchPackageNames": [
+        "ghcr.io/prometheus-community/charts/prometheus-operator-crds",
         "ghcr.io/prometheus-community/charts/prometheus-snmp-exporter",
         "ghcr.io/prometheus-community/charts/prometheus-smartctl-exporter"
       ],

@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: spoolman-pgsql
+  labels:
+    cnpg.io/reload: "true"
+type: kubernetes.io/basic-auth
+stringData:
+  username: ENC[AES256_GCM,data:jKsprXoyDJI=,iv:1/DqAQ1O8a+lPc/WReCLcLGfUsUpGmrwdqQ+THlKN3A=,tag:nsb9kXUKfhb7yiYtqNnE6Q==,type:str]
+  password: ENC[AES256_GCM,data:5JVEbtJi+dASvmlOa8Er0TJ/Dd8wUkTR0puGm8px5kA=,iv:VeNLZ4HpTKfrIh1oqP+O3Ooe4mlaOA7rcX2zKPlh2ew=,tag:OgNqhmq9g06+0C9Sw/Ia+Q==,type:str]
+sops:
+  age:
+    - enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAxS0ZDR3hCOG5NVzdwcEw2
+        MWErRWZ2QXB0ei9DQ0dNZHEvYVh2dEIrS0U0CitGdnBoS3Fvdkw0U3EzRVMwTDBM
+        SmhmenpFWmNCVGtvb2tlTFRPbldNVFkKLS0tIFF4N3JXVFZsdGVDMU02YWlYbjZi
+        YVVwaStEU1RVbnVCWEU5V3RmcTdiZVUKpDQEWkj9xhbulL4CUQOiogrVyux+8Kfo
+        0wVOT2zFOazQ7ullGSSqb/Op9nDWPps5VKjVawhMdOfvCC5u1v80kA==
+        -----END AGE ENCRYPTED FILE-----
+      recipient: age1a68j5zasa55y39u5ecus7g4dzl3rqp0u6h6jwpuw3743cdf9dd4sykfhr4
+  encrypted_regex: ^(data|stringData)$
+  lastmodified: "2026-10-01T01:53:48Z"
+  mac: ENC[AES256_GCM,data:XIhLfYzFTepSSG+kU5xRi+qOv5Qpz+ZXhWuctmSdobYxHkmBtf5VUGWQyxfjhStpSAl2yzFMjzAqNjDquPgVFAvwgnqrDkIOKTeMjoWed7i3I2rR6GhuBvT7C1yhOjNKk6mpuv6ecIhzV5+9yGlrE96V4FQ3VOlpYgHih6Lj07w=,iv:Y5jI5SJA8+EXqHqZwWbFtVOOoEOxzh7zAuNUpAWLQZQ=,tag:kojthV90ClRp4Czq5AXsDA==,type:str]
+  mac_only_encrypted: true
+  version: 3.13.3

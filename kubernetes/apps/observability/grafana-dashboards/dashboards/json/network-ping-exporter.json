@@ -44,7 +44,7 @@
     },
     {
       "datasource": {
-        "uid": "$${DATASOURCE}"
+        "uid": "${DATASOURCE}"
       },
       "fieldConfig": {
         "defaults": {
@@ -343,7 +343,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DATASOURCE}"
+            "uid": "${DATASOURCE}"
           },
           "expr": "avg(ping_rtt_best_seconds{job=~\"$job\",instance=~\"$instance\",target=~\"$target\",ip_version=~\"$ip_version\"}) by (ip_version)",
           "format": "time_series",
@@ -356,7 +356,7 @@
         },
         {
           "datasource": {
-            "uid": "$${DATASOURCE}"
+            "uid": "${DATASOURCE}"
           },
           "expr": "avg(ping_rtt_mean_seconds{job=~\"$job\",instance=~\"$instance\",target=~\"$target\",ip_version=~\"$ip_version\"}) by (ip_version)",
           "format": "time_series",
@@ -370,7 +370,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DATASOURCE}"
+            "uid": "${DATASOURCE}"
           },
           "expr": "avg(ping_rtt_worst_seconds{job=~\"$job\",instance=~\"$instance\",target=~\"$target\",ip_version=~\"$ip_version\"}) by (ip_version)",
           "format": "time_series",
@@ -383,7 +383,7 @@
         },
         {
           "datasource": {
-            "uid": "$${DATASOURCE}"
+            "uid": "${DATASOURCE}"
           },
           "expr": "avg(ping_loss_ratio{job=~\"$job\",instance=~\"$instance\",target=~\"$target\",ip_version=~\"$ip_version\"}) by (ip_version)",
           "format": "time_series",
@@ -398,7 +398,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "$${DATASOURCE}"
+        "uid": "${DATASOURCE}"
       },
       "fieldConfig": {
         "defaults": {
@@ -480,7 +480,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$${DATASOURCE}"
+            "uid": "${DATASOURCE}"
           },
           "disableTextWrap": false,
           "editorMode": "code",
@@ -525,7 +525,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "$${DATASOURCE}"
+          "uid": "${DATASOURCE}"
         },
         "definition": "label_values(ping_loss_ratio,job)",
         "description": "",
@@ -550,7 +550,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "$${DATASOURCE}"
+          "uid": "${DATASOURCE}"
         },
         "definition": "label_values(ping_loss_ratio{job=~\"$job\"},instance)",
         "includeAll": true,
@@ -574,7 +574,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "$${DATASOURCE}"
+          "uid": "${DATASOURCE}"
         },
         "definition": "label_values(ping_loss_ratio{job=~\"$job\",instance=~\"$instance\"},target)",
         "includeAll": true,
@@ -598,7 +598,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "$${DATASOURCE}"
+          "uid": "${DATASOURCE}"
         },
         "definition": "label_values(ping_loss_ratio{job=~\"$job\",instance=~\"$instance\"},ip_version)",
         "includeAll": true,

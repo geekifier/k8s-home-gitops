@@ -6,6 +6,7 @@ resources:
   - ./helmrelease.yaml
   - ./file-secret.sops.yaml
   - ./referencegrant.yaml
+  - ../db/authelia-pgsql.sops.yaml
 configMapGenerator:
   - name: authelia-cm
     files:

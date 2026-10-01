@@ -1,0 +1,31 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/fluxcd.controlplane.io/resourceset_v1.json
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: flux-dashboards
+spec:
+  # monitoring/configs/dashboards/<name>.json in fluxcd/flux2-monitoring-example
+  inputs:
+    - dashboards:
+        - cluster
+        - control-plane
+  resourcesTemplate: |
+    <<- range inputs.dashboards >>
+    ---
+    apiVersion: grafana.integreatly.org/v1beta1
+    kind: GrafanaDashboard
+    metadata:
+      name: flux-<< . >>
+      namespace: << inputs.provider.namespace >>
+    spec:
+      # The Grafana CR lives in observability
+      allowCrossNamespaceImport: true
+      instanceSelector:
+        matchLabels:
+          dashboards: grafana
+      folder: General
+      url: https://raw.githubusercontent.com/fluxcd/flux2-monitoring-example/main/monitoring/configs/dashboards/<< . >>.json
+      # Refetch the branch daily
+      contentCacheDuration: 24h
+    <<- end >>

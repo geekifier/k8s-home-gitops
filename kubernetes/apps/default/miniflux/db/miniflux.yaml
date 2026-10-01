@@ -1,0 +1,26 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: miniflux
+spec:
+  cluster:
+    name: postgres17
+  name: miniflux
+  login: true
+  passwordSecret:
+    name: miniflux-pgsql
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: miniflux
+spec:
+  cluster:
+    name: postgres17
+  name: miniflux
+  owner: miniflux
+  schemas:
+    - name: public
+      owner: miniflux
+      ensure: present

@@ -1,0 +1,18 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/grafana.integreatly.org/grafanadashboard_v1beta1.json
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: spegel
+spec:
+  # The Grafana CR lives in observability
+  allowCrossNamespaceImport: true
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana
+  folder: General
+  # SPEGEL_VERSION (ks.yaml) tracks the chart tag
+  url: https://raw.githubusercontent.com/spegel-org/spegel/v${SPEGEL_VERSION}/charts/spegel/monitoring/grafana-dashboard.json
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: victoriametrics-prom

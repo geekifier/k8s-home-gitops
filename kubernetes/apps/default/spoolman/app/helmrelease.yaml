@@ -19,6 +19,8 @@ spec:
   values:
     controllers:
       spoolman:
+        annotations:
+          reloader.stakater.com/auto: "true"
         containers:
           app:
             image:
@@ -26,9 +28,21 @@ spec:
               tag: 0.27.0
             env:
               TZ: "${CLUSTER_TZ}"
-            envFrom:
-              - secretRef:
-                  name: spoolman-secret
+              SPOOLMAN_DB_TYPE: postgres
+              SPOOLMAN_DB_HOST: postgres17-rw.db.svc.cluster.local
+              SPOOLMAN_DB_PORT: "5432"
+              SPOOLMAN_DB_NAME: spoolman
+              SPOOLMAN_DB_USERNAME:
+                valueFrom:
+                  secretKeyRef:
+                    name: spoolman-pgsql
+                    key: username
+              SPOOLMAN_DB_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: spoolman-pgsql
+                    key: password
+              SPOOLMAN_METRICS_ENABLED: "TRUE"
             probes:
               liveness:
                 enabled: true
@@ -54,6 +68,7 @@ spec:
       app:
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/href: "https://{{ index .Values.route.app.hostnames 0 }}"
           gethomepage.dev/group: Home
           gethomepage.dev/icon: spoolman
           gethomepage.dev/description: Filament Manager

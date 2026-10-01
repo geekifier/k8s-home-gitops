@@ -5,6 +5,7 @@ kind: Kustomization
 namespace: infra
 components:
   - ../../components/common
+  - ../../components/ghcr-login
 resources:
   - ./coredns-resolver/ks.yaml
   - ./external-proxy/ks.yaml

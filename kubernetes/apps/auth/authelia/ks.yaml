@@ -38,11 +38,27 @@ apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: &app authelia-db
-  namespace: &namespace auth
+  namespace: auth
 spec:
+  dependsOn:
+    - name: cloudnative-pg
+      namespace: db
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  healthCheckExprs:
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Database
+      failed: &failed >-
+        has(status.applied) && !status.applied &&
+        has(status.observedGeneration) && status.observedGeneration == metadata.generation
+      current: &current >-
+        has(status.applied) && status.applied &&
+        has(status.observedGeneration) && status.observedGeneration == metadata.generation
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: DatabaseRole
+      failed: *failed
+      current: *current
   interval: 30m
   path: ./kubernetes/apps/auth/authelia/db
   prune: true
@@ -51,6 +67,6 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: *namespace
+  targetNamespace: db
   timeout: 5m
   wait: true

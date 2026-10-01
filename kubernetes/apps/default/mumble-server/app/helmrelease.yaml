@@ -29,9 +29,20 @@ spec:
               tag: v1.5.901-3 # renovate is pinned to 1.5.x in .renovaterc.jsonc
             env:
               TZ: "${CLUSTER_TZ}"
+              MUMBLE_CONFIG_DBHOST: postgres17-rw.db.svc.cluster.local
+              MUMBLE_CONFIG_DBPORT: "5432"
+              MUMBLE_CONFIG_DATABASE: mumble
+              MUMBLE_CONFIG_DBUSERNAME:
+                valueFrom:
+                  secretKeyRef:
+                    name: mumble-pgsql
+                    key: username
+              MUMBLE_CONFIG_DBPASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: mumble-pgsql
+                    key: password
             envFrom:
-              - secretRef:
-                  name: pgsql-mumble
               - secretRef:
                   name: mumble-server-secret
             resources:

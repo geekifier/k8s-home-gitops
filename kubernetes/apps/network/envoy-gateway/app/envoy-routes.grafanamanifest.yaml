@@ -1,0 +1,3118 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/grafana.integreatly.org/grafanamanifest_v1beta1.json
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaManifest
+metadata:
+  name: envoy-routes
+spec:
+  # The Grafana CR lives in observability
+  allowCrossNamespaceImport: true
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana
+  template:
+    apiVersion: dashboard.grafana.app/v2
+    kind: Dashboard
+    metadata:
+      name: envoy-routes
+      annotations:
+        # network
+        grafana.app/folder: eenvbrknl23nkc
+    spec:
+      title: Envoy / Routes
+      description: Per-app traffic, latency, errors and availability through Envoy Gateway.
+      tags:
+        - envoy
+        - gateway
+      editable: true
+      cursorSync: Crosshair
+      liveNow: false
+      preload: false
+      links:
+        - title: Envoy
+          type: dashboards
+          icon: external link
+          tooltip: ""
+          tags:
+            - envoy-mixin
+          asDropdown: true
+          targetBlank: false
+          includeVars: false
+          keepTime: true
+      annotations:
+        - kind: AnnotationQuery
+          spec:
+            builtIn: true
+            enable: true
+            hide: true
+            iconColor: rgba(0, 211, 255, 1)
+            name: Annotations & Alerts
+            legacyOptions:
+              type: dashboard
+            query:
+              kind: DataQuery
+              group: grafana
+              version: v0
+              datasource:
+                name: -- Grafana --
+              spec:
+                limit: 100
+                matchAny: false
+                tags: []
+                type: dashboard
+      timeSettings:
+        timezone: ""
+        from: now-6h
+        to: now
+        autoRefresh: ""
+        autoRefreshIntervals:
+          - 30s
+          - 1m
+          - 5m
+          - 15m
+          - 30m
+          - 1h
+        hideTimepicker: false
+        fiscalYearStartMonth: 0
+      variables:
+        - kind: DatasourceVariable
+          spec:
+            name: datasource
+            label: Metrics
+            pluginId: prometheus
+            refresh: onDashboardLoad
+            regex: ""
+            current:
+              text: VictoriaMetrics
+              value: victoriametrics-prom
+            options: []
+            multi: false
+            includeAll: false
+            hide: inControlsMenu
+            skipUrlSync: false
+            allowCustomValue: true
+        - kind: DatasourceVariable
+          spec:
+            name: loki
+            label: Logs
+            pluginId: loki
+            refresh: onDashboardLoad
+            regex: ""
+            current:
+              text: Grafana Cloud Loki
+              value: P72F4ACBC2B8EE050
+            options: []
+            multi: false
+            includeAll: false
+            hide: inControlsMenu
+            skipUrlSync: false
+            allowCustomValue: true
+        - kind: QueryVariable
+          spec:
+            name: gateway
+            label: Gateway
+            hide: dontHide
+            refresh: onTimeRangeChanged
+            skipUrlSync: false
+            query:
+              kind: DataQuery
+              group: prometheus
+              version: v0
+              datasource:
+                name: ${datasource}
+              spec:
+                qryType: 1
+                label: pod
+                metric: envoy_server_live
+                labelFilters:
+                  - label: namespace
+                    op: "="
+                    value: network
+                query: label_values(envoy_server_live{namespace="network"},pod)
+                refId: PrometheusVariableQueryEditor-VariableQuery
+            definition: label_values(envoy_server_live{namespace="network"},pod)
+            regex: /^(.+)-[a-z0-9]+-[a-z0-9]+$/
+            sort: alphabeticalAsc
+            options: []
+            current:
+              text:
+                - All
+              value:
+                - $__all
+            multi: true
+            includeAll: true
+            allValue: .+
+            allowCustomValue: true
+        - kind: QueryVariable
+          spec:
+            name: route
+            label: Route
+            hide: dontHide
+            refresh: onTimeRangeChanged
+            skipUrlSync: false
+            query:
+              kind: DataQuery
+              group: prometheus
+              version: v0
+              datasource:
+                name: ${datasource}
+              spec:
+                qryType: 1
+                label: envoy_cluster_name
+                metric: envoy_cluster_upstream_rq_total
+                labelFilters:
+                  - label: namespace
+                    op: "="
+                    value: network
+                  - label: pod
+                    op: =~
+                    value: $gateway-.+
+                  - label: envoy_cluster_name
+                    op: =~
+                    value: httproute/.+
+                query: label_values(envoy_cluster_upstream_rq_total{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/.+"},envoy_cluster_name)
+                refId: PrometheusVariableQueryEditor-VariableQuery
+            definition: label_values(envoy_cluster_upstream_rq_total{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/.+"},envoy_cluster_name)
+            regex: /^httproute\/([^\/]+\/[^\/]+)\/rule\/[0-9]+$/
+            sort: alphabeticalAsc
+            options: []
+            current:
+              text:
+                - All
+              value:
+                - $__all
+            multi: true
+            includeAll: true
+            allValue: .+
+            allowCustomValue: true
+        - kind: CustomVariable
+          spec:
+            name: log
+            label: Log
+            description: Which requests the access log shows.
+            query: "Problems : authz|upstream|5xx|4xx|aborted,Auth denials : authz,Upstream failures : upstream,Server errors : 5xx|upstream,Client errors : 4xx,All requests : .*"
+            current:
+              text: Problems
+              value: authz|upstream|5xx|4xx|aborted
+            options:
+              - text: Problems
+                value: authz|upstream|5xx|4xx|aborted
+                selected: true
+              - text: Auth denials
+                value: authz
+                selected: false
+              - text: Upstream failures
+                value: upstream
+                selected: false
+              - text: Server errors
+                value: 5xx|upstream
+                selected: false
+              - text: Client errors
+                value: 4xx
+                selected: false
+              - text: All requests
+                value: .*
+                selected: false
+            multi: false
+            includeAll: false
+            hide: dontHide
+            skipUrlSync: false
+            allowCustomValue: false
+      elements:
+        s-requests:
+          kind: Panel
+          spec:
+            id: 1
+            title: Requests
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: sum(increase(envoy_cluster_upstream_rq_total{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__interval]))
+                          legendFormat: __auto
+                          range: true
+                          instant: false
+                transformations: []
+                queryOptions: {}
+            vizConfig:
+              kind: VizConfig
+              group: stat
+              version: 13.2.2
+              spec:
+                options:
+                  reduceOptions:
+                    calcs:
+                      - sum
+                    fields: ""
+                    values: false
+                  orientation: auto
+                  textMode: auto
+                  colorMode: none
+                  graphMode: area
+                  justifyMode: auto
+                  wideLayout: true
+                  showPercentChange: false
+                fieldConfig:
+                  defaults:
+                    unit: short
+                    thresholds:
+                      mode: absolute
+                      steps:
+                        - color: blue
+                          value: null
+                    color:
+                      mode: thresholds
+                    links:
+                      - title: Requests by route
+                        url: /d/envoy-routes/envoy-routes?${__url_time_range}&${datasource:queryparam}&${loki:queryparam}&${gateway:queryparam}&${route:queryparam}&${log:queryparam}&viewPanel=panel-10
+                      - title: Responses by status class
+                        url: /d/envoy-routes/envoy-routes?${__url_time_range}&${datasource:queryparam}&${loki:queryparam}&${gateway:queryparam}&${route:queryparam}&${log:queryparam}&viewPanel=panel-11
+                  overrides: []
+            description: Total in the time range.
+        s-success:
+          kind: Panel
+          spec:
+            id: 2
+            title: Success rate
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: sum(rate(envoy_cluster_upstream_rq_xx{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+", envoy_response_code_class!="5"}[$__rate_interval])) / sum(rate(envoy_cluster_upstream_rq_xx{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__rate_interval]))
+                          legendFormat: __auto
+                          range: true
+                          instant: false
+                transformations: []
+                queryOptions: {}
+            vizConfig:
+              kind: VizConfig
+              group: stat
+              version: 13.2.2
+              spec:
+                options:
+                  reduceOptions:
+                    calcs:
+                      - lastNotNull
+                    fields: ""
+                    values: false
+                  orientation: auto
+                  textMode: auto
+                  colorMode: value
+                  graphMode: area
+                  justifyMode: auto
+                  wideLayout: true
+                  showPercentChange: false
+                fieldConfig:
+                  defaults:
+                    unit: percentunit
+                    thresholds:
+                      mode: absolute
+                      steps:
+                        - color: red
+                          value: null
+                        - color: orange
+                          value: 0.95
+                        - color: green
+                          value: 0.99
+                    color:
+                      mode: thresholds
+                    links:
+                      - title: Routes with failed requests
+                        url: /d/envoy-routes/envoy-routes?${__url_time_range}&${datasource:queryparam}&${loki:queryparam}&${gateway:queryparam}&${route:queryparam}&${log:queryparam}&viewPanel=panel-21
+                      - title: Server errors in the access log
+                        url: /d/envoy-routes/envoy-routes?${__url_time_range}&${datasource:queryparam}&${loki:queryparam}&${gateway:queryparam}&${route:queryparam}&var-log=5xx%7Cupstream&viewPanel=panel-23
+                    decimals: 1
+                  overrides: []
+            description: Responses that were not 5xx.
+        s-p95:
+          kind: Panel
+          spec:
+            id: 3
+            title: p95 latency
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: histogram_quantile(0.95, sum by (le) (rate(envoy_cluster_upstream_rq_time_bucket{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__rate_interval])))
+                          legendFormat: __auto
+                          range: true
+                          instant: false
+                transformations: []
+                queryOptions: {}
+            vizConfig:
+              kind: VizConfig
+              group: stat
+              version: 13.2.2
+              spec:
+                options:
+                  reduceOptions:
+                    calcs:
+                      - lastNotNull
+                    fields: ""
+                    values: false
+                  orientation: auto
+                  textMode: auto
+                  colorMode: value
+                  graphMode: area
+                  justifyMode: auto
+                  wideLayout: true
+                  showPercentChange: false
+                fieldConfig:
+                  defaults:
+                    unit: ms
+                    thresholds:
+                      mode: absolute
+                      steps:
+                        - color: green
+                          value: null
+                        - color: yellow
+                          value: 250
+                        - color: red
+                          value: 1000
+                    color:
+                      mode: thresholds
+                    links:
+                      - title: Slowest routes
+                        url: /d/envoy-routes/envoy-routes?${__url_time_range}&${datasource:queryparam}&${loki:queryparam}&${gateway:queryparam}&${route:queryparam}&${log:queryparam}&viewPanel=panel-15
+                      - title: Latency distribution
+                        url: /d/envoy-routes/envoy-routes?${__url_time_range}&${datasource:queryparam}&${loki:queryparam}&${gateway:queryparam}&${route:queryparam}&${log:queryparam}&viewPanel=panel-16
+                  overrides: []
+            description: Time to the app's full response.
+        s-apdex:
+          kind: Panel
+          spec:
+            id: 4
+            title: Apdex
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: (sum(rate(envoy_cluster_upstream_rq_time_bucket{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+", le="250"}[$__rate_interval])) + sum(rate(envoy_cluster_upstream_rq_time_bucket{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+", le="1000"}[$__rate_interval]))) / 2 / sum(rate(envoy_cluster_upstream_rq_time_count{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__rate_interval]))
+                          legendFormat: __auto
+                          range: true
+                          instant: false
+                transformations: []
+                queryOptions: {}
+            vizConfig:
+              kind: VizConfig
+              group: stat
+              version: 13.2.2
+              spec:
+                options:
+                  reduceOptions:
+                    calcs:
+                      - lastNotNull
+                    fields: ""
+                    values: false
+                  orientation: auto
+                  textMode: auto
+                  colorMode: value
+                  graphMode: area
+                  justifyMode: auto
+                  wideLayout: true
+                  showPercentChange: false
+                fieldConfig:
+                  defaults:
+                    unit: none
+                    thresholds:
+                      mode: absolute
+                      steps:
+                        - color: red
+                          value: null
+                        - color: yellow
+                          value: 0.85
+                        - color: green
+                          value: 0.94
+                    color:
+                      mode: thresholds
+                    links:
+                      - title: Slowest routes
+                        url: /d/envoy-routes/envoy-routes?${__url_time_range}&${datasource:queryparam}&${loki:queryparam}&${gateway:queryparam}&${route:queryparam}&${log:queryparam}&viewPanel=panel-15
+                      - title: Latency distribution
+                        url: /d/envoy-routes/envoy-routes?${__url_time_range}&${datasource:queryparam}&${loki:queryparam}&${gateway:queryparam}&${route:queryparam}&${log:queryparam}&viewPanel=panel-16
+                    decimals: 2
+                    min: 0
+                    max: 1
+                  overrides: []
+            description: "T = 250 ms: satisfied ≤ 250 ms, tolerating ≤ 1 s."
+        s-5xx:
+          kind: Panel
+          spec:
+            id: 5
+            title: 5xx responses
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: sum(increase(envoy_cluster_upstream_rq_xx{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+", envoy_response_code_class="5"}[$__range]))
+                          legendFormat: __auto
+                          range: false
+                          instant: true
+                transformations: []
+                queryOptions: {}
+            vizConfig:
+              kind: VizConfig
+              group: stat
+              version: 13.2.2
+              spec:
+                options:
+                  reduceOptions:
+                    calcs:
+                      - lastNotNull
+                    fields: ""
+                    values: false
+                  orientation: auto
+                  textMode: auto
+                  colorMode: value
+                  graphMode: none
+                  justifyMode: auto
+                  wideLayout: true
+                  showPercentChange: false
+                fieldConfig:
+                  defaults:
+                    unit: short
+                    thresholds:
+                      mode: absolute
+                      steps:
+                        - color: green
+                          value: null
+                        - color: red
+                          value: 1
+                    color:
+                      mode: thresholds
+                    links:
+                      - title: Server errors in the access log
+                        url: /d/envoy-routes/envoy-routes?${__url_time_range}&${datasource:queryparam}&${loki:queryparam}&${gateway:queryparam}&${route:queryparam}&var-log=5xx%7Cupstream&viewPanel=panel-23
+                      - title: 5xx by route
+                        url: /d/envoy-routes/envoy-routes?${__url_time_range}&${datasource:queryparam}&${loki:queryparam}&${gateway:queryparam}&${route:queryparam}&${log:queryparam}&viewPanel=panel-17
+                      - title: Routes with failed requests
+                        url: /d/envoy-routes/envoy-routes?${__url_time_range}&${datasource:queryparam}&${loki:queryparam}&${gateway:queryparam}&${route:queryparam}&${log:queryparam}&viewPanel=panel-21
+                    decimals: 0
+                  overrides: []
+            description: Total in the time range.
+        s-authz:
+          kind: Panel
+          spec:
+            id: 6
+            title: Auth denials
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: sum(increase(envoy_cluster_ext_authz_denied{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__range]))
+                          legendFormat: __auto
+                          range: false
+                          instant: true
+                transformations: []
+                queryOptions: {}
+            vizConfig:
+              kind: VizConfig
+              group: stat
+              version: 13.2.2
+              spec:
+                options:
+                  reduceOptions:
+                    calcs:
+                      - lastNotNull
+                    fields: ""
+                    values: false
+                  orientation: auto
+                  textMode: auto
+                  colorMode: none
+                  graphMode: none
+                  justifyMode: auto
+                  wideLayout: true
+                  showPercentChange: false
+                fieldConfig:
+                  defaults:
+                    unit: short
+                    thresholds:
+                      mode: absolute
+                      steps:
+                        - color: blue
+                          value: null
+                    color:
+                      mode: thresholds
+                    links:
+                      - title: Auth denials in the access log
+                        url: /d/envoy-routes/envoy-routes?${__url_time_range}&${datasource:queryparam}&${loki:queryparam}&${gateway:queryparam}&${route:queryparam}&var-log=authz&viewPanel=panel-23
+                      - title: Auth denials by route
+                        url: /d/envoy-routes/envoy-routes?${__url_time_range}&${datasource:queryparam}&${loki:queryparam}&${gateway:queryparam}&${route:queryparam}&${log:queryparam}&viewPanel=panel-19
+                    decimals: 0
+                  overrides: []
+            description: Requests Authelia rejected or redirected to login; total in the time range.
+        s-failures:
+          kind: Panel
+          spec:
+            id: 7
+            title: Backend errors
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: sum(increase(envoy_cluster_upstream_cx_connect_fail{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__range])) + sum(increase(envoy_cluster_upstream_cx_none_healthy{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__range])) + sum(increase(envoy_cluster_upstream_rq_timeout{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__range]))
+                          legendFormat: __auto
+                          range: false
+                          instant: true
+                transformations: []
+                queryOptions: {}
+            vizConfig:
+              kind: VizConfig
+              group: stat
+              version: 13.2.2
+              spec:
+                options:
+                  reduceOptions:
+                    calcs:
+                      - lastNotNull
+                    fields: ""
+                    values: false
+                  orientation: auto
+                  textMode: auto
+                  colorMode: value
+                  graphMode: none
+                  justifyMode: auto
+                  wideLayout: true
+                  showPercentChange: false
+                fieldConfig:
+                  defaults:
+                    unit: short
+                    thresholds:
+                      mode: absolute
+                      steps:
+                        - color: green
+                          value: null
+                        - color: red
+                          value: 1
+                    color:
+                      mode: thresholds
+                    links:
+                      - title: Upstream failures in the access log
+                        url: /d/envoy-routes/envoy-routes?${__url_time_range}&${datasource:queryparam}&${loki:queryparam}&${gateway:queryparam}&${route:queryparam}&var-log=upstream&viewPanel=panel-23
+                      - title: Upstream failures by route
+                        url: /d/envoy-routes/envoy-routes?${__url_time_range}&${datasource:queryparam}&${loki:queryparam}&${gateway:queryparam}&${route:queryparam}&${log:queryparam}&viewPanel=panel-20
+                    decimals: 0
+                  overrides: []
+            description: Refused connections, requests with no ready backend, and timeouts; total in the time range.
+        s-throughput:
+          kind: Panel
+          spec:
+            id: 8
+            title: Throughput
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: sum(rate(envoy_cluster_upstream_cx_rx_bytes_total{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__rate_interval])) + sum(rate(envoy_cluster_upstream_cx_tx_bytes_total{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__rate_interval]))
+                          legendFormat: __auto
+                          range: true
+                          instant: false
+                transformations: []
+                queryOptions: {}
+            vizConfig:
+              kind: VizConfig
+              group: stat
+              version: 13.2.2
+              spec:
+                options:
+                  reduceOptions:
+                    calcs:
+                      - lastNotNull
+                    fields: ""
+                    values: false
+                  orientation: auto
+                  textMode: auto
+                  colorMode: none
+                  graphMode: area
+                  justifyMode: auto
+                  wideLayout: true
+                  showPercentChange: false
+                fieldConfig:
+                  defaults:
+                    unit: Bps
+                    thresholds:
+                      mode: absolute
+                      steps:
+                        - color: blue
+                          value: null
+                    color:
+                      mode: thresholds
+                    links:
+                      - title: Throughput by route
+                        url: /d/envoy-routes/envoy-routes?${__url_time_range}&${datasource:queryparam}&${loki:queryparam}&${gateway:queryparam}&${route:queryparam}&${log:queryparam}&viewPanel=panel-12
+                  overrides: []
+            description: Bytes to and from the apps.
+        routes-table:
+          kind: Panel
+          spec:
+            id: 9
+            title: Routes
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: round(sum by (route) (label_replace(increase(envoy_cluster_upstream_rq_total{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__range]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+")))
+                          legendFormat: __auto
+                          range: false
+                          instant: true
+                          format: table
+                  - kind: PanelQuery
+                    spec:
+                      refId: B
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: sum by (route) (label_replace(rate(envoy_cluster_upstream_rq_xx{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+", envoy_response_code_class!="5"}[$__range]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+")) / sum by (route) (label_replace(rate(envoy_cluster_upstream_rq_xx{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__range]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+"))
+                          legendFormat: __auto
+                          range: false
+                          instant: true
+                          format: table
+                  - kind: PanelQuery
+                    spec:
+                      refId: C
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: sum by (route) (label_replace(rate(envoy_cluster_upstream_rq_xx{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+", envoy_response_code_class="4"}[$__range]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+")) / sum by (route) (label_replace(rate(envoy_cluster_upstream_rq_xx{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__range]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+"))
+                          legendFormat: __auto
+                          range: false
+                          instant: true
+                          format: table
+                  - kind: PanelQuery
+                    spec:
+                      refId: D
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: histogram_quantile(0.5, sum by (route, le) (label_replace(rate(envoy_cluster_upstream_rq_time_bucket{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__range]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+")))
+                          legendFormat: __auto
+                          range: false
+                          instant: true
+                          format: table
+                  - kind: PanelQuery
+                    spec:
+                      refId: E
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: histogram_quantile(0.95, sum by (route, le) (label_replace(rate(envoy_cluster_upstream_rq_time_bucket{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__range]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+")))
+                          legendFormat: __auto
+                          range: false
+                          instant: true
+                          format: table
+                  - kind: PanelQuery
+                    spec:
+                      refId: F
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: (sum by (route) (label_replace(rate(envoy_cluster_upstream_rq_time_bucket{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+", le="250"}[$__range]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+")) + sum by (route) (label_replace(rate(envoy_cluster_upstream_rq_time_bucket{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+", le="1000"}[$__range]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+"))) / 2 / sum by (route) (label_replace(rate(envoy_cluster_upstream_rq_time_count{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__range]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+"))
+                          legendFormat: __auto
+                          range: false
+                          instant: true
+                          format: table
+                  - kind: PanelQuery
+                    spec:
+                      refId: G
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: round(sum by (route) (label_replace(increase(envoy_cluster_ext_authz_denied{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__range]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+")))
+                          legendFormat: __auto
+                          range: false
+                          instant: true
+                          format: table
+                  - kind: PanelQuery
+                    spec:
+                      refId: H
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: max by (route) (label_replace(envoy_cluster_membership_total{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}, "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+"))
+                          legendFormat: __auto
+                          range: false
+                          instant: true
+                          format: table
+                transformations:
+                  - kind: Transformation
+                    group: merge
+                    spec:
+                      options: {}
+                  - kind: Transformation
+                    group: organize
+                    spec:
+                      options:
+                        excludeByName:
+                          Time: true
+                        indexByName:
+                          route: 0
+                          "Value #A": 1
+                          "Value #B": 2
+                          "Value #C": 3
+                          "Value #D": 4
+                          "Value #E": 5
+                          "Value #F": 6
+                          "Value #G": 7
+                          "Value #H": 8
+                        renameByName:
+                          route: Route
+                          "Value #A": Requests
+                          "Value #B": Success
+                          "Value #C": 4xx
+                          "Value #D": p50
+                          "Value #E": p95
+                          "Value #F": Apdex
+                          "Value #G": Auth denials
+                          "Value #H": Endpoints
+                queryOptions: {}
+            vizConfig:
+              kind: VizConfig
+              group: table
+              version: 13.2.2
+              spec:
+                options:
+                  showHeader: true
+                  cellHeight: sm
+                  enablePagination: false
+                  sortBy:
+                    - displayName: Requests
+                      desc: true
+                fieldConfig:
+                  defaults:
+                    custom:
+                      align: auto
+                      cellOptions:
+                        type: auto
+                      inspect: false
+                      filterable: false
+                    noValue: –
+                    thresholds:
+                      mode: absolute
+                      steps:
+                        - color: blue
+                          value: null
+                    color:
+                      mode: thresholds
+                  overrides:
+                    - matcher:
+                        id: byName
+                        options: Route
+                      properties:
+                        - id: custom.width
+                          value: 320
+                        - id: custom.filterable
+                          value: true
+                        - id: links
+                          value:
+                            - title: Show only this route
+                              url: /d/envoy-routes/envoy-routes?${__url_time_range}&${datasource:queryparam}&${loki:queryparam}&${gateway:queryparam}&var-route=${__value.raw}
+                    - matcher:
+                        id: byName
+                        options: Requests
+                      properties:
+                        - id: unit
+                          value: short
+                        - id: min
+                          value: 0
+                        - id: fieldMinMax
+                          value: true
+                        - id: color
+                          value:
+                            mode: fixed
+                            fixedColor: blue
+                        - id: custom.cellOptions
+                          value:
+                            type: gauge
+                            mode: basic
+                            valueDisplayMode: text
+                        - id: custom.width
+                          value: 240
+                    - matcher:
+                        id: byName
+                        options: Success
+                      properties:
+                        - id: unit
+                          value: percentunit
+                        - id: decimals
+                          value: 1
+                        - id: thresholds
+                          value:
+                            mode: absolute
+                            steps:
+                              - color: red
+                                value: null
+                              - color: orange
+                                value: 0.95
+                              - color: green
+                                value: 0.99
+                        - id: custom.cellOptions
+                          value:
+                            type: color-text
+                    - matcher:
+                        id: byName
+                        options: 4xx
+                      properties:
+                        - id: unit
+                          value: percentunit
+                        - id: decimals
+                          value: 1
+                    - matcher:
+                        id: byName
+                        options: p50
+                      properties:
+                        - id: unit
+                          value: ms
+                        - id: decimals
+                          value: 1
+                    - matcher:
+                        id: byName
+                        options: p95
+                      properties:
+                        - id: unit
+                          value: ms
+                        - id: decimals
+                          value: 1
+                        - id: thresholds
+                          value:
+                            mode: absolute
+                            steps:
+                              - color: green
+                                value: null
+                              - color: yellow
+                                value: 250
+                              - color: red
+                                value: 1000
+                        - id: custom.cellOptions
+                          value:
+                            type: color-text
+                    - matcher:
+                        id: byName
+                        options: Apdex
+                      properties:
+                        - id: decimals
+                          value: 2
+                        - id: min
+                          value: 0
+                        - id: max
+                          value: 1
+                        - id: thresholds
+                          value:
+                            mode: absolute
+                            steps:
+                              - color: red
+                                value: null
+                              - color: yellow
+                                value: 0.85
+                              - color: green
+                                value: 0.94
+                        - id: custom.cellOptions
+                          value:
+                            type: color-text
+                    - matcher:
+                        id: byName
+                        options: Auth denials
+                      properties:
+                        - id: unit
+                          value: short
+                        - id: decimals
+                          value: 0
+                        - id: links
+                          value:
+                            - title: Auth denials in the access log
+                              url: /d/envoy-routes/envoy-routes?${__url_time_range}&${datasource:queryparam}&${loki:queryparam}&${gateway:queryparam}&var-route=${__data.fields.Route}&var-log=authz&viewPanel=panel-23
+                    - matcher:
+                        id: byName
+                        options: Endpoints
+                      properties:
+                        - id: decimals
+                          value: 0
+                        - id: thresholds
+                          value:
+                            mode: absolute
+                            steps:
+                              - color: red
+                                value: null
+                              - color: text
+                                value: 1
+                        - id: custom.cellOptions
+                          value:
+                            type: color-text
+            description: Totals and percentiles over the selected time range. Endpoints are ready pods now. Click a route to filter the dashboard.
+        t-requests:
+          kind: Panel
+          spec:
+            id: 10
+            title: Requests by route
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: topk_avg(10, sum by (route) (label_replace(increase(envoy_cluster_upstream_rq_total{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__interval]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+")), "route=other")
+                          legendFormat: "{{route}}"
+                          range: true
+                          instant: false
+                transformations: []
+                queryOptions:
+                  maxDataPoints: 75
+            vizConfig:
+              kind: VizConfig
+              group: timeseries
+              version: 13.2.2
+              spec:
+                options:
+                  legend:
+                    showLegend: false
+                    displayMode: list
+                    placement: bottom
+                    calcs: []
+                  tooltip:
+                    mode: multi
+                    sort: desc
+                    hideZeros: true
+                fieldConfig:
+                  defaults:
+                    unit: short
+                    decimals: 0
+                    color:
+                      mode: palette-classic
+                    custom:
+                      drawStyle: bars
+                      lineInterpolation: linear
+                      lineWidth: 1
+                      fillOpacity: 100
+                      gradientMode: none
+                      showPoints: never
+                      pointSize: 8
+                      spanNulls: false
+                      insertNulls: false
+                      axisPlacement: auto
+                      axisBorderShow: false
+                      axisCenteredZero: false
+                      axisSoftMin: 0
+                      barAlignment: -1
+                      barWidthFactor: 0.8
+                      stacking:
+                        mode: normal
+                        group: A
+                      thresholdsStyle:
+                        mode: "off"
+                      hideFrom:
+                        legend: false
+                        tooltip: false
+                        viz: false
+                  overrides:
+                    - matcher:
+                        id: byName
+                        options: other
+                      properties:
+                        - id: color
+                          value:
+                            mode: fixed
+                            fixedColor: "#808080"
+            description: Requests per interval. Top 10 routes; the rest are summed into other.
+        t-classes:
+          kind: Panel
+          spec:
+            id: 11
+            title: Responses by status class
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: sum by (envoy_response_code_class) (increase(envoy_cluster_upstream_rq_xx{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__interval]))
+                          legendFormat: "{{envoy_response_code_class}}xx"
+                          range: true
+                          instant: false
+                transformations: []
+                queryOptions:
+                  maxDataPoints: 75
+            vizConfig:
+              kind: VizConfig
+              group: timeseries
+              version: 13.2.2
+              spec:
+                options:
+                  legend:
+                    showLegend: true
+                    displayMode: list
+                    placement: bottom
+                    calcs:
+                      - sum
+                    sortBy: Total
+                    sortDesc: true
+                  tooltip:
+                    mode: multi
+                    sort: desc
+                    hideZeros: true
+                fieldConfig:
+                  defaults:
+                    unit: short
+                    decimals: 0
+                    color:
+                      mode: palette-classic
+                    custom:
+                      drawStyle: bars
+                      lineInterpolation: linear
+                      lineWidth: 1
+                      fillOpacity: 100
+                      gradientMode: none
+                      showPoints: never
+                      pointSize: 8
+                      spanNulls: false
+                      insertNulls: false
+                      axisPlacement: auto
+                      axisBorderShow: false
+                      axisCenteredZero: false
+                      axisSoftMin: 0
+                      barAlignment: -1
+                      barWidthFactor: 0.8
+                      stacking:
+                        mode: normal
+                        group: A
+                      thresholdsStyle:
+                        mode: "off"
+                      hideFrom:
+                        legend: false
+                        tooltip: false
+                        viz: false
+                  overrides:
+                    - matcher:
+                        id: byName
+                        options: 1xx
+                      properties:
+                        - id: color
+                          value:
+                            mode: fixed
+                            fixedColor: purple
+                    - matcher:
+                        id: byName
+                        options: 2xx
+                      properties:
+                        - id: color
+                          value:
+                            mode: fixed
+                            fixedColor: green
+                    - matcher:
+                        id: byName
+                        options: 3xx
+                      properties:
+                        - id: color
+                          value:
+                            mode: fixed
+                            fixedColor: blue
+                    - matcher:
+                        id: byName
+                        options: 4xx
+                      properties:
+                        - id: color
+                          value:
+                            mode: fixed
+                            fixedColor: yellow
+                    - matcher:
+                        id: byName
+                        options: 5xx
+                      properties:
+                        - id: color
+                          value:
+                            mode: fixed
+                            fixedColor: red
+                    - matcher:
+                        id: byName
+                        options: other
+                      properties:
+                        - id: color
+                          value:
+                            mode: fixed
+                            fixedColor: "#808080"
+            description: Responses per interval. 1xx are WebSocket upgrades.
+        t-throughput:
+          kind: Panel
+          spec:
+            id: 12
+            title: Throughput by route
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: topk_avg(10, sum by (route) (label_replace(rate(envoy_cluster_upstream_cx_rx_bytes_total{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__rate_interval]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+")) + sum by (route) (label_replace(rate(envoy_cluster_upstream_cx_tx_bytes_total{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__rate_interval]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+")), "route=other")
+                          legendFormat: "{{route}}"
+                          range: true
+                          instant: false
+                transformations: []
+                queryOptions: {}
+            vizConfig:
+              kind: VizConfig
+              group: timeseries
+              version: 13.2.2
+              spec:
+                options:
+                  legend:
+                    showLegend: false
+                    displayMode: list
+                    placement: bottom
+                    calcs: []
+                  tooltip:
+                    mode: multi
+                    sort: desc
+                    hideZeros: true
+                fieldConfig:
+                  defaults:
+                    unit: Bps
+                    decimals: 1
+                    color:
+                      mode: palette-classic
+                    custom:
+                      drawStyle: line
+                      lineInterpolation: linear
+                      lineWidth: 2
+                      fillOpacity: 10
+                      gradientMode: opacity
+                      showPoints: never
+                      pointSize: 8
+                      spanNulls: false
+                      insertNulls: false
+                      axisPlacement: auto
+                      axisBorderShow: false
+                      axisCenteredZero: false
+                      axisSoftMin: 0
+                      barAlignment: 0
+                      barWidthFactor: 0.8
+                      stacking:
+                        mode: none
+                        group: A
+                      thresholdsStyle:
+                        mode: "off"
+                      hideFrom:
+                        legend: false
+                        tooltip: false
+                        viz: false
+                  overrides:
+                    - matcher:
+                        id: byName
+                        options: other
+                      properties:
+                        - id: color
+                          value:
+                            mode: fixed
+                            fixedColor: "#808080"
+            description: Request and response bytes combined.
+        t-connections:
+          kind: Panel
+          spec:
+            id: 13
+            title: Active connections by route
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: topk_avg(10, sum by (route) (label_replace(avg_over_time(envoy_cluster_upstream_cx_active{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__rate_interval]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+")), "route=other")
+                          legendFormat: "{{route}}"
+                          range: true
+                          instant: false
+                transformations: []
+                queryOptions: {}
+            vizConfig:
+              kind: VizConfig
+              group: timeseries
+              version: 13.2.2
+              spec:
+                options:
+                  legend:
+                    showLegend: false
+                    displayMode: list
+                    placement: bottom
+                    calcs: []
+                  tooltip:
+                    mode: multi
+                    sort: desc
+                    hideZeros: true
+                fieldConfig:
+                  defaults:
+                    unit: short
+                    decimals: 0
+                    color:
+                      mode: palette-classic
+                    custom:
+                      drawStyle: line
+                      lineInterpolation: linear
+                      lineWidth: 2
+                      fillOpacity: 10
+                      gradientMode: opacity
+                      showPoints: never
+                      pointSize: 8
+                      spanNulls: false
+                      insertNulls: false
+                      axisPlacement: auto
+                      axisBorderShow: false
+                      axisCenteredZero: false
+                      axisSoftMin: 0
+                      barAlignment: 0
+                      barWidthFactor: 0.8
+                      stacking:
+                        mode: none
+                        group: A
+                      thresholdsStyle:
+                        mode: "off"
+                      hideFrom:
+                        legend: false
+                        tooltip: false
+                        viz: false
+                  overrides:
+                    - matcher:
+                        id: byName
+                        options: other
+                      properties:
+                        - id: color
+                          value:
+                            mode: fixed
+                            fixedColor: "#808080"
+            description: Open connections from Envoy to each app.
+        l-percentiles:
+          kind: Panel
+          spec:
+            id: 14
+            title: Latency percentiles
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: histogram_quantile(0.5, sum by (le) (rate(envoy_cluster_upstream_rq_time_bucket{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__rate_interval])))
+                          legendFormat: p50
+                          range: true
+                          instant: false
+                  - kind: PanelQuery
+                    spec:
+                      refId: B
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: histogram_quantile(0.95, sum by (le) (rate(envoy_cluster_upstream_rq_time_bucket{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__rate_interval])))
+                          legendFormat: p95
+                          range: true
+                          instant: false
+                  - kind: PanelQuery
+                    spec:
+                      refId: C
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: histogram_quantile(0.99, sum by (le) (rate(envoy_cluster_upstream_rq_time_bucket{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__rate_interval])))
+                          legendFormat: p99
+                          range: true
+                          instant: false
+                transformations: []
+                queryOptions: {}
+            vizConfig:
+              kind: VizConfig
+              group: timeseries
+              version: 13.2.2
+              spec:
+                options:
+                  legend:
+                    showLegend: true
+                    displayMode: list
+                    placement: bottom
+                    calcs: []
+                  tooltip:
+                    mode: multi
+                    sort: desc
+                    hideZeros: true
+                fieldConfig:
+                  defaults:
+                    unit: ms
+                    decimals: 1
+                    color:
+                      mode: fixed
+                      fixedColor: blue
+                    custom:
+                      drawStyle: line
+                      lineInterpolation: linear
+                      lineWidth: 2
+                      fillOpacity: 10
+                      gradientMode: opacity
+                      showPoints: never
+                      pointSize: 8
+                      spanNulls: false
+                      insertNulls: false
+                      axisPlacement: auto
+                      axisBorderShow: false
+                      axisCenteredZero: false
+                      axisSoftMin: 0
+                      barAlignment: 0
+                      barWidthFactor: 0.8
+                      stacking:
+                        mode: none
+                        group: A
+                      thresholdsStyle:
+                        mode: "off"
+                      hideFrom:
+                        legend: false
+                        tooltip: false
+                        viz: false
+                  overrides:
+                    - matcher:
+                        id: byName
+                        options: p50
+                      properties:
+                        - id: color
+                          value:
+                            mode: fixed
+                            fixedColor: super-light-blue
+                    - matcher:
+                        id: byName
+                        options: p95
+                      properties:
+                        - id: color
+                          value:
+                            mode: fixed
+                            fixedColor: blue
+                    - matcher:
+                        id: byName
+                        options: p99
+                      properties:
+                        - id: color
+                          value:
+                            mode: fixed
+                            fixedColor: purple
+                    - matcher:
+                        id: byName
+                        options: other
+                      properties:
+                        - id: color
+                          value:
+                            mode: fixed
+                            fixedColor: "#808080"
+            description: All selected routes combined.
+        l-slowest:
+          kind: Panel
+          spec:
+            id: 15
+            title: Slowest routes
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: sort_desc(topk(10, histogram_quantile(0.95, sum by (route, le) (label_replace(rate(envoy_cluster_upstream_rq_time_bucket{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__range]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+")))))
+                          legendFormat: "{{route}}"
+                          range: false
+                          instant: true
+                transformations: []
+                queryOptions: {}
+            vizConfig:
+              kind: VizConfig
+              group: bargauge
+              version: 13.2.2
+              spec:
+                options:
+                  orientation: horizontal
+                  displayMode: basic
+                  valueMode: color
+                  namePlacement: left
+                  showUnfilled: true
+                  sizing: auto
+                  minVizHeight: 16
+                  maxVizHeight: 24
+                  legend:
+                    showLegend: false
+                    displayMode: list
+                    placement: bottom
+                    calcs: []
+                  reduceOptions:
+                    calcs:
+                      - lastNotNull
+                    fields: ""
+                    values: false
+                fieldConfig:
+                  defaults:
+                    unit: ms
+                    min: 0
+                    thresholds:
+                      mode: absolute
+                      steps:
+                        - color: green
+                          value: null
+                        - color: yellow
+                          value: 250
+                        - color: red
+                          value: 1000
+                    color:
+                      mode: thresholds
+                  overrides: []
+            description: p95 over the selected time range, top 10.
+        l-heatmap:
+          kind: Panel
+          spec:
+            id: 16
+            title: Latency distribution
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: sum by (le) (increase(envoy_cluster_upstream_rq_time_bucket{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__interval]))
+                          legendFormat: "{{le}}"
+                          range: true
+                          instant: false
+                          format: heatmap
+                transformations: []
+                queryOptions:
+                  maxDataPoints: 75
+            vizConfig:
+              kind: VizConfig
+              group: heatmap
+              version: 13.2.2
+              spec:
+                options:
+                  calculate: false
+                  cellGap: 1
+                  color:
+                    mode: scheme
+                    scheme: Blues
+                    scale: exponential
+                    exponent: 0.5
+                    steps: 64
+                    reverse: false
+                    fill: blue
+                  exemplars:
+                    color: rgba(255,0,255,0.7)
+                  filterValues:
+                    le: 1.0e-09
+                  legend:
+                    show: true
+                  rowsFrame:
+                    layout: auto
+                  tooltip:
+                    mode: single
+                    yHistogram: true
+                    showColorScale: true
+                  yAxis:
+                    axisPlacement: left
+                    unit: ms
+                    reverse: false
+                  showValue: never
+                fieldConfig:
+                  defaults:
+                    custom:
+                      hideFrom:
+                        legend: false
+                        tooltip: false
+                        viz: false
+                      scaleDistribution:
+                        type: linear
+                  overrides: []
+            description: Request count per latency bucket.
+        e-5xx:
+          kind: Panel
+          spec:
+            id: 17
+            title: 5xx by route
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: topk_avg(10, sum by (route) (label_replace(increase(envoy_cluster_upstream_rq_xx{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+", envoy_response_code_class="5"}[$__interval]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+")) > 0, "route=other")
+                          legendFormat: "{{route}}"
+                          range: true
+                          instant: false
+                transformations: []
+                queryOptions:
+                  maxDataPoints: 75
+            vizConfig:
+              kind: VizConfig
+              group: timeseries
+              version: 13.2.2
+              spec:
+                options:
+                  legend:
+                    showLegend: false
+                    displayMode: list
+                    placement: bottom
+                    calcs: []
+                  tooltip:
+                    mode: multi
+                    sort: desc
+                    hideZeros: true
+                fieldConfig:
+                  defaults:
+                    unit: short
+                    decimals: 0
+                    color:
+                      mode: palette-classic
+                    custom:
+                      drawStyle: bars
+                      lineInterpolation: linear
+                      lineWidth: 1
+                      fillOpacity: 100
+                      gradientMode: none
+                      showPoints: never
+                      pointSize: 8
+                      spanNulls: false
+                      insertNulls: false
+                      axisPlacement: auto
+                      axisBorderShow: false
+                      axisCenteredZero: false
+                      axisSoftMin: 0
+                      barAlignment: -1
+                      barWidthFactor: 0.8
+                      stacking:
+                        mode: normal
+                        group: A
+                      thresholdsStyle:
+                        mode: "off"
+                      hideFrom:
+                        legend: false
+                        tooltip: false
+                        viz: false
+                    noValue: No 5xx responses
+                  overrides:
+                    - matcher:
+                        id: byName
+                        options: other
+                      properties:
+                        - id: color
+                          value:
+                            mode: fixed
+                            fixedColor: "#808080"
+            description: Server errors per interval, returned by the app or produced by upstream failures.
+        e-4xx:
+          kind: Panel
+          spec:
+            id: 18
+            title: 4xx by route
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: topk_avg(10, sum by (route) (label_replace(increase(envoy_cluster_upstream_rq_xx{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+", envoy_response_code_class="4"}[$__interval]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+")) > 0, "route=other")
+                          legendFormat: "{{route}}"
+                          range: true
+                          instant: false
+                transformations: []
+                queryOptions:
+                  maxDataPoints: 75
+            vizConfig:
+              kind: VizConfig
+              group: timeseries
+              version: 13.2.2
+              spec:
+                options:
+                  legend:
+                    showLegend: false
+                    displayMode: list
+                    placement: bottom
+                    calcs: []
+                  tooltip:
+                    mode: multi
+                    sort: desc
+                    hideZeros: true
+                fieldConfig:
+                  defaults:
+                    unit: short
+                    decimals: 0
+                    color:
+                      mode: palette-classic
+                    custom:
+                      drawStyle: bars
+                      lineInterpolation: linear
+                      lineWidth: 1
+                      fillOpacity: 100
+                      gradientMode: none
+                      showPoints: never
+                      pointSize: 8
+                      spanNulls: false
+                      insertNulls: false
+                      axisPlacement: auto
+                      axisBorderShow: false
+                      axisCenteredZero: false
+                      axisSoftMin: 0
+                      barAlignment: -1
+                      barWidthFactor: 0.8
+                      stacking:
+                        mode: normal
+                        group: A
+                      thresholdsStyle:
+                        mode: "off"
+                      hideFrom:
+                        legend: false
+                        tooltip: false
+                        viz: false
+                    noValue: No 4xx responses
+                  overrides:
+                    - matcher:
+                        id: byName
+                        options: other
+                      properties:
+                        - id: color
+                          value:
+                            mode: fixed
+                            fixedColor: "#808080"
+            description: Client errors per interval.
+        e-authz:
+          kind: Panel
+          spec:
+            id: 19
+            title: Auth denials by route
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: topk_avg(10, sum by (route) (label_replace(increase(envoy_cluster_ext_authz_denied{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__interval]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+")) > 0, "route=other")
+                          legendFormat: "{{route}}"
+                          range: true
+                          instant: false
+                transformations: []
+                queryOptions:
+                  maxDataPoints: 75
+            vizConfig:
+              kind: VizConfig
+              group: timeseries
+              version: 13.2.2
+              spec:
+                options:
+                  legend:
+                    showLegend: false
+                    displayMode: list
+                    placement: bottom
+                    calcs: []
+                  tooltip:
+                    mode: multi
+                    sort: desc
+                    hideZeros: true
+                fieldConfig:
+                  defaults:
+                    unit: short
+                    decimals: 0
+                    color:
+                      mode: palette-classic
+                    custom:
+                      drawStyle: bars
+                      lineInterpolation: linear
+                      lineWidth: 1
+                      fillOpacity: 100
+                      gradientMode: none
+                      showPoints: never
+                      pointSize: 8
+                      spanNulls: false
+                      insertNulls: false
+                      axisPlacement: auto
+                      axisBorderShow: false
+                      axisCenteredZero: false
+                      axisSoftMin: 0
+                      barAlignment: -1
+                      barWidthFactor: 0.8
+                      stacking:
+                        mode: normal
+                        group: A
+                      thresholdsStyle:
+                        mode: "off"
+                      hideFrom:
+                        legend: false
+                        tooltip: false
+                        viz: false
+                    noValue: No auth denials
+                  overrides:
+                    - matcher:
+                        id: byName
+                        options: other
+                      properties:
+                        - id: color
+                          value:
+                            mode: fixed
+                            fixedColor: "#808080"
+            description: Requests per interval that Authelia rejected or redirected to login. They never reach the app.
+        e-failures:
+          kind: Panel
+          spec:
+            id: 20
+            title: Upstream failures
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: sum by (route) (label_replace(increase(envoy_cluster_upstream_cx_connect_fail{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__interval]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+")) > 0
+                          legendFormat: "{{route}} · connect failure"
+                          range: true
+                          instant: false
+                  - kind: PanelQuery
+                    spec:
+                      refId: B
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: sum by (route) (label_replace(increase(envoy_cluster_upstream_cx_none_healthy{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__interval]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+")) > 0
+                          legendFormat: "{{route}} · no healthy endpoint"
+                          range: true
+                          instant: false
+                  - kind: PanelQuery
+                    spec:
+                      refId: C
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: sum by (route) (label_replace(increase(envoy_cluster_upstream_rq_timeout{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__interval]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+")) > 0
+                          legendFormat: "{{route}} · timeout"
+                          range: true
+                          instant: false
+                  - kind: PanelQuery
+                    spec:
+                      refId: D
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: sum by (route) (label_replace(increase(envoy_cluster_upstream_rq_rx_reset{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__interval]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+")) > 0
+                          legendFormat: "{{route}} · reset by app"
+                          range: true
+                          instant: false
+                  - kind: PanelQuery
+                    spec:
+                      refId: E
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: sum by (route) (label_replace(increase(envoy_cluster_upstream_rq_pending_overflow{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__interval]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+")) > 0
+                          legendFormat: "{{route}} · overflow"
+                          range: true
+                          instant: false
+                  - kind: PanelQuery
+                    spec:
+                      refId: F
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: sum by (route) (label_replace(increase(envoy_cluster_upstream_rq_retry{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__interval]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+")) > 0
+                          legendFormat: "{{route}} · retry"
+                          range: true
+                          instant: false
+                transformations: []
+                queryOptions:
+                  maxDataPoints: 75
+            vizConfig:
+              kind: VizConfig
+              group: timeseries
+              version: 13.2.2
+              spec:
+                options:
+                  legend:
+                    showLegend: false
+                    displayMode: list
+                    placement: bottom
+                    calcs: []
+                  tooltip:
+                    mode: multi
+                    sort: desc
+                    hideZeros: true
+                fieldConfig:
+                  defaults:
+                    unit: short
+                    decimals: 0
+                    color:
+                      mode: palette-classic
+                    custom:
+                      drawStyle: bars
+                      lineInterpolation: linear
+                      lineWidth: 1
+                      fillOpacity: 100
+                      gradientMode: none
+                      showPoints: never
+                      pointSize: 8
+                      spanNulls: false
+                      insertNulls: false
+                      axisPlacement: auto
+                      axisBorderShow: false
+                      axisCenteredZero: false
+                      axisSoftMin: 0
+                      barAlignment: -1
+                      barWidthFactor: 0.8
+                      stacking:
+                        mode: normal
+                        group: A
+                      thresholdsStyle:
+                        mode: "off"
+                      hideFrom:
+                        legend: false
+                        tooltip: false
+                        viz: false
+                    noValue: No upstream failures
+                  overrides:
+                    - matcher:
+                        id: byName
+                        options: other
+                      properties:
+                        - id: color
+                          value:
+                            mode: fixed
+                            fixedColor: "#808080"
+            description: Connection failures, timeouts, resets and retries between Envoy and the app, per interval.
+        a-failing:
+          kind: Panel
+          spec:
+            id: 21
+            title: Routes with failed requests
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: (sum by (route) (label_replace(rate(envoy_cluster_upstream_rq_xx{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+", envoy_response_code_class!="5"}[$__rate_interval]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+")) / sum by (route) (label_replace(rate(envoy_cluster_upstream_rq_xx{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+"}[$__rate_interval]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+"))) if (range_max(sum by (route) (label_replace(rate(envoy_cluster_upstream_rq_xx{namespace="network", pod=~"$gateway-.+", envoy_cluster_name=~"httproute/$route/rule/.+", envoy_response_code_class="5"}[$__rate_interval]), "route", "$1", "envoy_cluster_name", "httproute/([^/]+/[^/]+)/rule/.+"))) > 0)
+                          legendFormat: "{{route}}"
+                          range: true
+                          instant: false
+                transformations: []
+                queryOptions: {}
+            vizConfig:
+              kind: VizConfig
+              group: state-timeline
+              version: 13.2.2
+              spec:
+                options:
+                  mergeValues: false
+                  showValue: never
+                  alignValue: left
+                  rowHeight: 0.8
+                  legend:
+                    showLegend: true
+                    displayMode: list
+                    placement: bottom
+                  tooltip:
+                    mode: single
+                    sort: none
+                    hideZeros: false
+                fieldConfig:
+                  defaults:
+                    unit: percentunit
+                    decimals: 1
+                    color:
+                      mode: thresholds
+                    thresholds:
+                      mode: absolute
+                      steps:
+                        - color: red
+                          value: null
+                        - color: orange
+                          value: 0.95
+                        - color: green
+                          value: 0.99
+                    noValue: No failed requests in the time range
+                    custom:
+                      fillOpacity: 80
+                      lineWidth: 0
+                      hideFrom:
+                        legend: false
+                        tooltip: false
+                        viz: false
+                  overrides: []
+            description: Success rate over time, only for routes that returned a 5xx in the time range. Gaps mean no traffic.
+        g-reasons:
+          kind: Panel
+          spec:
+            id: 22
+            title: Envoy-generated responses
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: loki
+                        version: v0
+                        datasource:
+                          name: ${loki}
+                        spec:
+                          editorMode: code
+                          expr: sum by (response_code_details) (count_over_time({namespace="network", app="envoy", container="envoy", pod=~"$gateway-.+"} |= "upstream_cluster" | json response_code_details="response_code_details", upstream_cluster="upstream_cluster" | upstream_cluster=~"httproute/$route/rule/.+" | response_code_details!="via_upstream" [$__auto]))
+                          queryType: range
+                          legendFormat: "{{response_code_details}}"
+                transformations: []
+                queryOptions:
+                  maxDataPoints: 75
+            vizConfig:
+              kind: VizConfig
+              group: timeseries
+              version: 13.2.2
+              spec:
+                options:
+                  legend:
+                    showLegend: true
+                    displayMode: table
+                    placement: right
+                    calcs:
+                      - sum
+                    sortBy: Total
+                    sortDesc: true
+                  tooltip:
+                    mode: multi
+                    sort: desc
+                    hideZeros: true
+                fieldConfig:
+                  defaults:
+                    unit: short
+                    decimals: 0
+                    color:
+                      mode: palette-classic
+                    custom:
+                      drawStyle: bars
+                      lineInterpolation: linear
+                      lineWidth: 1
+                      fillOpacity: 100
+                      gradientMode: none
+                      showPoints: never
+                      pointSize: 8
+                      spanNulls: false
+                      insertNulls: false
+                      axisPlacement: auto
+                      axisBorderShow: false
+                      axisCenteredZero: false
+                      axisSoftMin: 0
+                      barAlignment: -1
+                      barWidthFactor: 0.8
+                      stacking:
+                        mode: normal
+                        group: A
+                      thresholdsStyle:
+                        mode: "off"
+                      hideFrom:
+                        legend: false
+                        tooltip: false
+                        viz: false
+                  overrides: []
+            description: "Responses Envoy produced instead of the app: auth denials, resets, timeouts, refused connections."
+        g-logs:
+          kind: Panel
+          spec:
+            id: 23
+            title: Access log
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: loki
+                        version: v0
+                        datasource:
+                          name: ${loki}
+                        spec:
+                          editorMode: code
+                          expr: '{namespace="network", app="envoy", container="envoy", pod=~"$gateway-.+"} |= "upstream_cluster" | json | upstream_cluster=~"httproute/$route/rule/.+" | label_format kind=`{{ if eq .response_code_details "ext_authz_denied" }}authz{{ else if and (or (hasPrefix "5" .response_code) (eq .response_code "0")) (or (contains "UF" .response_flags) (contains "UH" .response_flags) (contains "UT" .response_flags) (contains "UO" .response_flags) (contains "UR" .response_flags) (contains "UC" .response_flags)) }}upstream{{ else if hasPrefix "5" .response_code }}5xx{{ else if hasPrefix "4" .response_code }}4xx{{ else if eq .response_code "0" }}aborted{{ else }}ok{{ end }}` | kind=~"$log" | drop detected_level | label_format level=`{{ if hasPrefix "5" .response_code }}error{{ else if hasPrefix "4" .response_code }}warning{{ else }}info{{ end }}` | line_format `{{.response_code}} {{.method}} {{._authority}}{{.x_envoy_origin_path}} · {{.duration}} ms · {{.response_flags}} {{.response_code_details}}`'
+                          queryType: range
+                          legendFormat: ""
+                          maxLines: 500
+                transformations: []
+                queryOptions: {}
+            vizConfig:
+              kind: VizConfig
+              group: logs
+              version: 13.2.2
+              spec:
+                options:
+                  showTime: true
+                  showLabels: false
+                  showCommonLabels: false
+                  wrapLogMessage: false
+                  prettifyLogMessage: false
+                  enableLogDetails: true
+                  enableInfiniteScrolling: true
+                  dedupStrategy: none
+                  sortOrder: Descending
+                fieldConfig:
+                  defaults: {}
+                  overrides: []
+            description: Filtered by the Log variable. Parsed fields, including kind, are in each line's details.
+        p-pods:
+          kind: Panel
+          spec:
+            id: 24
+            title: Envoy pods
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: count by (gateway) (label_replace(envoy_server_live{namespace="network", pod=~"$gateway-.+"} == 1, "gateway", "$1", "pod", "(.+)-[a-z0-9]+-[a-z0-9]+"))
+                          legendFormat: "{{gateway}}"
+                          range: false
+                          instant: true
+                transformations: []
+                queryOptions: {}
+            vizConfig:
+              kind: VizConfig
+              group: stat
+              version: 13.2.2
+              spec:
+                options:
+                  reduceOptions:
+                    calcs:
+                      - lastNotNull
+                    fields: ""
+                    values: false
+                  orientation: auto
+                  textMode: auto
+                  colorMode: value
+                  graphMode: none
+                  justifyMode: auto
+                  wideLayout: true
+                  showPercentChange: false
+                fieldConfig:
+                  defaults:
+                    unit: short
+                    thresholds:
+                      mode: absolute
+                      steps:
+                        - color: red
+                          value: null
+                        - color: orange
+                          value: 1
+                        - color: green
+                          value: 2
+                    color:
+                      mode: thresholds
+                    decimals: 0
+                  overrides: []
+        p-cert:
+          kind: Panel
+          spec:
+            id: 25
+            title: Certificate expiry
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: min by (gateway) (label_replace(envoy_server_days_until_first_cert_expiring{namespace="network", pod=~"$gateway-.+"}, "gateway", "$1", "pod", "(.+)-[a-z0-9]+-[a-z0-9]+"))
+                          legendFormat: "{{gateway}}"
+                          range: false
+                          instant: true
+                transformations: []
+                queryOptions: {}
+            vizConfig:
+              kind: VizConfig
+              group: stat
+              version: 13.2.2
+              spec:
+                options:
+                  reduceOptions:
+                    calcs:
+                      - lastNotNull
+                    fields: ""
+                    values: false
+                  orientation: auto
+                  textMode: auto
+                  colorMode: value
+                  graphMode: none
+                  justifyMode: auto
+                  wideLayout: true
+                  showPercentChange: false
+                fieldConfig:
+                  defaults:
+                    unit: d
+                    thresholds:
+                      mode: absolute
+                      steps:
+                        - color: red
+                          value: null
+                        - color: orange
+                          value: 7
+                        - color: green
+                          value: 25
+                    color:
+                      mode: thresholds
+                    decimals: 0
+                  overrides: []
+            description: cert-manager renews 30 days before expiry.
+        p-downstream-rq:
+          kind: Panel
+          spec:
+            id: 26
+            title: Client requests by listener
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: sum by (gateway, envoy_http_conn_manager_prefix) (label_replace(increase(envoy_http_downstream_rq_total{namespace="network", pod=~"$gateway-.+", envoy_http_conn_manager_prefix=~"https?-[0-9]+"}[$__interval]), "gateway", "$1", "pod", "(.+)-[a-z0-9]+-[a-z0-9]+"))
+                          legendFormat: "{{gateway}} · {{envoy_http_conn_manager_prefix}}"
+                          range: true
+                          instant: false
+                transformations: []
+                queryOptions:
+                  maxDataPoints: 75
+            vizConfig:
+              kind: VizConfig
+              group: timeseries
+              version: 13.2.2
+              spec:
+                options:
+                  legend:
+                    showLegend: true
+                    displayMode: list
+                    placement: bottom
+                    calcs:
+                      - sum
+                    sortBy: Total
+                    sortDesc: true
+                  tooltip:
+                    mode: multi
+                    sort: desc
+                    hideZeros: true
+                fieldConfig:
+                  defaults:
+                    unit: short
+                    decimals: 0
+                    color:
+                      mode: palette-classic
+                    custom:
+                      drawStyle: bars
+                      lineInterpolation: linear
+                      lineWidth: 1
+                      fillOpacity: 100
+                      gradientMode: none
+                      showPoints: never
+                      pointSize: 8
+                      spanNulls: false
+                      insertNulls: false
+                      axisPlacement: auto
+                      axisBorderShow: false
+                      axisCenteredZero: false
+                      axisSoftMin: 0
+                      barAlignment: -1
+                      barWidthFactor: 0.8
+                      stacking:
+                        mode: normal
+                        group: A
+                      thresholdsStyle:
+                        mode: "off"
+                      hideFrom:
+                        legend: false
+                        tooltip: false
+                        viz: false
+                  overrides:
+                    - matcher:
+                        id: byName
+                        options: other
+                      properties:
+                        - id: color
+                          value:
+                            mode: fixed
+                            fixedColor: "#808080"
+            description: Requests per interval from clients, including auth denials and redirects.
+        p-downstream-cx:
+          kind: Panel
+          spec:
+            id: 27
+            title: Client connections by listener
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: sum by (gateway, envoy_http_conn_manager_prefix) (label_replace(envoy_http_downstream_cx_active{namespace="network", pod=~"$gateway-.+", envoy_http_conn_manager_prefix=~"https?-[0-9]+"}, "gateway", "$1", "pod", "(.+)-[a-z0-9]+-[a-z0-9]+"))
+                          legendFormat: "{{gateway}} · {{envoy_http_conn_manager_prefix}}"
+                          range: true
+                          instant: false
+                transformations: []
+                queryOptions: {}
+            vizConfig:
+              kind: VizConfig
+              group: timeseries
+              version: 13.2.2
+              spec:
+                options:
+                  legend:
+                    showLegend: true
+                    displayMode: list
+                    placement: bottom
+                    calcs: []
+                  tooltip:
+                    mode: multi
+                    sort: desc
+                    hideZeros: true
+                fieldConfig:
+                  defaults:
+                    unit: short
+                    decimals: 0
+                    color:
+                      mode: palette-classic
+                    custom:
+                      drawStyle: line
+                      lineInterpolation: linear
+                      lineWidth: 2
+                      fillOpacity: 10
+                      gradientMode: opacity
+                      showPoints: never
+                      pointSize: 8
+                      spanNulls: false
+                      insertNulls: false
+                      axisPlacement: auto
+                      axisBorderShow: false
+                      axisCenteredZero: false
+                      axisSoftMin: 0
+                      barAlignment: 0
+                      barWidthFactor: 0.8
+                      stacking:
+                        mode: none
+                        group: A
+                      thresholdsStyle:
+                        mode: "off"
+                      hideFrom:
+                        legend: false
+                        tooltip: false
+                        viz: false
+                  overrides:
+                    - matcher:
+                        id: byName
+                        options: other
+                      properties:
+                        - id: color
+                          value:
+                            mode: fixed
+                            fixedColor: "#808080"
+        p-cpu:
+          kind: Panel
+          spec:
+            id: 28
+            title: CPU by pod
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: 1000 * max by (pod) (rate(container_cpu_usage_seconds_total{namespace="network", pod=~"$gateway-.+", container="envoy"}[$__rate_interval]))
+                          legendFormat: "{{pod}}"
+                          range: true
+                          instant: false
+                transformations: []
+                queryOptions: {}
+            vizConfig:
+              kind: VizConfig
+              group: timeseries
+              version: 13.2.2
+              spec:
+                options:
+                  legend:
+                    showLegend: true
+                    displayMode: list
+                    placement: bottom
+                    calcs: []
+                  tooltip:
+                    mode: multi
+                    sort: desc
+                    hideZeros: true
+                fieldConfig:
+                  defaults:
+                    unit: suffix:m
+                    decimals: 1
+                    color:
+                      mode: palette-classic
+                    custom:
+                      drawStyle: line
+                      lineInterpolation: linear
+                      lineWidth: 2
+                      fillOpacity: 10
+                      gradientMode: opacity
+                      showPoints: never
+                      pointSize: 8
+                      spanNulls: false
+                      insertNulls: false
+                      axisPlacement: auto
+                      axisBorderShow: false
+                      axisCenteredZero: false
+                      axisSoftMin: 0
+                      barAlignment: 0
+                      barWidthFactor: 0.8
+                      stacking:
+                        mode: none
+                        group: A
+                      thresholdsStyle:
+                        mode: "off"
+                      hideFrom:
+                        legend: false
+                        tooltip: false
+                        viz: false
+                  overrides:
+                    - matcher:
+                        id: byName
+                        options: other
+                      properties:
+                        - id: color
+                          value:
+                            mode: fixed
+                            fixedColor: "#808080"
+        p-memory:
+          kind: Panel
+          spec:
+            id: 29
+            title: Memory by pod
+            links: []
+            data:
+              kind: QueryGroup
+              spec:
+                queries:
+                  - kind: PanelQuery
+                    spec:
+                      refId: A
+                      hidden: false
+                      query:
+                        kind: DataQuery
+                        group: prometheus
+                        version: v0
+                        datasource:
+                          name: ${datasource}
+                        spec:
+                          editorMode: code
+                          expr: max by (pod) (container_memory_working_set_bytes{namespace="network", pod=~"$gateway-.+", container="envoy"})
+                          legendFormat: "{{pod}}"
+                          range: true
+                          instant: false
+                transformations: []
+                queryOptions: {}
+            vizConfig:
+              kind: VizConfig
+              group: timeseries
+              version: 13.2.2
+              spec:
+                options:
+                  legend:
+                    showLegend: true
+                    displayMode: list
+                    placement: bottom
+                    calcs: []
+                  tooltip:
+                    mode: multi
+                    sort: desc
+                    hideZeros: true
+                fieldConfig:
+                  defaults:
+                    unit: bytes
+                    decimals: 1
+                    color:
+                      mode: palette-classic
+                    custom:
+                      drawStyle: line
+                      lineInterpolation: linear
+                      lineWidth: 2
+                      fillOpacity: 10
+                      gradientMode: opacity
+                      showPoints: never
+                      pointSize: 8
+                      spanNulls: false
+                      insertNulls: false
+                      axisPlacement: auto
+                      axisBorderShow: false
+                      axisCenteredZero: false
+                      axisSoftMin: 0
+                      barAlignment: 0
+                      barWidthFactor: 0.8
+                      stacking:
+                        mode: none
+                        group: A
+                      thresholdsStyle:
+                        mode: "off"
+                      hideFrom:
+                        legend: false
+                        tooltip: false
+                        viz: false
+                  overrides:
+                    - matcher:
+                        id: byName
+                        options: other
+                      properties:
+                        - id: color
+                          value:
+                            mode: fixed
+                            fixedColor: "#808080"
+            description: Working set; the limit is 1 GiB.
+      layout:
+        kind: RowsLayout
+        spec:
+          rows:
+            - kind: RowsLayoutRow
+              spec:
+                title: Summary
+                collapse: false
+                layout:
+                  kind: AutoGridLayout
+                  spec:
+                    maxColumnCount: 8
+                    columnWidthMode: narrow
+                    rowHeightMode: short
+                    fillScreen: false
+                    items:
+                      - kind: AutoGridLayoutItem
+                        spec:
+                          element:
+                            kind: ElementReference
+                            name: s-requests
+                      - kind: AutoGridLayoutItem
+                        spec:
+                          element:
+                            kind: ElementReference
+                            name: s-success
+                      - kind: AutoGridLayoutItem
+                        spec:
+                          element:
+                            kind: ElementReference
+                            name: s-p95
+                      - kind: AutoGridLayoutItem
+                        spec:
+                          element:
+                            kind: ElementReference
+                            name: s-apdex
+                      - kind: AutoGridLayoutItem
+                        spec:
+                          element:
+                            kind: ElementReference
+                            name: s-5xx
+                      - kind: AutoGridLayoutItem
+                        spec:
+                          element:
+                            kind: ElementReference
+                            name: s-authz
+                      - kind: AutoGridLayoutItem
+                        spec:
+                          element:
+                            kind: ElementReference
+                            name: s-failures
+                      - kind: AutoGridLayoutItem
+                        spec:
+                          element:
+                            kind: ElementReference
+                            name: s-throughput
+                hideHeader: true
+            - kind: RowsLayoutRow
+              spec:
+                title: Routes
+                collapse: false
+                layout:
+                  kind: GridLayout
+                  spec:
+                    items:
+                      - kind: GridLayoutItem
+                        spec:
+                          x: 0
+                          y: 0
+                          width: 24
+                          height: 14
+                          element:
+                            kind: ElementReference
+                            name: routes-table
+            - kind: RowsLayoutRow
+              spec:
+                title: Traffic
+                collapse: false
+                layout:
+                  kind: AutoGridLayout
+                  spec:
+                    maxColumnCount: 2
+                    columnWidthMode: standard
+                    rowHeightMode: standard
+                    fillScreen: false
+                    items:
+                      - kind: AutoGridLayoutItem
+                        spec:
+                          element:
+                            kind: ElementReference
+                            name: t-requests
+                      - kind: AutoGridLayoutItem
+                        spec:
+                          element:
+                            kind: ElementReference
+                            name: t-classes
+                      - kind: AutoGridLayoutItem
+                        spec:
+                          element:
+                            kind: ElementReference
+                            name: t-throughput
+                      - kind: AutoGridLayoutItem
+                        spec:
+                          element:
+                            kind: ElementReference
+                            name: t-connections
+            - kind: RowsLayoutRow
+              spec:
+                title: Latency
+                collapse: false
+                layout:
+                  kind: AutoGridLayout
+                  spec:
+                    maxColumnCount: 3
+                    columnWidthMode: standard
+                    rowHeightMode: standard
+                    fillScreen: false
+                    items:
+                      - kind: AutoGridLayoutItem
+                        spec:
+                          element:
+                            kind: ElementReference
+                            name: l-percentiles
+                      - kind: AutoGridLayoutItem
+                        spec:
+                          element:
+                            kind: ElementReference
+                            name: l-slowest
+                      - kind: AutoGridLayoutItem
+                        spec:
+                          element:
+                            kind: ElementReference
+                            name: l-heatmap
+            - kind: RowsLayoutRow
+              spec:
+                title: Errors
+                collapse: false
+                layout:
+                  kind: AutoGridLayout
+                  spec:
+                    maxColumnCount: 2
+                    columnWidthMode: standard
+                    rowHeightMode: standard
+                    fillScreen: false
+                    items:
+                      - kind: AutoGridLayoutItem
+                        spec:
+                          element:
+                            kind: ElementReference
+                            name: e-5xx
+                      - kind: AutoGridLayoutItem
+                        spec:
+                          element:
+                            kind: ElementReference
+                            name: e-4xx
+                      - kind: AutoGridLayoutItem
+                        spec:
+                          element:
+                            kind: ElementReference
+                            name: e-authz
+                      - kind: AutoGridLayoutItem
+                        spec:
+                          element:
+                            kind: ElementReference
+                            name: e-failures
+            - kind: RowsLayoutRow
+              spec:
+                title: Availability
+                collapse: false
+                layout:
+                  kind: GridLayout
+                  spec:
+                    items:
+                      - kind: GridLayoutItem
+                        spec:
+                          x: 0
+                          y: 0
+                          width: 24
+                          height: 6
+                          element:
+                            kind: ElementReference
+                            name: a-failing
+            - kind: RowsLayoutRow
+              spec:
+                title: Access log
+                collapse: false
+                layout:
+                  kind: GridLayout
+                  spec:
+                    items:
+                      - kind: GridLayoutItem
+                        spec:
+                          x: 0
+                          y: 0
+                          width: 24
+                          height: 8
+                          element:
+                            kind: ElementReference
+                            name: g-reasons
+                      - kind: GridLayoutItem
+                        spec:
+                          x: 0
+                          y: 8
+                          width: 24
+                          height: 14
+                          element:
+                            kind: ElementReference
+                            name: g-logs
+            - kind: RowsLayoutRow
+              spec:
+                title: Gateway
+                collapse: true
+                layout:
+                  kind: GridLayout
+                  spec:
+                    items:
+                      - kind: GridLayoutItem
+                        spec:
+                          x: 0
+                          y: 0
+                          width: 4
+                          height: 5
+                          element:
+                            kind: ElementReference
+                            name: p-pods
+                      - kind: GridLayoutItem
+                        spec:
+                          x: 4
+                          y: 0
+                          width: 4
+                          height: 5
+                          element:
+                            kind: ElementReference
+                            name: p-cert
+                      - kind: GridLayoutItem
+                        spec:
+                          x: 8
+                          y: 0
+                          width: 8
+                          height: 10
+                          element:
+                            kind: ElementReference
+                            name: p-downstream-rq
+                      - kind: GridLayoutItem
+                        spec:
+                          x: 16
+                          y: 0
+                          width: 8
+                          height: 10
+                          element:
+                            kind: ElementReference
+                            name: p-downstream-cx
+                      - kind: GridLayoutItem
+                        spec:
+                          x: 0
+                          y: 5
+                          width: 8
+                          height: 10
+                          element:
+                            kind: ElementReference
+                            name: p-cpu
+                      - kind: GridLayoutItem
+                        spec:
+                          x: 0
+                          y: 15
+                          width: 8
+                          height: 10
+                          element:
+                            kind: ElementReference
+                            name: p-memory

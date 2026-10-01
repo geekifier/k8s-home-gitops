@@ -12,3 +12,4 @@ resources:
   - ../resources/longhorn.snapshotclass.yaml
   - ../resources/longhorn.recurringjob-trim.yaml
   - ../resources/longhorn.networkpolicy.yaml
+  - ../resources/longhorn.grafanadashboard.yaml

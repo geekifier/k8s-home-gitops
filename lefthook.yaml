@@ -9,3 +9,5 @@ pre-commit:
       glob: "**/*.{yaml,yml,json,jsonc,md,markdown}"
       run: mise exec -- dprint fmt --allow-no-files {staged_files}
       stage_fixed: true
+    context-budget:
+      run: scripts/check-context-budget.sh --warn

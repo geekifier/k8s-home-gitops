@@ -12,10 +12,6 @@ spec:
   # suspend: true
   interval: 1h
   path: ./kubernetes/apps/observability/grafana-dashboards/dashboards
-  postBuild:
-    substituteFrom:
-      - name: cluster-secrets
-        kind: Secret
   prune: true
   retryInterval: 2m
   sourceRef:

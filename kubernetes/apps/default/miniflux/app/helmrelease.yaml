@@ -42,10 +42,17 @@ spec:
               - name: TRUSTED_REVERSE_PROXY_NETWORKS
                 value: 100.64.0.0/16
               - name: DATABASE_URL
+                value: host=postgres17-rw.db.svc.cluster.local dbname=miniflux sslmode=require
+              - name: PGUSER
                 valueFrom:
                   secretKeyRef:
-                    name: pgsql-miniflux
-                    key: DATABASE_URL
+                    name: miniflux-pgsql
+                    key: username
+              - name: PGPASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: miniflux-pgsql
+                    key: password
             envFrom:
               - secretRef:
                   name: miniflux-secret
@@ -118,11 +125,11 @@ spec:
       app:
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/href: "https://{{ index .Values.route.app.hostnames 0 }}"
           gethomepage.dev/group: Media
           gethomepage.dev/description: RSS Reader
           gethomepage.dev/widget.type: miniflux
           gethomepage.dev/widget.key: '{{ "{{" }}HOMEPAGE_VAR_MINIFLUX_API_KEY{{ "}}" }}'
-          gethomepage.dev/widget.headers.host: rss.${SECRET_DOMAIN_INT}
           gethomepage.dev/widget.url: http://miniflux.default.svc.cluster.local:8080
           gethomepage.dev/icon: miniflux
         labels:
