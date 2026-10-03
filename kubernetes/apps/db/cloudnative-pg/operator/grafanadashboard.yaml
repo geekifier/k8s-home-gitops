@@ -1,0 +1,26 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/grafana.integreatly.org/grafanadashboard_v1beta1.json
+# Replaces the dashboard bundled with the operator chart (dashboard chart 0.0.5),
+# which reads only the deprecated cnpg_collector_* backup metrics. Those stop
+# updating once backups run through the barman-cloud plugin, so the backup tiles
+# stay red. Upstream main also reads the plugin's barman_cloud_* metrics
+# (cloudnative-pg/grafana-dashboards#37) but is unreleased, and the chart has no
+# value to select the dashboard version. Go back to
+# monitoring.grafanaDashboard.create once the chart bundles a fixed release.
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: cloudnative-pg
+spec:
+  # The Grafana CR lives in observability
+  allowCrossNamespaceImport: true
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana
+  folder: database
+  url: https://raw.githubusercontent.com/cloudnative-pg/grafana-dashboards/main/charts/cluster/grafana-dashboard.json
+  # Refetch the branch daily
+  contentCacheDuration: 24h
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: victoriametrics-prom

@@ -39,6 +39,13 @@
     ]
   },
   "customDatasources": {
+    // The Flux releases bundled in a flux-operator release's manifests; the manager supplies the tag URL.
+    "flux-operator-bundle": {
+      "format": "json",
+      "transformTemplates": [
+        "{\"releases\": [$[type = 'dir'].{\"version\": name}]}"
+      ]
+    },
     // The CoreDNS version required by the redis_cache plugin's default branch.
     "redis-cache-plugin-coredns": {
       "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/dragoangel/coredns-redis-cache-plugin/HEAD/go.mod",
@@ -290,19 +297,25 @@
       ]
     },
     {
-      "description": "Keep the Flux CLI and cluster target on the same release",
+      "description": "Offer Flux cluster and CLI updates once the pinned Flux Operator manifests bundle them",
       "matchDatasources": [
-        "github-releases"
+        "custom.flux-operator-bundle"
       ],
-      "matchPackageNames": [
+      "matchDepNames": [
         "fluxcd/flux2"
       ],
       "versioning": "semver",
       "semanticCommitScope": "flux",
+      "commitMessageTopic": "release {{depName}}",
       "commitMessageExtra": "( v{{{replace '^v' '' currentVersion}}} ➔ v{{{replace '^v' '' newVersion}}} )",
+      // Flux supplies release notes; the bundle supplies availability.
+      "sourceUrl": "https://github.com/fluxcd/flux2",
+      "addLabels": [
+        "renovate/github-release"
+      ],
       "automerge": false,
       "prBodyNotes": [
-        "Keep the Flux CLI in .mise.toml and the FluxInstance distribution version on the same target. Review the Flux release notes and Flux Operator compatibility before merging."
+        "Offered once the pinned flux-operator-manifests artifact bundles this Flux release; newer releases follow the flux-operator group update. Updates the FluxInstance and the mise Flux CLI together. Review the Flux release notes and Kubernetes compatibility before merging."
       ]
     },
     {
@@ -338,7 +351,7 @@
       "enabled": false
     },
     {
-      "description": "Let the Flux release manager update the CLI with the cluster target",
+      "description": "Let the Flux bundle manager update the CLI with the cluster target",
       "matchManagers": [
         "mise"
       ],
@@ -526,18 +539,21 @@
   ],
   "customManagers": [
     {
-      "description": "Keep mise Flux CLI on the same GitHub release as the cluster target",
+      // The flux-operator group updates each artifact tag; these pins follow it.
+      "description": "Keep the FluxInstance and mise Flux CLI on the Flux release bundled in the pinned Flux Operator manifests",
       "customType": "regex",
       "managerFilePatterns": [
-        "/^\\.mise\\.toml$/"
+        "/^\\.mise\\.toml$/",
+        "/^kubernetes/apps/flux-system/flux-instance/app/helmrelease\\.yaml$/"
       ],
       "matchStrings": [
-        "\"aqua:fluxcd/flux2\" = \"(?<currentValue>[0-9]+\\.[0-9]+\\.[0-9]+)\""
+        "flux-operator-manifests:(?<operatorTag>v[0-9]+\\.[0-9]+\\.[0-9]+)[^\\n]*\\n(?:[ \\t]*#[^\\n]*\\n)*[ \\t]*(?:version:|\"aqua:fluxcd/flux2\"[ \\t]*=)[ \\t]*[\"']?(?<currentValue>[0-9]+\\.[0-9]+\\.[0-9]+)"
       ],
-      "datasourceTemplate": "github-releases",
+      "datasourceTemplate": "custom.flux-operator-bundle",
       "depNameTemplate": "fluxcd/flux2",
+      "registryUrlTemplate": "https://api.github.com/repos/controlplaneio-fluxcd/flux-operator/contents/config/data/flux-images?ref={{{operatorTag}}}",
       "versioningTemplate": "semver",
-      // GitHub releases have a leading v; mise's tool pin does not.
+      // Bundle versions have a leading v; the pins do not.
       "extractVersionTemplate": "^v?(?<version>[0-9]+\\.[0-9]+\\.[0-9]+)$"
     },
     {
@@ -615,7 +631,8 @@
       "customType": "regex",
       "description": "Process OCI dependencies",
       "managerFilePatterns": [
-        "/\\.yaml(?:\\.j2)?$/"
+        "/\\.yaml(?:\\.j2)?$/",
+        "/^\\.mise\\.toml$/"
       ],
       "matchStrings": [
         "oci://(?<depName>[^:]+):(?<currentValue>\\S+)"

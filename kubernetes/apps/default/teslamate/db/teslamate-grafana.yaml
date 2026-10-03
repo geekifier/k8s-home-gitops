@@ -1,0 +1,51 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: teslamate-grafana
+spec:
+  cluster:
+    name: postgres17
+  name: teslamate-grafana
+  login: true
+  inRoles:
+    - pg_read_all_data
+  passwordSecret:
+    name: teslamate-grafana-pgsql
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/grafana.integreatly.org/grafanadatasource_v1beta1.json
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: teslamate
+spec:
+  # The Grafana CR lives in observability
+  allowCrossNamespaceImport: true
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana
+  uid: TeslaMate
+  valuesFrom:
+    - targetPath: user
+      valueFrom:
+        secretKeyRef:
+          name: teslamate-grafana-pgsql
+          key: username
+    - targetPath: secureJsonData.password
+      valueFrom:
+        secretKeyRef:
+          name: teslamate-grafana-pgsql
+          key: password
+  datasource:
+    name: TeslaMate
+    type: grafana-postgresql-datasource
+    access: proxy
+    url: postgres17-r.db.svc.cluster.local:5432
+    user: ${username}
+    jsonData:
+      database: teslamate
+      sslmode: require
+      # 15+
+      postgresVersion: 1500
+    secureJsonData:
+      password: ${password}

@@ -684,21 +684,6 @@ spec:
       extraEmptyDirMounts:
         - name: grafana-plugins
           mountPath: /var/lib/grafana/plugins
-      # subPath does not follow Secret updates; Reloader restarts Grafana instead.
-      annotations:
-        secret.reloader.stakater.com/reload: pgsql-teslamate-grafana
-      # Workaround for annoying postgres operator behavior of not respecting
-      # its template, resulting in stray keys in the secret.
-      extraSecretMounts:
-        - name: teslamate-datasource
-          secretName: pgsql-teslamate-grafana
-          defaultMode: 0440
-          items:
-            - key: pg-db.yaml
-              path: pg-db.yaml
-          mountPath: /etc/grafana/provisioning/datasources/teslamate.yaml
-          subPath: pg-db.yaml
-          readOnly: true
       env:
         GF_AUTH_PROXY_ENABLED: "true"
         GF_AUTH_PROXY_HEADER_NAME: Remote-User

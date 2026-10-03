@@ -38,35 +38,3 @@ spec:
     DATABASE_NAME: "{{.Database}}"
     # We need to set this manually because the value forced by the operator overwrited Teslamate's app port
     PORT: "4000"
----
-apiVersion: db.movetokube.com/v1alpha1
-kind: PostgresUser
-metadata:
-  name: teslamate-grafana
-  # the operator is limited to managing resources in the same namespace only
-  namespace: db
-spec:
-  role: teslamate-grafana
-  database: teslamate
-  secretName: pgsql
-  privileges: READ
-  annotations:
-    reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
-    reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
-    reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "observability"
-
-  # Grafana datasource; only this key is mounted into Grafana (victoria-metrics HelmRelease).
-  secretTemplate:
-    pg-db.yaml: |-
-      apiVersion: 1
-      datasources:
-        - name: TeslaMate
-          type: postgres
-          # CNPG -r service (any instance), derived from the operator's -rw host
-          url: {{ slice .Hostname 0 (len (slice .Hostname 1)) }}.db.svc.cluster.local:{{ .Port }}
-          user: {{ .Role }}
-          secureJsonData:
-            password: '{{ .Password }}'
-          jsonData:
-            database: {{ .Database }}
-            sslmode: 'require'
