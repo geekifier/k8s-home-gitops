@@ -7,10 +7,8 @@ metadata:
   namespace: &namespace default
 spec:
   dependsOn:
-    - name: pgsql-dbs
-      namespace: db
-    - name: reflector
-      namespace: kube-system
+    - name: teslamate-db
+      namespace: *namespace
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
@@ -39,3 +37,49 @@ spec:
   targetNamespace: *namespace
   timeout: 2m
   wait: false
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app teslamate-db
+  namespace: default
+spec:
+  dependsOn:
+    - name: cloudnative-pg
+      namespace: db
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  healthCheckExprs:
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Database
+      failed: &failed >-
+        has(status.applied) && !status.applied &&
+        has(status.observedGeneration) && status.observedGeneration == metadata.generation
+      current: &current >-
+        has(status.applied) && status.applied &&
+        has(status.observedGeneration) && status.observedGeneration == metadata.generation
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: DatabaseRole
+      failed: *failed
+      current: *current
+    - apiVersion: grafana.integreatly.org/v1beta1
+      kind: GrafanaDatasource
+      failed: >-
+        has(status.conditions) && status.conditions.exists(e, e.type == 'DatasourceSynchronized' &&
+        e.status == 'False' && e.observedGeneration == metadata.generation)
+      current: >-
+        has(status.conditions) && status.conditions.exists(e, e.type == 'DatasourceSynchronized' &&
+        e.status == 'True' && e.observedGeneration == metadata.generation)
+  interval: 30m
+  path: ./kubernetes/apps/default/teslamate/db
+  prune: true
+  retryInterval: 2m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: db
+  timeout: 5m
+  wait: true

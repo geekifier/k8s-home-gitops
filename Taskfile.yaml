@@ -44,7 +44,6 @@ tasks:
       - test -f {{.KUBECONFIG}}
       - which flux
 
-  # CNPG creates postgres17-superuser at runtime; flate omits those valuesFrom inputs locally.
   test:
     desc: Use flate to validate the workdir configuration
     summary: |
@@ -56,12 +55,12 @@ tasks:
       FLATE_TEST_VERBOSE: '{{.VERBOSE | default "0"}}'
     cmd: |
       if [ "$FLATE_TEST_VERBOSE" = "1" ]; then
-        exec flate test all --allow-missing-secrets --path "{{.KUBERNETES_DIR}}/flux/cluster"
+        exec flate test all --path "{{.KUBERNETES_DIR}}/flux/cluster"
       fi
       test_tmpdir=${TMPDIR:-/tmp}
       test_log=$(mktemp "${test_tmpdir%/}/flate-test.XXXXXX") || exit 1
       printf 'Validating configuration...\nFull log:\n%s\n\n' "$test_log"
-      if flate test all --allow-missing-secrets --path "{{.KUBERNETES_DIR}}/flux/cluster" >"$test_log" 2>&1; then
+      if flate test all --path "{{.KUBERNETES_DIR}}/flux/cluster" >"$test_log" 2>&1; then
         echo "Validation: PASS"
       else
         test_status=$?
@@ -75,7 +74,7 @@ tasks:
 
   build-all:
     desc: Use flate to build all KS and HR resources
-    cmd: flate build all --allow-missing-secrets --path "{{.KUBERNETES_DIR}}/flux/cluster" --skip-secrets
+    cmd: flate build all --path "{{.KUBERNETES_DIR}}/flux/cluster" --skip-secrets
     preconditions:
       - which flate
 
@@ -121,7 +120,7 @@ tasks:
   local-diff-hr:
     desc: Use flate to diff HelmRelease resources against origin/master
     cmd: |
-      flate diff hr --allow-missing-secrets --path "{{.KUBERNETES_DIR}}/flux/cluster" --base origin/master \
+      flate diff hr --path "{{.KUBERNETES_DIR}}/flux/cluster" --base origin/master \
       --strip-attr helm.sh/chart --strip-attr checksum/config --strip-attr app.kubernetes.io/version \
       --strip-attr chart --strip-attr checksum/secret --skip-secrets \
       --skip-kinds "ValidatingWebhookConfiguration,MutatingWebhookConfiguration" --output diff | moor -lang=diff
@@ -131,7 +130,7 @@ tasks:
   local-diff-ks:
     desc: Use flate to diff Kustomization resources against origin/master
     cmd: |
-      flate diff ks --allow-missing-secrets --path "{{.KUBERNETES_DIR}}/flux/cluster" --base origin/master \
+      flate diff ks --path "{{.KUBERNETES_DIR}}/flux/cluster" --base origin/master \
       --skip-secrets=false --output diff | moor -lang=diff
     preconditions:
       - which flate

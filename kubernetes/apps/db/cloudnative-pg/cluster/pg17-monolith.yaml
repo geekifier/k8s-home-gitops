@@ -28,6 +28,9 @@ spec:
       shared_buffers: "128MB"
       pg_stat_statements.max: "10000"
       pg_stat_statements.track: all
+    pg_hba:
+      - hostssl teslamate teslamate-grafana all scram-sha-256
+      - host all teslamate-grafana all reject
   # Query readiness checks SQL service without excluding a disconnected standby
   # from failover. Native upgrade gates use CNPG readiness, topology and roles.
   probes:

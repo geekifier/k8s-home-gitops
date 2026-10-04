@@ -1,0 +1,22 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: teslamate
+spec:
+  cluster:
+    name: postgres17
+  name: teslamate
+  login: true
+  passwordSecret:
+    name: teslamate-pgsql
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: teslamate
+spec:
+  cluster:
+    name: postgres17
+  name: teslamate
+  owner: teslamate

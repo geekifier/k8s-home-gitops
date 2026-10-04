@@ -6,3 +6,4 @@ resources:
   - ./dashboards.resourceset.yaml
   - ./helmrelease.yaml
   - ./secret.sops.yaml
+  - ../db/teslamate-pgsql.sops.yaml

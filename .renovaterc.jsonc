@@ -39,6 +39,13 @@
     ]
   },
   "customDatasources": {
+    // The Flux releases bundled in a flux-operator release's manifests; the manager supplies the tag URL.
+    "flux-operator-bundle": {
+      "format": "json",
+      "transformTemplates": [
+        "{\"releases\": [$[type = 'dir'].{\"version\": name}]}"
+      ]
+    },
     // The CoreDNS version required by the redis_cache plugin's default branch.
     "redis-cache-plugin-coredns": {
       "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/dragoangel/coredns-redis-cache-plugin/HEAD/go.mod",
@@ -290,19 +297,25 @@
       ]
     },
     {
-      "description": "Keep the Flux CLI and cluster target on the same release",
+      "description": "Offer Flux cluster and CLI updates once the pinned Flux Operator manifests bundle them",
       "matchDatasources": [
-        "github-releases"
+        "custom.flux-operator-bundle"
       ],
-      "matchPackageNames": [
+      "matchDepNames": [
         "fluxcd/flux2"
       ],
       "versioning": "semver",
       "semanticCommitScope": "flux",
+      "commitMessageTopic": "release {{depName}}",
       "commitMessageExtra": "( v{{{replace '^v' '' currentVersion}}} ➔ v{{{replace '^v' '' newVersion}}} )",
+      // Flux supplies release notes; the bundle supplies availability.
+      "sourceUrl": "https://github.com/fluxcd/flux2",
+      "addLabels": [
+        "renovate/github-release"
+      ],
       "automerge": false,
       "prBodyNotes": [
-        "Keep the Flux CLI in .mise.toml and the FluxInstance distribution version on the same target. Review the Flux release notes and Flux Operator compatibility before merging."
+        "Offered once the pinned flux-operator-manifests artifact bundles this Flux release; newer releases follow the flux-operator group update. Updates the FluxInstance and the mise Flux CLI together. Review the Flux release notes and Kubernetes compatibility before merging."
       ]
     },
     {
@@ -338,7 +351,7 @@
       "enabled": false
     },
     {
-      "description": "Let the Flux release manager update the CLI with the cluster target",
+      "description": "Let the Flux bundle manager update the CLI with the cluster target",
       "matchManagers": [
         "mise"
       ],
@@ -364,6 +377,18 @@
         "Review the [PostgreSQL release notes](https://www.postgresql.org/docs/release/) for all intervening 17.x releases, including their migration instructions."
       ],
       "automerge": false
+    },
+    {
+      "description": "TeslaMate migrates at startup as its database owner; extension changes need a temporary superuser grant",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "teslamate/teslamate"
+      ],
+      "prBodyNotes": [
+        "**Database migrations.** TeslaMate migrates at startup as `teslamate`, which owns its database but not the `cube` and `earthdistance` extensions. Check the new files under `priv/repo/migrations` in the [release diff](https://github.com/teslamate-org/teslamate/compare/v{{{currentVersion}}}...v{{{newVersion}}}). If none creates, drops, alters or updates an extension, or replaces an extension function such as `ll_to_earth`, merge as usual. Otherwise grant superuser for this upgrade only:\n\n1. `kubectl cnpg backup postgres17 -n db --method plugin --plugin-name barman-cloud.cloudnative-pg.io`, and wait for `kubectl get backups.postgresql.cnpg.io -n db` to show it completed.\n2. `kubectl cnpg psql postgres17 -n db -- -c 'ALTER ROLE teslamate SUPERUSER'`\n3. Merge, then `kubectl rollout status deploy/teslamate -n default --timeout=30m`.\n4. `kubectl cnpg psql postgres17 -n db -- -c 'ALTER ROLE teslamate NOSUPERUSER'`, and confirm `SELECT rolsuper FROM pg_roles WHERE rolname = 'teslamate'` returns `f`.\n\nObjects the migrations create belong to `teslamate`. CNPG also resets the attribute at the next change to the `teslamate` DatabaseRole or its Secret; do not rely on that."
+      ]
     },
     {
       "description": "Keep the CoreDNS builder on upstream's Go minor series; allow patch and digest updates",
@@ -457,6 +482,20 @@
       "sourceUrl": "https://github.com/VictoriaMetrics/helm-charts"
     },
     {
+      "description": "Link plugin-barman-cloud chart to the charts repo",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "ghcr.io/cloudnative-pg/charts/plugin-barman-cloud"
+      ],
+      "sourceUrl": "https://github.com/cloudnative-pg/charts",
+      "sourceDirectory": "charts/plugin-barman-cloud",
+      "prBodyNotes": [
+        "Chart changes: [plugin-barman-cloud-v{{{currentVersion}}}...plugin-barman-cloud-v{{{newVersion}}}](https://github.com/cloudnative-pg/charts/compare/plugin-barman-cloud-v{{{currentVersion}}}...plugin-barman-cloud-v{{{newVersion}}}). Plugin changes: check `appVersion` in the chart diff against the [plugin-barman-cloud releases](https://github.com/cloudnative-pg/plugin-barman-cloud/releases)."
+      ]
+    },
+    {
       "description": "Link dragonfly-operator chart to its GitHub repo",
       "matchDatasources": [
         "docker"
@@ -526,18 +565,21 @@
   ],
   "customManagers": [
     {
-      "description": "Keep mise Flux CLI on the same GitHub release as the cluster target",
+      // The flux-operator group updates each artifact tag; these pins follow it.
+      "description": "Keep the FluxInstance and mise Flux CLI on the Flux release bundled in the pinned Flux Operator manifests",
       "customType": "regex",
       "managerFilePatterns": [
-        "/^\\.mise\\.toml$/"
+        "/^\\.mise\\.toml$/",
+        "/^kubernetes/apps/flux-system/flux-instance/app/helmrelease\\.yaml$/"
       ],
       "matchStrings": [
-        "\"aqua:fluxcd/flux2\" = \"(?<currentValue>[0-9]+\\.[0-9]+\\.[0-9]+)\""
+        "flux-operator-manifests:(?<operatorTag>v[0-9]+\\.[0-9]+\\.[0-9]+)[^\\n]*\\n(?:[ \\t]*#[^\\n]*\\n)*[ \\t]*(?:version:|\"aqua:fluxcd/flux2\"[ \\t]*=)[ \\t]*[\"']?(?<currentValue>[0-9]+\\.[0-9]+\\.[0-9]+)"
       ],
-      "datasourceTemplate": "github-releases",
+      "datasourceTemplate": "custom.flux-operator-bundle",
       "depNameTemplate": "fluxcd/flux2",
+      "registryUrlTemplate": "https://api.github.com/repos/controlplaneio-fluxcd/flux-operator/contents/config/data/flux-images?ref={{{operatorTag}}}",
       "versioningTemplate": "semver",
-      // GitHub releases have a leading v; mise's tool pin does not.
+      // Bundle versions have a leading v; the pins do not.
       "extractVersionTemplate": "^v?(?<version>[0-9]+\\.[0-9]+\\.[0-9]+)$"
     },
     {
@@ -615,7 +657,8 @@
       "customType": "regex",
       "description": "Process OCI dependencies",
       "managerFilePatterns": [
-        "/\\.yaml(?:\\.j2)?$/"
+        "/\\.yaml(?:\\.j2)?$/",
+        "/^\\.mise\\.toml$/"
       ],
       "matchStrings": [
         "oci://(?<depName>[^:]+):(?<currentValue>\\S+)"

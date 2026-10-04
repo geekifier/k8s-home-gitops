@@ -29,7 +29,6 @@ The trusty `ingress-nginx` and its simple annotation has been replaced by [Envoy
 - [external-dns](https://github.com/kubernetes-sigs/external-dns) - on-demand DNS record provisioning inside Samba (Active Directory) DNS with Kerberos auth
 - [Longhorn](https://longhorn.io/) - cloud-native distributed block storage for Kubernetes
 - [CloudNativePG](https://cloudnative-pg.io/) - deploy HA PostgreSQL clusters on K8s with ease
-- [postgres-operator](https://github.com/movetokube/postgres-operator) - operator to manage DBs and roles
 
 ## Hardware
 

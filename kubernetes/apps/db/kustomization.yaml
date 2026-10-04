@@ -7,5 +7,4 @@ components:
   - ../../components/common
 resources:
   - ./cloudnative-pg/ks.yaml
-  - ./ext-postgres-operator/ks.yaml
   - ./dragonfly/ks.yaml

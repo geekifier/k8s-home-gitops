@@ -32,11 +32,21 @@ spec:
               tag: ${TESLAMATE_VERSION}
             env:
               TZ: "${CLUSTER_TZ}"
+              DATABASE_HOST: postgres17-rw.db.svc.cluster.local
+              DATABASE_NAME: teslamate
+              DATABASE_USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: teslamate-pgsql
+                    key: username
+              DATABASE_PASS:
+                valueFrom:
+                  secretKeyRef:
+                    name: teslamate-pgsql
+                    key: password
             envFrom:
               - secretRef:
                   name: teslamate-secret
-              - secretRef:
-                  name: pgsql-teslamate
             probes:
               liveness:
                 enabled: true
