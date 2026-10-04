@@ -47,10 +47,9 @@ spec:
       create: true
     monitoring:
       podMonitorEnabled: true
+      # Dashboard comes from ./grafanadashboard.yaml
       grafanaDashboard:
-        create: true
-        annotations:
-          grafana_folder: "database"
+        create: false
     resources:
       requests:
         cpu: 10m

@@ -11,3 +11,9 @@ pre-commit:
       stage_fixed: true
     context-budget:
       run: scripts/check-context-budget.sh --warn
+    sops-encrypted:
+      glob: "**/?*.sops.{yaml,yml}"
+      run: mise exec -- scripts/check-sops-encrypted.sh {staged_files}
+    cosign-identity:
+      glob: "{kubernetes,bootstrap}/**/*.{yaml,yml}"
+      run: mise exec -- scripts/check-cosign-identity.sh {staged_files}

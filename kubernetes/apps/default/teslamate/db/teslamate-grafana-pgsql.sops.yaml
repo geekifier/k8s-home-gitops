@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: teslamate-grafana-pgsql
+  labels:
+    cnpg.io/reload: "true"
+type: kubernetes.io/basic-auth
+stringData:
+  username: ENC[AES256_GCM,data:WxGyK3TYwx/KH0OEoEC2b3o=,iv:ZeSIU2orBhW7+6O7qNXha0FnmdcpyTgH1G5IZTZBgdA=,tag:LMfFZSCvp/P42I9/PuljwQ==,type:str]
+  password: ENC[AES256_GCM,data:h7txB+oe6DHjoWY7Izqiz4wEtxwBsaKiS6sRYh8D/AEWYADyEmmAQ6DctL+EDTQL,iv:Aj32I6YRO+gGLtDqdb6toXdsZQUlLAHDyomW/NO4UVA=,tag:95VxxwOW/7F8oSOzGEtQYw==,type:str]
+sops:
+  age:
+    - enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBJZUR3U0RiVEJYVWZkK1d6
+        d1lVUUdWYVhYd1M1RStOWGNsRE14dmF6clRRCldkS3BNVGovVGxwWERrQURJRC9V
+        TnBMZ2s4SE03aGd0UGRYMEZIbkt4c0EKLS0tIDkzRE5WZGtZTnl3Ti9vcEdYQlBT
+        Z3ZMK0d0a1lVclB0V1ViQlBYbWRPSTgKXC4mFVaMsbrmM6vsf0YQzVICWpQSEW16
+        4IB+ar3MHew7ulJSHh1E7G9gsiW9GNjZgum0fmnDwVdS4CtEdZM8MA==
+        -----END AGE ENCRYPTED FILE-----
+      recipient: age1a68j5zasa55y39u5ecus7g4dzl3rqp0u6h6jwpuw3743cdf9dd4sykfhr4
+  encrypted_regex: ^(data|stringData)$
+  lastmodified: "2026-10-01T12:20:09Z"
+  mac: ENC[AES256_GCM,data:dkoX10Mx8LMB7KrOUsAzKpgdxB1uhNFqW7nq4gaEqpSggPuuzWFcWtJWROHuk0gE1C+JPQHEiI033dUDP8fS9TH7onqqblpj61dDnjsxg3hTkh3sil8HMPRIRnFAA81H2S+YkD9rJsyxnB7unpvXQQtPGNXR6EEPs7iP9H8+YPw=,iv:BIH27WNkJyzaCjPX5VOUQd5oxjDY01+fD/HeFd3cD6c=,tag:Iq0W/EHkLVvcyQZfY7fpFA==,type:str]
+  mac_only_encrypted: true
+  version: 3.13.3
