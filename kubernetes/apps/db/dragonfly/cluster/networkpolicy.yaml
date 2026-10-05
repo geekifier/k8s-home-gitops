@@ -1,10 +1,6 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/networkpolicy-networking-v1.json
-# dragonfly-operator >= v1.5.0 defaults spec.networkPolicyEnabled to true and creates a
-# `dragonfly-shared` NetworkPolicy that admits the admin port (9999) only from the operator
-# and peer pods. That silently blackholes vmagent's scrapes of the PodMonitor above.
-# NetworkPolicies are additive, so this rule re-opens 9999 for vmagent only, leaving the
-# operator's restriction intact for everything else.
+# Metrics scrapes from vmagent.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -29,8 +25,7 @@ spec:
           protocol: TCP
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/networkpolicy-networking-v1.json
-# Operator >= v1.6.0 restricts client access to the Dragonfly namespace.
-# Clients opt in with access.policy.xenu.internal/<namespace>.<resource>: "true".
+# Clients opt in with access.policy.xenu.internal/db.dragonfly-shared: "true".
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -54,4 +49,31 @@ spec:
               access.policy.xenu.internal/db.dragonfly-shared: "true"
       ports:
         - port: 6379
+          protocol: TCP
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/networkpolicy-networking-v1.json
+# Admin port for the operator (opted in via the access label) and replication between instances.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dragonfly-shared-allow-admin
+spec:
+  podSelector:
+    matchLabels:
+      app: dragonfly-shared
+      app.kubernetes.io/name: dragonfly
+      app.kubernetes.io/part-of: dragonfly
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              access.policy.xenu.internal/db.dragonfly-shared: "true"
+        - podSelector:
+            matchLabels:
+              app: dragonfly-shared
+              app.kubernetes.io/name: dragonfly
+              app.kubernetes.io/part-of: dragonfly
+      ports:
+        - port: 9999
           protocol: TCP
