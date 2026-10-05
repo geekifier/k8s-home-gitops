@@ -11,7 +11,7 @@ spec:
     mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
     operation: copy
   ref:
-    tag: v1.6.1
+    tag: v1.7.0
   url: oci://ghcr.io/dragonflydb/dragonfly-operator/helm/dragonfly-operator
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/helm.toolkit.fluxcd.io/helmrelease_v2.json
@@ -44,6 +44,8 @@ spec:
     fullnameOverride: *app
     serviceAccount:
       create: true
+    podLabels:
+      access.policy.xenu.internal/db.dragonfly-shared: "true"
     service:
       type: ClusterIP
       port: 8443
