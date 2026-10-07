@@ -533,14 +533,16 @@
       "changelogUrl": "https://github.com/stakater/Reloader/releases/tag/chart-v{{newVersion}}"
     },
     {
-      "description": "Link Jellyfin image to the jellyfin/jellyfin repo",
+      "description": "Link Jellyfin image to the jellyfin/jellyfin repo; accept 2- and 3-part release tags",
       "matchDatasources": [
         "docker"
       ],
       "matchPackageNames": [
         "ghcr.io/jellyfin/jellyfin"
       ],
-      "sourceUrl": "https://github.com/jellyfin/jellyfin"
+      "sourceUrl": "https://github.com/jellyfin/jellyfin",
+      // 12.x releases are tagged X.Y; date-stamped build tags are excluded.
+      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)(?:\\.(?<patch>\\d+))?$"
     },
     {
       "description": "Link mumble-server to its GitHub repo",
@@ -550,7 +552,9 @@
       "matchPackageNames": [
         "ghcr.io/mumble-voip/mumble-server"
       ],
-      "sourceUrl": "https://github.com/mumble-voip/mumble"
+      "sourceUrl": "https://github.com/mumble-voip/mumble",
+      // Image tags carry a package build number (v1.5.915-2); -acme variants are excluded.
+      "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-(?<build>\\d+)$"
     },
     {
       "description": "Hold mumble-server on 1.5.x until the 1.6 database backend is ready",

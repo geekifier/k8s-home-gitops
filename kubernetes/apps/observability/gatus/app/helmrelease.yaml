@@ -28,7 +28,7 @@ spec:
           init-config:
             image:
               repository: ghcr.io/home-operations/k8s-sidecar
-              tag: 2.10.3@sha256:f847e4472fde29287ebc8131f9576e0676ed050f92cc0a461a98cb215a1f84fe
+              tag: 2.11.2@sha256:2e18fa6af75c94fb9aff610fba3386e7d518b0d639ecf0948aecaa071b126be0
             env:
               FOLDER: &GATUS_CONFIG /config
               LABEL: gatus.io/enabled
@@ -36,6 +36,7 @@ spec:
               RESOURCE: configmap
               UNIQUE_FILENAMES: true
               METHOD: WATCH
+              HEALTH_PORT: 8081
             restartPolicy: Always
             resources:
               requests:
