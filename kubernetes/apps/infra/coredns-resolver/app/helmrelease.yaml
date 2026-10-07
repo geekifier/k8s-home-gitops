@@ -30,7 +30,7 @@ spec:
     # https://github.com/coredns/helm/blob/master/charts/coredns/values.yaml
     image:
       repository: ghcr.io/geekifier/coredns
-      tag: 1.14.7-redis_cache@sha256:90fef794169adec3bfb7838b6cdb57014148b8cee78a034b8d328d33417144b5
+      tag: 1.14.7-redis_cache@sha256:8b6d71a09cc0a7dc61e928cf4f5e5de4b6e0e9cb48b3f95df415db39b04b225c
       pullSecrets:
         - name: ghcr-login-secret
     isClusterService: false
