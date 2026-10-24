@@ -27,7 +27,7 @@ spec:
           app:
             image:
               repository: ghcr.io/miniflux/miniflux
-              tag: 2.3.3
+              tag: 2.3.4
             env:
               - name: CREATE_ADMIN
                 value: 1
@@ -59,14 +59,10 @@ spec:
             probes:
               liveness: &probes
                 enabled: true
-                custom: true
+                command: ["/usr/bin/miniflux", "-healthcheck", "auto"]
                 spec:
-                  exec:
-                    command: ["/usr/bin/miniflux", "-healthcheck", "auto"]
-                  initialDelaySeconds: 0
                   periodSeconds: 30
                   timeoutSeconds: 2
-                  failureThreshold: 3
               readiness: *probes
             securityContext:
               allowPrivilegeEscalation: false
