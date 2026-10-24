@@ -26,7 +26,7 @@ spec:
           app:
             image:
               repository: ghcr.io/mumble-voip/mumble-server
-              tag: v1.5.915-2 # renovate is pinned to 1.5.x in .renovaterc.jsonc
+              tag: v1.5.939-0 # renovate is pinned to 1.5.x in .renovaterc.jsonc
             env:
               TZ: "${CLUSTER_TZ}"
               MUMBLE_CONFIG_DBHOST: postgres17-rw.db.svc.cluster.local
@@ -55,9 +55,8 @@ spec:
       app:
         controller: *app
         type: LoadBalancer
-        # Restore Local once the deployed Cilium includes the L2 fix:
-        # https://github.com/cilium/cilium/pull/46399 (not in 1.18.13).
-        externalTrafficPolicy: Cluster
+        # Preserves LAN client source IPs.
+        externalTrafficPolicy: Local
         annotations:
           lbipam.cilium.io/ips: "192.168.1.84"
           external-dns.kubernetes.io/hostname: "mumble.${SECRET_DOMAIN_INT}"

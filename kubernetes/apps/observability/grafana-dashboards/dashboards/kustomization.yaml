@@ -34,6 +34,13 @@ configMapGenerator:
       annotations:
         grafana_folder: "network"
 
+  - name: grafana-dashboard-spegel
+    files:
+      - ./json/spegel.json
+    options:
+      annotations:
+        grafana_folder: "infra"
+
   - name: grafana-dashboard-proxmox-cluster
     files:
       - ./json/proxmox-cluster.json

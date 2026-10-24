@@ -170,6 +170,7 @@ spec:
   tcpKeepalive: {}
   timeout:
     http:
+      connectionIdleTimeout: 50s
       requestTimeout: 0s
       # Required: with requestTimeout 0s and no idle timeout, streams never expire.
       streamIdleTimeout: 5m
