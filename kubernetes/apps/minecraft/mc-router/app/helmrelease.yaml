@@ -33,7 +33,7 @@ spec:
           app:
             image:
               repository: ghcr.io/itzg/mc-router
-              tag: 1.47.2
+              tag: 1.49.0
             env:
               TZ: ${CLUSTER_TZ}
               APP_SERVICE_PORT: &containerPort 25565
@@ -84,10 +84,8 @@ spec:
       minecraft:
         controller: *app
         type: LoadBalancer
-        # Route to the always-running proxy from any L2 announcer; game servers
-        # remain on-demand. Restore Local once Cilium includes this L2 fix:
-        # https://github.com/cilium/cilium/pull/46399 (not in 1.18.13).
-        externalTrafficPolicy: Cluster
+        # Preserves LAN client source IPs.
+        externalTrafficPolicy: Local
         annotations:
           lbipam.cilium.io/ips: "192.168.1.85"
           external-dns.kubernetes.io/hostname: "mc-router.${SECRET_DOMAIN_INT},mc-deadly.${SECRET_DOMAIN_INT},mc-friendly.${SECRET_DOMAIN_INT}"

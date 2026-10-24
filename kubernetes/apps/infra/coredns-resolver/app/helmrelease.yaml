@@ -30,7 +30,7 @@ spec:
     # https://github.com/coredns/helm/blob/master/charts/coredns/values.yaml
     image:
       repository: ghcr.io/geekifier/coredns
-      tag: 1.14.7-redis_cache@sha256:8b6d71a09cc0a7dc61e928cf4f5e5de4b6e0e9cb48b3f95df415db39b04b225c
+      tag: 1.14.7-redis_cache@sha256:463e5b64020a9f9e149722d9bf64e061a7f714d23ce8283114f6450487d13f96
       pullSecrets:
         - name: ghcr-login-secret
     isClusterService: false
@@ -50,8 +50,7 @@ spec:
     serviceType: LoadBalancer
     service:
       loadBalancerIP: "192.168.1.81"
-      # Restore Local after upgrading to a release containing the L2 fix:
-      # https://github.com/cilium/cilium/pull/46399 (not in 1.18.13).
+      # Keeps the L2 lease from following pod rollouts.
       externalTrafficPolicy: Cluster
       annotations:
         lbipam.cilium.io/ips: "192.168.1.81"
