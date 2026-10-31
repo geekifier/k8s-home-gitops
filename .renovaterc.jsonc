@@ -67,22 +67,6 @@
       "overrideDepName": "{{packageName}}"
     },
     {
-      "description": "Flux Operator Group",
-      "groupName": "flux-operator",
-      "matchDatasources": [
-        "docker"
-      ],
-      "matchPackageNames": [
-        "/flux-operator/",
-        "/flux-instance/",
-        "/flux-operator-manifests/"
-      ],
-      "group": {
-        "commitMessageTopic": "{{{groupName}}} group"
-      },
-      "minimumGroupSize": 3
-    },
-    {
       "description": "GitHub Actions",
       "matchManagers": [
         "github-actions"
@@ -224,6 +208,16 @@
       "commitMessageTopic": "tool {{depName}}"
     },
     {
+      "description": "List each update in grouped PR titles when their versions differ",
+      "matchPackageNames": [
+        "*"
+      ],
+      // Renovate drops commitMessageExtra when grouped versions differ; this overrides datasource digest defaults.
+      "group": {
+        "commitMessageTopic": "{{{groupName}}}{{#unless commitMessageExtra}} ( {{#each upgrades}}{{#unless @first}}, {{/unless}}{{{replace '^.*/' '' depName}}} {{{displayFrom}}} ➔ {{{displayTo}}}{{/each}} ){{/unless}}"
+      }
+    },
+    {
       "matchUpdateTypes": [
         "major"
       ],
@@ -311,6 +305,25 @@
       "prBodyNotes": [
         "Upgrade to the latest patch of the current Kubernetes minor first, then advance one minor at a time. Wait for tuppr to complete each upgrade before merging the next; these PRs do not enforce ordering. Keep .mise.toml kubectl, talos/topf.yaml and KubernetesUpgrade on the same target and check Talos compatibility before merging."
       ]
+    },
+    {
+      "description": "Flux Operator Group",
+      "groupName": "flux-operator",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "/flux-operator/",
+        "/flux-instance/",
+        "/flux-operator-manifests/"
+      ],
+      // Charts and manifests share one release; normalize the manifests' v prefix so the title keeps it.
+      "commitMessageExtra": "( v{{{replace '^v' '' currentVersion}}} ➔ v{{{replace '^v' '' newVersion}}} )",
+      // Member names already carry the group name; list them alone when versions differ.
+      "group": {
+        "commitMessageTopic": "{{#if commitMessageExtra}}{{{groupName}}}{{else}}{{#each upgrades}}{{#unless @first}}, {{/unless}}{{{replace '^.*/' '' depName}}} {{{displayFrom}}} ➔ {{{displayTo}}}{{/each}}{{/if}}"
+      },
+      "minimumGroupSize": 3
     },
     {
       "description": "Offer Flux cluster and CLI updates once the pinned Flux Operator manifests bundle them",
@@ -428,7 +441,8 @@
       "matchFileNames": [
         "containers/coredns/Dockerfile"
       ],
-      "groupName": "CoreDNS base images"
+      "groupName": "CoreDNS base",
+      "groupSlug": "coredns-base-images"
     },
     {
       "description": "Link distroless history; its images carry no versions or labels",
@@ -614,6 +628,19 @@
         "ghcr.io/mumble-voip/mumble-server"
       ],
       "allowedVersions": "/^v1\\.5\\./"
+    },
+    {
+      "description": "Link cloudflared release notes and Tunnel changelog",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "docker.io/cloudflare/cloudflared"
+      ],
+      "changelogUrl": "https://github.com/cloudflare/cloudflared/blob/master/RELEASE_NOTES",
+      "prBodyNotes": [
+        "Check the [Cloudflare Tunnel changelog](https://developers.cloudflare.com/changelog/product/tunnel/) for breaking changes and deprecations; they are not listed in the release notes."
+      ]
     }
   ],
   "customManagers": [
