@@ -71,6 +71,7 @@ spec:
       - "--rfc2136-port=53"
       - "--rfc2136-zone=${SECRET_DOMAIN_INT}"
       - "--rfc2136-axfr"
+      - "--min-ttl=30s"
     serviceMonitor:
       enabled: true
     # KDC names are absolute; skip ndots:5 search-domain expansion
