@@ -23,13 +23,14 @@ spec:
           app:
             image:
               repository: ghcr.io/unpoller/unpoller
-              tag: v5.7.0@sha256:5be0efc124aa58c37b3d66b0e5edf00478670f278b9206e5566c102b64c9c868
+              tag: v5.9.3@sha256:6284b0799f8350179fc948b50435623e41e1c95331b91fc463ee12fe1aa4ec71
             env:
               TZ: ${CLUSTER_TZ}
               UP_UNIFI_DEFAULT_URL: https://192.168.0.2
               UP_INFLUXDB_DISABLE: true
               UP_UNIFI_DEFAULT_SAVE_DPI: true
               UP_UNIFI_DEFAULT_SITE_0: "default"
+              UP_UNIFI_DEFAULT_SKIP_DEVICE_TAGS: true
 
             envFrom:
               - secretRef:

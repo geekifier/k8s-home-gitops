@@ -42,39 +42,83 @@ spec:
         containers:
           app:
             image:
-              repository: santiagosayshey/profilarr
-              tag: v1.1.5
+              repository: ghcr.io/dictionarry-hub/profilarr
+              tag: 2.3.1@sha256:352e42dec74ecfd68d13bb198fbc6d9346e3a8c55003026e1814e59319a2176d
             env:
               TZ: ${CLUSTER_TZ}
-              PROFILARR__SERVER__PORT: &containerPort 6868
+              PORT: &containerPort 6868
+              ORIGIN: "https://{{ index .Values.route.app.hostnames 0 }}"
+              AUTH: "off"
             probes:
               liveness: &probes
                 enabled: true
                 custom: true
                 spec:
                   httpGet:
-                    path: /ping
+                    path: /api/v1/health
                     port: *containerPort
                   initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1
                   failureThreshold: 3
               readiness: *probes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v1/health
+                    port: *containerPort
+                  initialDelaySeconds: 0
+                  periodSeconds: 5
+                  timeoutSeconds: 1
+                  failureThreshold: 30
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 50m
-                memory: 128Mi
-              limits:
                 memory: 256Mi
+              limits:
+                memory: 512Mi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
     service:
       app:
         controller: *app
         ports:
           http:
             port: *containerPort
+    networkpolicies:
+      app:
+        controller: *app
+        policyTypes:
+          - Ingress
+        rules:
+          ingress:
+            - from:
+                - namespaceSelector:
+                    matchLabels:
+                      kubernetes.io/metadata.name: network
+                  podSelector:
+                    matchLabels:
+                      gateway.envoyproxy.io/owning-gateway-name: envoy-internal
+              ports:
+                - port: *containerPort
+                  protocol: TCP
     persistence:
       config:
         type: persistentVolumeClaim
+        forceRename: "{{ .Release.Name }}-v2"
         storageClass: longhorn-standard
         accessMode: ReadWriteOnce
         size: 512Mi
+      tmp:
+        type: emptyDir
