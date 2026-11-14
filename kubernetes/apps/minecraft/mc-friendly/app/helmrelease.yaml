@@ -21,7 +21,8 @@ spec:
       mc-friendly:
         # yaml-language-server: $schema=https://raw.githubusercontent.com/itzg/minecraft-server-charts/refs/heads/master/charts/minecraft/values.schema.json
         type: statefulset
-        replicas: 1
+        # mc-router scales between 0 and 1; keep Helm from resetting it.
+        replicas: null
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
@@ -29,7 +30,7 @@ spec:
           app:
             image:
               repository: ghcr.io/itzg/minecraft-server
-              tag: 2026.10.0@sha256:5a2ab74ae179c11e2dbbce67f307cdcf2c1257b3abb0f654d3a310b3d8ea57da
+              tag: 2026.11.0@sha256:8d5080d8dcd0a2629c2e4f248678373a337a40537ad6ef2857c7dbcda6e3eadd
             env:
               TZ: ${CLUSTER_TZ}
               APP_SERVICE_PORT: &containerPort 25565
@@ -49,36 +50,35 @@ spec:
               - configMapRef:
                   name: mc-common-cm
             probes:
-              liveness:
-                custom: true
-                spec:
-                  command:
-                    - mc-health
-                  initialDelaySeconds: 30
-                  periodSeconds: 5
-                  failureThreshold: 20
-                  successThreshold: 1
-                  timeoutSeconds: 1
-              readiness:
-                custom: true
-                spec:
-                  command:
-                    - mc-health
-                  initialDelaySeconds: 30
-                  periodSeconds: 5
-                  failureThreshold: 20
-                  successThreshold: 2
-                  timeoutSeconds: 1
+              # Ready only once Minecraft answers status pings; mc-router routes on readyReplicas.
               startup:
+                enabled: true
                 custom: true
                 spec:
-                  command:
-                    - mc-health
-                  enabled: true
-                  failureThreshold: 5
+                  exec:
+                    command: &mcHealth
+                      - mc-health
                   periodSeconds: 10
-                  successThreshold: 1
-                  initialDelaySeconds: 120
+                  timeoutSeconds: 5
+                  failureThreshold: 60
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command: *mcHealth
+                  periodSeconds: 5
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command: *mcHealth
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 10
             resources:
               requests:
                 memory: 2Gi
