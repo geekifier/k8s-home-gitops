@@ -30,7 +30,7 @@ spec:
     # https://github.com/coredns/helm/blob/master/charts/coredns/values.yaml
     image:
       repository: ghcr.io/geekifier/coredns
-      tag: 1.14.7-redis_cache@sha256:463e5b64020a9f9e149722d9bf64e061a7f714d23ce8283114f6450487d13f96
+      tag: 1.14.7-redis_cache@sha256:738d4ced1cc5a234f6996e614189945aa722c26b5607376c2931e13bd40059b2
       pullSecrets:
         - name: ghcr-login-secret
     isClusterService: false
@@ -82,6 +82,7 @@ spec:
             configBlock: |-
               success 9984 1800
               denial 1000 30
+              serve_stale 4h verify
       - zones:
           - zone: 192.168.1.0/24
         port: *dnsPort
@@ -105,10 +106,16 @@ spec:
         port: *dnsPort
         plugins:
           - name: forward
-            parameters: . tls://162.159.36.5 tls://162.159.36.20
+            parameters: >-
+              . tls://162.159.36.5%${SECRET_DOT_UPSTREAM_NAME}
+              tls://162.159.36.20%${SECRET_DOT_UPSTREAM_NAME}
+              tls://1.1.1.3%family.cloudflare-dns.com
+              tls://1.0.0.3%family.cloudflare-dns.com
+              tls://185.228.169.11%adult-filter-dns.cleanbrowsing.org
+              tls://185.228.168.10%adult-filter-dns.cleanbrowsing.org
             configBlock: |-
-              tls_servername ${SECRET_DOT_UPSTREAM_NAME}
-              health_check 10s
+              policy sequential
+              health_check 1s
           - name: errors
           - name: log
             configBlock: |-
@@ -125,6 +132,7 @@ spec:
             configBlock: |-
               success 9984 1800
               denial 1000 30
+              serve_stale 4h immediate
           - name: redis_cache
             configBlock: |-
               success 1800
