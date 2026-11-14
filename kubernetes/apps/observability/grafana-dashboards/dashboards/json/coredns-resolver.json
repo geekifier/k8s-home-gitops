@@ -2957,7 +2957,7 @@
         "description": "Targets with a successful scrape at the selected end time. All expands to the returned instances, excluding historical targets."
       },
       {
-        "allValue": "",
+        "allValue": ".*",
         "allowCustomValue": false,
         "current": {
           "text": "All",

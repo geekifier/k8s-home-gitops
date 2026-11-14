@@ -28,7 +28,7 @@ spec:
           init-config:
             image:
               repository: ghcr.io/home-operations/k8s-sidecar
-              tag: 2.14.1@sha256:22eccb80b828a956eb31214ed5a0358c9efcbf575f196c2b859ac00bfd5dcef4
+              tag: 2.14.3@sha256:cc81b13164b15474260b8721bb6a63da2212a704fb92b5496091aabae3038487
             env:
               FOLDER: &GATUS_CONFIG /config
               LABEL: gatus.io/enabled
@@ -78,7 +78,7 @@ spec:
           config:
             image:
               repository: ghcr.io/nginx/nginx-unprivileged
-              tag: 1.31-alpine
+              tag: 1.31.8-alpine@sha256:0ec17b0dac55776357d46d882bed7f3d504b0e4a0bc7379c7dbb74bd12b9d4da
             env:
               TZ: ${CLUSTER_TZ}
 
