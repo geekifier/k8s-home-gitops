@@ -11,7 +11,7 @@ spec:
     enablePodAntiAffinity: true
     podAntiAffinityType: required
     topologyKey: kubernetes.io/hostname
-  imageName: ghcr.io/cloudnative-pg/postgresql:17.11
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.12-minimal-trixie@sha256:67faf4bab0efe261d48975eaa4719e9807bbeeefb75b8d25b6543fe7c3539575
   primaryUpdateStrategy: unsupervised
   primaryUpdateMethod: switchover
   # Skip smart shutdown so existing sessions cannot keep writing during its grace period after isolation.

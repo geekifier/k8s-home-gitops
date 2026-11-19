@@ -6,7 +6,7 @@ metadata:
 spec:
   talos:
     # renovate: datasource=custom.talos-factory depName=siderolabs/talos
-    version: v1.13.10
+    version: v1.13.12
   parallelism: 1
   silences:
     - matchers:
@@ -15,9 +15,6 @@ spec:
           matchType: "="
         - name: namespace
           value: observability
-          matchType: "="
-        - name: job
-          value: vmsingle-external-reloader-http
           matchType: "="
       maxDuration: 2h
     - matchers:

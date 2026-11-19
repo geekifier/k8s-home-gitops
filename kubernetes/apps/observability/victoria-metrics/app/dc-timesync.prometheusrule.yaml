@@ -1,0 +1,150 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/monitoring.coreos.com/prometheusrule_v1.json
+#
+# Samba AD domain controllers (blackbox probes, DRS replication textfile, systemd units)
+# and NTP time sync (node timex on every host, chrony_exporter on the NTP servers).
+
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: dc-timesync-rules
+spec:
+  groups:
+    - name: dc-timesync.recording
+      rules:
+        # Worst DC probe (DNS, LDAP, LDAPS, Kerberos, GC, SMB) per DC, from `dc-<host>-<check>`.
+        - record: dc:probe_success:min_avg5m
+          expr: |
+            min by (dc) (
+              label_replace(
+                avg_over_time(probe_success{job="blackbox", name=~"dc-.+-(dns|ldap|ldaps|kerberos|gc|smb)"}[5m]),
+                "dc", "$1", "name", "dc-(.+)-(dns|ldap|ldaps|kerberos|gc|smb)"
+              )
+            )
+
+    - name: dc-timesync.alerts
+      # Mute switch: delete these labels to send notifications.
+      labels:
+        muted: "true"
+      rules:
+        - alert: DomainControllerUnhealthy
+          annotations:
+            summary: Domain controller is failing service probes.
+            description: >-
+              The worst DC probe to {{ $labels.dc }} succeeded for only
+              {{ $value | humanizePercentage }} of the last 5 minutes. Failing now:
+              {{ range query (printf `probe_success{job="blackbox", name=~"dc-%s-.+"} < 1` $labels.dc) }}{{ .Labels.name }} {{ end }}
+          expr: |
+            dc:probe_success:min_avg5m < 0.5
+            unless on (dc)
+            label_replace(
+              max by (instance) (node_systemd_unit_state{job="integrations/unix", name=~"(samba-ad-dc|named)[.]service", state="active"} == 0),
+              "dc", "$1", "instance", "(.+)"
+            )
+          for: 10m
+          labels:
+            severity: warning
+
+        # Inbound only: a partner that is down shows up as inbound failures on the other DC,
+        # which is suppressed while that partner's probes fail.
+        - alert: SambaReplicationFailing
+          annotations:
+            summary: Samba AD inbound replication is failing.
+            description: >-
+              {{ $labels.instance }} has failed to replicate inbound for up to
+              {{ $value }} consecutive attempts:
+              {{ range query (printf `samba_drs_consecutive_failures{direction="inbound", instance=%q} > 0` $labels.instance) }}{{ .Labels.partner }} {{ .Labels.partition }} ({{ .Value }}); {{ end }}
+          expr: |
+            max by (instance) (
+              max by (instance, partner) (samba_drs_consecutive_failures{job="integrations/unix", direction="inbound"}) > 0
+              unless on (partner)
+              label_uppercase(label_replace(dc:probe_success:min_avg5m < 0.5, "partner", "$1", "dc", "(.+)"), "partner")
+            )
+          for: 30m
+          labels:
+            severity: warning
+        - alert: SambaReplicationStatusUnavailable
+          annotations:
+            summary: Samba AD replication status cannot be read.
+            description: >-
+              `samba-tool drs showrepl` is failing on {{ $labels.instance }}, or its
+              metrics file has not been refreshed for over 15 minutes.
+          expr: |
+            (
+              samba_drs_up{job="integrations/unix"} == 0
+              or on (instance)
+              time() - node_textfile_mtime_seconds{job="integrations/unix", file=~".+/samba_drs[.]prom"} > 900
+            )
+            unless on (instance)
+            node_systemd_unit_state{job="integrations/unix", name="samba-ad-dc.service", state="active"} == 0
+          for: 15m
+          labels:
+            severity: warning
+
+        - alert: HostCoreServiceDown
+          annotations:
+            summary: Directory, DNS or time service is not running.
+            description: >-
+              Not active on {{ $labels.instance }}:
+              {{ range query (printf `node_systemd_unit_state{job="integrations/unix", name=~"(samba-ad-dc|named|chrony)[.]service", state="active", instance=%q} == 0` $labels.instance) }}{{ .Labels.name }} {{ end }}
+          expr: |
+            count by (instance) (
+              node_systemd_unit_state{job="integrations/unix", name=~"(samba-ad-dc|named|chrony)[.]service", state="active"} == 0
+            )
+          for: 10m
+          labels:
+            severity: warning
+        - alert: HostUnitFailed
+          annotations:
+            summary: Supporting systemd unit has failed.
+            description: >-
+              Failed on {{ $labels.instance }}:
+              {{ range query (printf `node_systemd_unit_state{job="integrations/unix", state="failed", instance=%q} == 1` $labels.instance) }}{{ .Labels.name }} {{ end }}
+          expr: |
+            count by (instance) (
+              node_systemd_unit_state{job="integrations/unix", state="failed", name=~"(alloy|chrony_exporter|samba-backup|samba-drs-metrics|samba-sysvol-pull)[.](service|timer)"} == 1
+            )
+          for: 10m
+          labels:
+            severity: warning
+
+        - alert: HostClockNotSynchronising
+          annotations:
+            summary: Host clock is not synchronised.
+            description: >-
+              The kernel on {{ $labels.instance }} has reported its clock as
+              unsynchronised for 30 minutes.
+          expr: |
+            min_over_time(node_timex_sync_status{job="integrations/unix"}[5m]) == 0
+            unless on (instance)
+            node_systemd_unit_state{job="integrations/unix", name="chrony.service", state="active"} == 0
+          for: 30m
+          labels:
+            severity: warning
+        - alert: NTPServerOffsetHigh
+          annotations:
+            summary: NTP server clock offset is high.
+            description: >-
+              chrony on {{ $labels.instance }} reports a last or RMS offset of
+              {{ $value | humanizeDuration }} from its reference.
+          expr: |
+            max by (instance) (abs(chrony_tracking_last_offset_seconds{job="chrony"})) > 0.1
+            or
+            max by (instance) (chrony_tracking_rms_offset_seconds{job="chrony"}) > 0.1
+          for: 15m
+          labels:
+            severity: warning
+        # Internal servers (192.168.x.x) are excluded: they peer with each other.
+        # Alertmanager inhibits the clock sync alerts while this fires.
+        - alert: NTPInternetSourcesUnreachable
+          annotations:
+            summary: No NTP server can reach an internet time source.
+            description: >-
+              None of the NTP servers has had a successful poll of an internet source
+              for an hour. They keep serving time with a slowly growing error.
+          expr: |
+            max(max_over_time(chrony_sources_reachability_success{job="chrony", source_address!~"192[.]168[.].+"}[1h])) == 0
+          for: 10m
+          keep_firing_for: 1h
+          labels:
+            severity: info

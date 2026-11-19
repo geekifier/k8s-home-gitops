@@ -55,12 +55,16 @@ tasks:
       FLATE_TEST_VERBOSE: '{{.VERBOSE | default "0"}}'
     cmd: |
       if [ "$FLATE_TEST_VERBOSE" = "1" ]; then
-        exec flate test all --path "{{.KUBERNETES_DIR}}/flux/cluster"
+        "{{.SCRIPTS_DIR}}/flate-supply.sh" |
+          flate test all --path "{{.KUBERNETES_DIR}}/flux/cluster" --supply - --strict-substitutions
+        exit
       fi
       test_tmpdir=${TMPDIR:-/tmp}
       test_log=$(mktemp "${test_tmpdir%/}/flate-test.XXXXXX") || exit 1
       printf 'Validating configuration...\nFull log:\n%s\n\n' "$test_log"
-      if flate test all --path "{{.KUBERNETES_DIR}}/flux/cluster" >"$test_log" 2>&1; then
+      if "{{.SCRIPTS_DIR}}/flate-supply.sh" |
+        flate test all --path "{{.KUBERNETES_DIR}}/flux/cluster" --supply - --strict-substitutions \
+          >"$test_log" 2>&1; then
         echo "Validation: PASS"
       else
         test_status=$?
@@ -71,12 +75,16 @@ tasks:
       fi
     preconditions:
       - which flate
+      - which yq
 
   build-all:
     desc: Use flate to build all KS and HR resources
-    cmd: flate build all --path "{{.KUBERNETES_DIR}}/flux/cluster" --skip-secrets
+    cmd: |
+      "{{.SCRIPTS_DIR}}/flate-supply.sh" |
+        flate build all --path "{{.KUBERNETES_DIR}}/flux/cluster" --supply - --strict-substitutions
     preconditions:
       - which flate
+      - which yq
 
   chart-drift:
     desc: Diff a HelmRelease's inlined values against every chart version it ever pinned
@@ -120,18 +128,21 @@ tasks:
   local-diff-hr:
     desc: Use flate to diff HelmRelease resources against origin/master
     cmd: |
-      flate diff hr --path "{{.KUBERNETES_DIR}}/flux/cluster" --base origin/master \
-      --strip-attr helm.sh/chart --strip-attr checksum/config --strip-attr app.kubernetes.io/version \
-      --strip-attr chart --strip-attr checksum/secret --skip-secrets \
-      --skip-kinds "ValidatingWebhookConfiguration,MutatingWebhookConfiguration" --output diff | moor -lang=diff
+      "{{.SCRIPTS_DIR}}/flate-supply.sh" |
+      flate diff hr --path "{{.KUBERNETES_DIR}}/flux/cluster" --base origin/master --supply - \
+      --skip-kinds Secret,CustomResourceDefinition,ValidatingWebhookConfiguration,MutatingWebhookConfiguration \
+      --output diff | moor -lang=diff
     preconditions:
       - which flate
+      - which yq
       - which moor
   local-diff-ks:
     desc: Use flate to diff Kustomization resources against origin/master
     cmd: |
-      flate diff ks --path "{{.KUBERNETES_DIR}}/flux/cluster" --base origin/master \
-      --skip-secrets=false --output diff | moor -lang=diff
+      "{{.SCRIPTS_DIR}}/flate-supply.sh" |
+      flate diff ks --path "{{.KUBERNETES_DIR}}/flux/cluster" --base origin/master --supply - \
+      --skip-kinds CustomResourceDefinition --output diff | moor -lang=diff
     preconditions:
       - which flate
+      - which yq
       - which moor
