@@ -1,0 +1,38 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/monitoring.coreos.com/prometheusrule_v1.json
+#
+# Upstream KubeClientCertificateExpiration (disabled in the HelmRelease defaultRules),
+# with a longer hold on the critical alert.
+
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: apiserver-rules
+spec:
+  groups:
+    - name: kubernetes-system-apiserver.certs
+      rules:
+        - alert: KubeClientCertificateExpiration
+          expr: |
+            (histogram_quantile(0.01, sum(rate(apiserver_client_certificate_expiration_seconds_bucket{job="apiserver"}[5m])) without (namespace, service, endpoint)) < 604800)
+            and on (job, cluster, instance)
+            (apiserver_client_certificate_expiration_seconds_count{job="apiserver"} > 0)
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: Client certificate is about to expire.
+            description: A client certificate used to authenticate to kubernetes apiserver is expiring in less than 7.0 days on cluster {{ $labels.cluster }}.
+            runbook_url: https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubeclientcertificateexpiration
+        - alert: KubeClientCertificateExpiration
+          expr: |
+            (histogram_quantile(0.01, sum(rate(apiserver_client_certificate_expiration_seconds_bucket{job="apiserver"}[5m])) without (namespace, service, endpoint)) < 86400)
+            and on (job, cluster, instance)
+            (apiserver_client_certificate_expiration_seconds_count{job="apiserver"} > 0)
+          for: 15m
+          labels:
+            severity: critical
+          annotations:
+            summary: Client certificate is about to expire.
+            description: A client certificate used to authenticate to kubernetes apiserver is expiring in less than 24.0 hours on cluster {{ $labels.cluster }}.
+            runbook_url: https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubeclientcertificateexpiration

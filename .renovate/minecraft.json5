@@ -1,0 +1,42 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  description: "Minecraft server plugin updates",
+  customDatasources: {
+    // download.luckperms.net serves only the current build; the digest carries its build number.
+    luckperms: {
+      defaultRegistryUrlTemplate: "https://metadata.luckperms.net/data/all",
+      format: "json",
+      transformTemplates: [
+        "{\"sourceUrl\": \"https://github.com/LuckPerms/LuckPerms\", \"releases\": [{\"version\": version, \"digest\": $match(downloads.bukkit, /download\\.luckperms\\.net\\/([0-9]+)\\//).groups[0], \"releaseTimestamp\": $fromMillis(versionTimestamp)}]}",
+      ],
+    },
+  },
+  customManagers: [
+    {
+      description: "Update LuckPerms download URLs with the current build number",
+      customType: "regex",
+      managerFilePatterns: ["/^kubernetes/apps/minecraft/.+\\.ya?ml$/"],
+      matchStrings: [
+        "https://download\\.luckperms\\.net/(?<currentDigest>[0-9]+)/bukkit/loader/LuckPerms-Bukkit-(?<currentValue>[0-9]+\\.[0-9]+\\.[0-9]+)\\.jar",
+      ],
+      datasourceTemplate: "custom.luckperms",
+      depNameTemplate: "LuckPerms",
+      versioningTemplate: "semver",
+      autoReplaceStringTemplate: "https://download.luckperms.net/{{{newDigest}}}/bukkit/loader/LuckPerms-Bukkit-{{{newValue}}}.jar",
+    },
+  ],
+  packageRules: [
+    {
+      description: "Merge LuckPerms patch updates before the pinned build leaves download.luckperms.net",
+      matchDatasources: ["custom.luckperms"],
+      matchUpdateTypes: ["patch", "digest"],
+      semanticCommitScope: "minecraft",
+      commitMessageTopic: "plugin {{depName}}",
+      commitMessageExtra: "( {{currentVersion}} ➔ {{newVersion}} )",
+      automerge: true,
+      automergeType: "pr",
+      automergeStrategy: "rebase",
+      platformAutomerge: false,
+    },
+  ],
+}

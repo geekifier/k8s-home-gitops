@@ -11,7 +11,7 @@ spec:
     operation: copy
   url: oci://ghcr.io/victoriametrics/helm-charts/victoria-metrics-k8s-stack
   ref:
-    tag: 0.96.0
+    tag: 0.98.1
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/helm.toolkit.fluxcd.io/helmrelease_v2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
@@ -204,6 +204,9 @@ spec:
         # Replaced by etcd.prometheusrule.yaml, which counts unary RPCs only.
         etcdHighNumberOfFailedGRPCRequests:
           enabled: false
+        # Replaced by apiserver.prometheusrule.yaml.
+        KubeClientCertificateExpiration:
+          enabled: false
 
         # Recording rule, not an alert. Its join
         # (`on(cluster,namespace,pod) ... node_namespace_pod:kube_pod_info:`)
@@ -347,6 +350,10 @@ spec:
           group_interval: 5m
           repeat_interval: 4h
           routes:
+            # Rules on trial: firing in vmalert and Grafana, but not sent.
+            - matchers:
+                - muted="true"
+              receiver: blackhole
             - matchers:
                 - severity=critical
               receiver: pushover-critical
@@ -380,6 +387,11 @@ spec:
               - alertname=InfoInhibitor
             equal:
               - namespace
+          # Clocks lose sync on every host while the NTP servers have no upstream.
+          - target_matchers:
+              - alertname=~"HostClockNotSynchronising|NodeClockNotSynchronising|NodeClockSkewDetected"
+            source_matchers:
+              - alertname=NTPInternetSourcesUnreachable
         receivers:
           - name: blackhole
           - name: pushover-critical

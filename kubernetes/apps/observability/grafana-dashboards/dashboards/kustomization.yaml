@@ -68,6 +68,20 @@ configMapGenerator:
     options:
       annotations:
         grafana_folder: "storage"
+
+  - name: grafana-dashboard-domain-controllers
+    files:
+      - ./json/domain-controllers.json
+    options:
+      annotations:
+        grafana_folder: "infra"
+
+  - name: grafana-dashboard-time-sync
+    files:
+      - ./json/time-sync.json
+    options:
+      annotations:
+        grafana_folder: "infra"
 generatorOptions:
   # see if this prevents dashboards from "disappearing" in the UI during updates
   disableNameSuffixHash: true

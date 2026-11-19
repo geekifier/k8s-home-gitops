@@ -1,0 +1,76 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/CustomResourceDefinition/catalog/main/schema/monitoring.coreos.com/prometheusrule_v1.json
+#
+# Public DNS resolution: the Cloudflare Gateway DoT upstream (blackbox probe from rpi2)
+# and the CoreDNS resolvers that forward to it (in-cluster coredns-resolver, rpi2 coredns-ext).
+
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: dns-rules
+spec:
+  groups:
+    - name: dns.upstream
+      rules:
+        - alert: CloudflareGatewayDoTDown
+          annotations:
+            summary: Cloudflare Gateway DNS-over-TLS is failing.
+            description: >-
+              The DoT probe from {{ $labels.instance }} to {{ $labels.target }} succeeded
+              for only {{ $value | humanizePercentage }} of the last 5 minutes. Resolvers
+              are serving from cache and fallback upstreams.
+          expr: avg_over_time(probe_success{job="blackbox", name="cloudflare-dot"}[5m]) < 0.5
+          for: 5m
+          labels:
+            severity: warning
+        - alert: CloudflareGatewayDoTProbeMissing
+          annotations:
+            summary: Cloudflare Gateway DoT probe has stopped reporting.
+            description: >-
+              No cloudflare-dot blackbox results for 15 minutes while rpi2 is up; the
+              blackbox exporter or its scrape is broken.
+          expr: |
+            absent_over_time(probe_success{job="blackbox", name="cloudflare-dot"}[15m])
+            and on ()
+            up{job="integrations/unix", instance="rpi2"} == 1
+          for: 15m
+          labels:
+            severity: warning
+
+    - name: dns.resolvers
+      rules:
+        - alert: DNSResolverServfailHigh
+          annotations:
+            summary: DNS resolver is failing lookups.
+            description: >-
+              {{ $labels.job }} answered {{ $value | humanizePercentage }} of queries
+              with SERVFAIL over the last 10 minutes.
+          expr: |
+            (
+              sum by (job) (rate(coredns_dns_responses_total{job=~"coredns-resolver-metrics|coredns-ext", rcode="SERVFAIL"}[10m]))
+              /
+              sum by (job) (rate(coredns_dns_responses_total{job=~"coredns-resolver-metrics|coredns-ext"}[10m]))
+            ) > 0.25
+            and
+            sum by (job) (rate(coredns_dns_responses_total{job=~"coredns-resolver-metrics|coredns-ext", rcode="SERVFAIL"}[10m])) > 0.05
+          for: 10m
+          labels:
+            severity: warning
+        # Gateway addresses: 162.159.36.5/.20 (location DoT) and 172.64.36.1/.2 (shared).
+        - alert: DNSResolverUsingFallbackUpstream
+          annotations:
+            summary: DNS resolver is not using Cloudflare Gateway.
+            description: >-
+              {{ $labels.job }} sent {{ $value | humanizePercentage }} of its DoT
+              queries to fallback upstreams over the last 10 minutes.
+          expr: |
+            (
+              sum by (job) (rate(coredns_proxy_request_duration_seconds_count{job=~"coredns-resolver-metrics|coredns-ext", to=~".+:853", to!~"(162[.]159[.]36[.](5|20)|172[.]64[.]36[.](1|2)):853"}[10m]))
+              /
+              sum by (job) (rate(coredns_proxy_request_duration_seconds_count{job=~"coredns-resolver-metrics|coredns-ext", to=~".+:853"}[10m]))
+            ) > 0.5
+            unless on ()
+            avg_over_time(probe_success{job="blackbox", name="cloudflare-dot"}[5m]) < 0.5
+          for: 15m
+          labels:
+            severity: warning
