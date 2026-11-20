@@ -6,9 +6,9 @@ talosVersion: v1.14.6
 # Keep in sync with tuppr's KubernetesUpgrade; Renovate updates both in the same PR.
 # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
 kubernetesVersion: v1.36.6
-# Image factory schematic: siderolabs/iscsi-tools, siderolabs/util-linux-tools
-# https://factory.talos.dev/schematics/613e1592b2da41ae5e265e8789429f22e121aab91cb4deb6bc3c0b6262961245
-schematicId: 613e1592b2da41ae5e265e8789429f22e121aab91cb4deb6bc3c0b6262961245
+# Image factory schematic: siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/util-linux-tools
+# https://factory.talos.dev/schematics/36cd6536eaec8ba802be2d38974108359069cedba8857302f69792b26b87c010
+schematicId: 36cd6536eaec8ba802be2d38974108359069cedba8857302f69792b26b87c010
 # Talos secrets bundle (SOPS-encrypted, same content as the former talsecret.sops.yaml)
 secretsPath: secrets.sops.yaml
 nodes:

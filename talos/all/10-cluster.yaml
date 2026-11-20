@@ -1,11 +1,13 @@
-# Disable built-in CNI to use Cilium
-cluster:
-  network:
-    cni:
-      name: none
-    podSubnets: ["100.64.0.0/16"]
-    serviceSubnets: ["100.65.0.0/16"]
 machine:
   certSANs:
     - "127.0.0.1"
     - "192.168.1.80"
+---
+apiVersion: v1alpha1
+kind: KubeNetworkConfig
+podSubnets: ["100.64.0.0/16"]
+serviceSubnets: ["100.65.0.0/16"]
+---
+apiVersion: v1alpha1
+kind: KubeFlannelCNIConfig
+$patch: delete

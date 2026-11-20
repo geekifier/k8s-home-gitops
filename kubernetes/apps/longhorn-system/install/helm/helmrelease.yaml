@@ -13,7 +13,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: longhorn-repo
-      version: 1.12.1
+      version: 1.12.2
   values:
     httproute:
       enabled: true
@@ -36,10 +36,10 @@ spec:
       storageReservedPercentageForDefaultDisk: 0
     persistence:
       defaultClassReplicaCount: 2
-  # The chart can't label its HTTPRoute.
   postRenderers:
     - kustomize:
         patches:
+          # The chart can't label its HTTPRoute.
           - target:
               group: gateway.networking.k8s.io
               kind: HTTPRoute
@@ -48,6 +48,17 @@ spec:
               - op: add
                 path: /metadata/labels/auth.xenu.internal~1method
                 value: sso
+          # iSCSI initiators reach instance-manager from the local node.
+          - target:
+              group: networking.k8s.io
+              kind: NetworkPolicy
+              name: instance-manager
+            patch: |
+              - op: test
+                path: /spec/ingress/1/ports/0/port
+                value: 3260
+              - op: remove
+                path: /spec/ingress/1
   interval: 60m
   # upgrade:
   #   remediation:
