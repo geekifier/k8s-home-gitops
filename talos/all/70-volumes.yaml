@@ -1,0 +1,19 @@
+---
+apiVersion: v1alpha1
+kind: VolumeConfig
+name: EPHEMERAL
+provisioning:
+  maxSize: 200Gi
+---
+# Longhorn data volume on the system disk
+apiVersion: v1alpha1
+kind: UserVolumeConfig
+name: longhorn
+provisioning:
+  diskSelector:
+    match: system_disk
+  grow: true
+  minSize: 300Gi
+  maxSize: 600Gi
+filesystem:
+  type: xfs
