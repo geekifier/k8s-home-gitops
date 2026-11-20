@@ -1,0 +1,23 @@
+---
+clusterName: kubernetes
+clusterEndpoint: https://192.168.1.80:6443
+# Tracked by Renovate's Talos Factory preset, alongside the tuppr upgrade target.
+talosVersion: v1.14.6
+# Keep in sync with tuppr's KubernetesUpgrade; Renovate updates both in the same PR.
+# renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
+kubernetesVersion: v1.36.6
+# Image factory schematic: siderolabs/iscsi-tools, siderolabs/util-linux-tools
+# https://factory.talos.dev/schematics/613e1592b2da41ae5e265e8789429f22e121aab91cb4deb6bc3c0b6262961245
+schematicId: 613e1592b2da41ae5e265e8789429f22e121aab91cb4deb6bc3c0b6262961245
+# Talos secrets bundle (SOPS-encrypted, same content as the former talsecret.sops.yaml)
+secretsPath: secrets.sops.yaml
+nodes:
+  - host: tinykube01
+    ip: 192.168.1.61
+    role: control-plane
+  - host: tinykube02
+    ip: 192.168.1.62
+    role: control-plane
+  - host: tinykube03
+    ip: 192.168.1.63
+    role: control-plane

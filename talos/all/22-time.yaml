@@ -1,0 +1,10 @@
+apiVersion: v1alpha1
+kind: TimeSyncConfig
+bootTimeout: 2m
+ntp:
+  servers:
+    - 192.168.1.25
+    - 192.168.1.30
+    - 192.168.1.32
+    - 162.159.200.1
+    - 162.159.200.123

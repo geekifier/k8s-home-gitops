@@ -1,0 +1,6 @@
+---
+# Administratively disable the unused second 10GbE port on all nodes.
+apiVersion: v1alpha1
+kind: LinkConfig
+name: enp1s0f1
+up: false

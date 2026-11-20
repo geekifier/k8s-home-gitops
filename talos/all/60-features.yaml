@@ -1,0 +1,13 @@
+machine:
+  features:
+    hostDNS:
+      enabled: true
+      # compat issue with Cilium
+      forwardKubeDNSToHost: false
+    # Talos API access from Kubernetes (tuppr)
+    kubernetesTalosAPIAccess:
+      enabled: true
+      allowedRoles:
+        - os:admin
+      allowedKubernetesNamespaces:
+        - system-upgrade

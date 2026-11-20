@@ -1,0 +1,7 @@
+# eno1 (onboard NIC, link up, unused): keep Talos from running default DHCPv4 on it.
+# v1alpha1 form on purpose — typed network docs have no `ignore` equivalent (Talos 1.12).
+machine:
+  network:
+    interfaces:
+      - interface: eno1
+        ignore: true
