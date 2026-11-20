@@ -110,6 +110,9 @@ spec:
         # In the infra folder through node-exporter-full.grafanadashboard.yaml
         node-exporter-full:
           enabled: false
+        # Covered by kubernetes-system-api-server
+        apiserver:
+          enabled: false
 
     # -- Create default rules for monitoring the cluster
     defaultRules:
