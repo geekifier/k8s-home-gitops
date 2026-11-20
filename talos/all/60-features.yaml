@@ -1,13 +1,13 @@
-machine:
-  features:
-    hostDNS:
-      enabled: true
-      # compat issue with Cilium
-      forwardKubeDNSToHost: false
-    # Talos API access from Kubernetes (tuppr)
-    kubernetesTalosAPIAccess:
-      enabled: true
-      allowedRoles:
-        - os:admin
-      allowedKubernetesNamespaces:
-        - system-upgrade
+---
+# Talos API access from Kubernetes (tuppr)
+apiVersion: v1alpha1
+kind: KubeTalosAPIAccessConfig
+allowedRoles:
+  - os:admin
+allowedKubernetesNamespaces:
+  - system-upgrade
+---
+# Longhorn reaches the host iscsid from pods
+apiVersion: v1alpha1
+kind: SecurityProfileConfig
+workloadIsolation: false

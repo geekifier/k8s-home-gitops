@@ -17,3 +17,7 @@ provisioning:
   maxSize: 600Gi
 filesystem:
   type: xfs
+---
+apiVersion: v1alpha1
+kind: FilesystemTrimConfig
+interval: 168h
