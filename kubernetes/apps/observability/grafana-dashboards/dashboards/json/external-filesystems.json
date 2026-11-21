@@ -2,7 +2,7 @@
   "annotations": {
     "list": []
   },
-  "description": "Capacity, observed changes, selectable consumption trends and fill estimates, and collection health for non-Kubernetes node exporters (integrations/unix).",
+  "description": "Capacity, observed changes, selectable consumption trends and fill estimates, collection health and TRIM activity for node exporters (integrations/unix and Talos node-exporter).",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -31,7 +31,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "(max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)",
+          "expr": "(max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0)",
           "refId": "A",
           "legendFormat": "{{mountpoint}}",
           "instant": true,
@@ -44,7 +44,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})",
+          "expr": "max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})",
           "refId": "B",
           "legendFormat": "{{mountpoint}}",
           "instant": true,
@@ -57,7 +57,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "100 * (max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) / ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))",
+          "expr": "100 * (max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})) / ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0))",
           "refId": "C",
           "legendFormat": "{{mountpoint}}",
           "instant": true,
@@ -70,7 +70,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)) - (max by (instance, device, mountpoint, fstype) (node_filesystem_free_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))",
+          "expr": "((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0)) - (max by (instance, device, mountpoint, fstype) (node_filesystem_free_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}))",
           "refId": "D",
           "legendFormat": "{{mountpoint}}",
           "instant": true,
@@ -83,7 +83,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "clamp_min((max by (instance, device, mountpoint, fstype) (node_filesystem_free_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) - (max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})), 0)",
+          "expr": "clamp_min((max by (instance, device, mountpoint, fstype) (node_filesystem_free_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})) - (max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})), 0)",
           "refId": "E",
           "legendFormat": "{{mountpoint}}",
           "instant": true,
@@ -96,7 +96,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "100 * (max by (instance, device, mountpoint, fstype) (node_filesystem_files_free{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) / (max by (instance, device, mountpoint, fstype) (node_filesystem_files{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)",
+          "expr": "100 * (max by (instance, device, mountpoint, fstype) (node_filesystem_files_free{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})) / (max by (instance, device, mountpoint, fstype) (node_filesystem_files{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0)",
           "refId": "F",
           "legendFormat": "{{mountpoint}}",
           "instant": true,
@@ -109,7 +109,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "(((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)) - (max by (instance, device, mountpoint, fstype) (node_filesystem_free_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))) - (((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"} offset 24h) > 0)) - (max by (instance, device, mountpoint, fstype) (node_filesystem_free_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"} offset 24h)))",
+          "expr": "(((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0)) - (max by (instance, device, mountpoint, fstype) (node_filesystem_free_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}))) - (((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"} offset 24h) > 0)) - (max by (instance, device, mountpoint, fstype) (node_filesystem_free_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"} offset 24h)))",
           "refId": "G",
           "legendFormat": "{{mountpoint}}",
           "instant": true,
@@ -122,7 +122,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "(((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)) - (max by (instance, device, mountpoint, fstype) (node_filesystem_free_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))) - (((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"} offset 7d) > 0)) - (max by (instance, device, mountpoint, fstype) (node_filesystem_free_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"} offset 7d)))",
+          "expr": "(((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0)) - (max by (instance, device, mountpoint, fstype) (node_filesystem_free_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}))) - (((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"} offset 7d) > 0)) - (max by (instance, device, mountpoint, fstype) (node_filesystem_free_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"} offset 7d)))",
           "refId": "H",
           "legendFormat": "{{mountpoint}}",
           "instant": true,
@@ -135,7 +135,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "max by (instance, device, mountpoint, fstype) (time() - timestamp(node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))",
+          "expr": "max by (instance, device, mountpoint, fstype) (time() - timestamp(node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}))",
           "refId": "I",
           "legendFormat": "{{mountpoint}}",
           "instant": true,
@@ -634,7 +634,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "100 * (1 - (max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) / ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)))",
+          "expr": "100 * (1 - (max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})) / ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0)))",
           "refId": "A",
           "legendFormat": "{{mountpoint}}",
           "instant": true,
@@ -708,7 +708,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})",
+          "expr": "max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})",
           "refId": "A",
           "legendFormat": "{{mountpoint}}",
           "instant": false,
@@ -777,7 +777,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "100 * (max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) / ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))",
+          "expr": "100 * (max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})) / ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0))",
           "refId": "A",
           "legendFormat": "{{mountpoint}}",
           "instant": false,
@@ -846,7 +846,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "(((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)) - (max by (instance, device, mountpoint, fstype) (node_filesystem_free_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))) - (((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"} offset 1h) > 0)) - (max by (instance, device, mountpoint, fstype) (node_filesystem_free_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"} offset 1h)))",
+          "expr": "(((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0)) - (max by (instance, device, mountpoint, fstype) (node_filesystem_free_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}))) - (((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"} offset 1h) > 0)) - (max by (instance, device, mountpoint, fstype) (node_filesystem_free_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"} offset 1h)))",
           "refId": "A",
           "legendFormat": "{{mountpoint}}",
           "instant": false,
@@ -915,7 +915,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "(((0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))) + 5) unless (((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)) and (max by (instance, device, mountpoint, fstype) (time() - timestamp(node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) < 300) unless (((max by (instance, device, mountpoint, fstype) (node_filesystem_readonly{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) > 0) or ((max by (instance, device, mountpoint, fstype) (node_filesystem_device_error{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) > 0)))) or (((0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))) + 3) and (changes(((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))[$forecast_window:5m]) > 0)) or (((0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))) + 4) unless (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))[$forecast_window:5m]))) or (((0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))) + 1) and (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))[$forecast_window:5m]) >= 0)) or (0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)))",
+          "expr": "(((0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0))) + 5) unless (((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0)) and (max by (instance, device, mountpoint, fstype) (time() - timestamp(node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})) < 300) unless (((max by (instance, device, mountpoint, fstype) (node_filesystem_readonly{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})) > 0) or ((max by (instance, device, mountpoint, fstype) (node_filesystem_device_error{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})) > 0)))) or (((0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0))) + 3) and (changes(((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0))[$forecast_window:5m]) > 0)) or (((0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0))) + 4) unless (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}))[$forecast_window:5m]))) or (((0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0))) + 1) and (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}))[$forecast_window:5m]) >= 0)) or (0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0)))",
           "refId": "A",
           "legendFormat": "{{mountpoint}}",
           "instant": true,
@@ -928,7 +928,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "((0 * (((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) - 0.1 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))) <= 0)) or ((((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) - 0.1 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))) / -(deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))[$forecast_window:5m])) / 86400) and (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))[$forecast_window:5m]) < 0)) or (((0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))) - 1) and (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))[$forecast_window:5m]) >= 0))) and ((((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)) and (max by (instance, device, mountpoint, fstype) (time() - timestamp(node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) < 300) unless (((max by (instance, device, mountpoint, fstype) (node_filesystem_readonly{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) > 0) or ((max by (instance, device, mountpoint, fstype) (node_filesystem_device_error{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) > 0))) and (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))[$forecast_window:5m])) unless (changes(((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))[$forecast_window:5m]) > 0))",
+          "expr": "((0 * (((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})) - 0.1 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0))) <= 0)) or ((((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})) - 0.1 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0))) / -(deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}))[$forecast_window:5m])) / 86400) and (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}))[$forecast_window:5m]) < 0)) or (((0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0))) - 1) and (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}))[$forecast_window:5m]) >= 0))) and ((((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0)) and (max by (instance, device, mountpoint, fstype) (time() - timestamp(node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})) < 300) unless (((max by (instance, device, mountpoint, fstype) (node_filesystem_readonly{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})) > 0) or ((max by (instance, device, mountpoint, fstype) (node_filesystem_device_error{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})) > 0))) and (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}))[$forecast_window:5m])) unless (changes(((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0))[$forecast_window:5m]) > 0))",
           "refId": "B",
           "legendFormat": "{{mountpoint}}",
           "instant": true,
@@ -941,7 +941,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "((0 * (((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) - 0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))) <= 0)) or ((((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) - 0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))) / -(deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))[$forecast_window:5m])) / 86400) and (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))[$forecast_window:5m]) < 0)) or (((0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))) - 1) and (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))[$forecast_window:5m]) >= 0))) and ((((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)) and (max by (instance, device, mountpoint, fstype) (time() - timestamp(node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) < 300) unless (((max by (instance, device, mountpoint, fstype) (node_filesystem_readonly{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) > 0) or ((max by (instance, device, mountpoint, fstype) (node_filesystem_device_error{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) > 0))) and (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))[$forecast_window:5m])) unless (changes(((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))[$forecast_window:5m]) > 0))",
+          "expr": "((0 * (((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})) - 0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0))) <= 0)) or ((((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})) - 0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0))) / -(deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}))[$forecast_window:5m])) / 86400) and (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}))[$forecast_window:5m]) < 0)) or (((0 * ((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0))) - 1) and (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}))[$forecast_window:5m]) >= 0))) and ((((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0)) and (max by (instance, device, mountpoint, fstype) (time() - timestamp(node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})) < 300) unless (((max by (instance, device, mountpoint, fstype) (node_filesystem_readonly{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})) > 0) or ((max by (instance, device, mountpoint, fstype) (node_filesystem_device_error{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})) > 0))) and (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}))[$forecast_window:5m])) unless (changes(((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0))[$forecast_window:5m]) > 0))",
           "refId": "C",
           "legendFormat": "{{mountpoint}}",
           "instant": true,
@@ -954,7 +954,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "(-(deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))[$forecast_window:5m])) * 86400) and ((((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)) and (max by (instance, device, mountpoint, fstype) (time() - timestamp(node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) < 300) unless (((max by (instance, device, mountpoint, fstype) (node_filesystem_readonly{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) > 0) or ((max by (instance, device, mountpoint, fstype) (node_filesystem_device_error{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) > 0))) and (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))[$forecast_window:5m])) unless (changes(((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0))[$forecast_window:5m]) > 0))",
+          "expr": "(-(deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}))[$forecast_window:5m])) * 86400) and ((((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0)) and (max by (instance, device, mountpoint, fstype) (time() - timestamp(node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})) < 300) unless (((max by (instance, device, mountpoint, fstype) (node_filesystem_readonly{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})) > 0) or ((max by (instance, device, mountpoint, fstype) (node_filesystem_device_error{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})) > 0))) and (deriv((max by (instance, device, mountpoint, fstype) (node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}))[$forecast_window:5m])) unless (changes(((max by (instance, device, mountpoint, fstype) (node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0))[$forecast_window:5m]) > 0))",
           "refId": "D",
           "legendFormat": "{{mountpoint}}",
           "instant": true,
@@ -1235,7 +1235,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "100 * (max by (instance, device, mountpoint, fstype) (node_filesystem_files_free{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) / (max by (instance, device, mountpoint, fstype) (node_filesystem_files{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}) > 0)",
+          "expr": "100 * (max by (instance, device, mountpoint, fstype) (node_filesystem_files_free{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})) / (max by (instance, device, mountpoint, fstype) (node_filesystem_files{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}) > 0)",
           "refId": "A",
           "legendFormat": "{{mountpoint}}",
           "instant": false,
@@ -1304,7 +1304,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "max by (instance, device, mountpoint, fstype) (time() - timestamp(node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))",
+          "expr": "max by (instance, device, mountpoint, fstype) (time() - timestamp(node_filesystem_avail_bytes{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}))",
           "refId": "A",
           "legendFormat": "{{mountpoint}}",
           "instant": false,
@@ -1373,7 +1373,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "(max by (instance, device, mountpoint, fstype) (node_filesystem_readonly{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"})) + 2 * (max by (instance, device, mountpoint, fstype) (node_filesystem_device_error{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}))",
+          "expr": "(max by (instance, device, mountpoint, fstype) (node_filesystem_readonly{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"})) + 2 * (max by (instance, device, mountpoint, fstype) (node_filesystem_device_error{job=\"$job\",instance=\"$instance\",mountpoint=~\"$mountpoint\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}))",
           "refId": "A",
           "legendFormat": "{{mountpoint}}",
           "instant": false,
@@ -1490,6 +1490,249 @@
           "mode": "single"
         }
       }
+    },
+    {
+      "id": 12,
+      "type": "row",
+      "title": "Trim (discard)",
+      "collapsed": false,
+      "panels": [],
+      "gridPos": {
+        "x": 0,
+        "y": 49,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "id": 13,
+      "type": "timeseries",
+      "title": "Trimmed per hour",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 50,
+        "w": 12,
+        "h": 8
+      },
+      "interval": "1h",
+      "maxDataPoints": 1000,
+      "description": "Bytes each block device accepted as discards per hour (fstrim, Talos FilesystemTrimConfig, or online discard). A first trim covers all free space; later runs should be much smaller. \"Longhorn volumes\" sums discards inside Longhorn iSCSI volumes (model VIRTUAL-DISK) from the filesystem-trim recurring job: they free space in replica files and reach the drive only on the next host trim. dm-* devices repeat what reaches the underlying disk.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "(increase(node_disk_discarded_sectors_total{job=\"$job\",instance=\"$instance\"}[$__interval]) * 512 unless on (instance, device) node_disk_info{job=\"$job\",instance=\"$instance\",model=\"VIRTUAL-DISK\"}) > 0",
+          "refId": "A",
+          "legendFormat": "{{device}}",
+          "instant": false,
+          "range": true,
+          "format": "time_series"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "sum by (instance) (increase(node_disk_discarded_sectors_total{job=\"$job\",instance=\"$instance\"}[$__interval]) * 512 and on (instance, device) node_disk_info{job=\"$job\",instance=\"$instance\",model=\"VIRTUAL-DISK\"}) > 0",
+          "refId": "B",
+          "legendFormat": "Longhorn volumes (sum)",
+          "instant": false,
+          "range": true,
+          "format": "time_series"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "noValue": "No discards in range",
+          "unit": "bytes",
+          "custom": {
+            "drawStyle": "bars",
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "fillOpacity": 80,
+            "spanNulls": false,
+            "showPoints": "never",
+            "pointSize": 6,
+            "axisPlacement": "auto",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "max",
+            "lastNotNull"
+          ],
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 14,
+      "type": "timeseries",
+      "title": "XFS space freed \u00b7 rolling 7d",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 50,
+        "w": 12,
+        "h": 8
+      },
+      "description": "Blocks XFS freed over the preceding 7 days (assumes 4 KiB blocks). Upper bound on what the next weekly trim can discard: blocks reused before the trim do not need it. Works on drives that do not report namespace utilization.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "( ( (increase(node_xfs_extent_allocation_blocks_freed_total{job=\"$job\",instance=\"$instance\"}[7d]) * 4096) * on (instance, device) group_left (fsdev) (label_replace(node_disk_device_mapper_info{job=\"$job\",instance=\"$instance\"}, \"fsdev\", \"/dev/mapper/$1\", \"name\", \"(.+)\") * 0 + 1) ) or on (instance, device) label_replace(increase(node_xfs_extent_allocation_blocks_freed_total{job=\"$job\",instance=\"$instance\"}[7d]) * 4096, \"fsdev\", \"/dev/$1\", \"device\", \"(.+)\") ) * on (instance, fsdev) group_left (mountpoint) topk by (instance, fsdev) (1, max by (instance, fsdev, mountpoint) (label_replace(node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",fstype=\"xfs\",mountpoint=~\"$mountpoint\"}, \"fsdev\", \"$1\", \"device\", \"(.+)\")) * 0 + 1 )",
+          "refId": "A",
+          "legendFormat": "{{mountpoint}}",
+          "instant": false,
+          "range": true,
+          "format": "time_series"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "noValue": "\u2014",
+          "unit": "bytes",
+          "min": 0,
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "fillOpacity": 8,
+            "spanNulls": false,
+            "showPoints": "never",
+            "pointSize": 6,
+            "axisPlacement": "auto",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "max",
+            "lastNotNull"
+          ],
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 15,
+      "type": "timeseries",
+      "title": "Discard latency \u00b7 average per request",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 58,
+        "w": 24,
+        "h": 7
+      },
+      "description": "Time spent per completed discard request; only plotted while discards run. Longhorn iSCSI volumes are excluded. fstrim sends large ranges, so hundreds of ms is normal. Compare spikes with etcd WAL fsync latency on control-plane nodes.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "(rate(node_disk_discard_time_seconds_total{job=\"$job\",instance=\"$instance\"}[$__rate_interval]) / (rate(node_disk_discards_completed_total{job=\"$job\",instance=\"$instance\"}[$__rate_interval]) > 0)) unless on (instance, device) node_disk_info{job=\"$job\",instance=\"$instance\",model=\"VIRTUAL-DISK\"}",
+          "refId": "A",
+          "legendFormat": "{{device}}",
+          "instant": false,
+          "range": true,
+          "format": "time_series"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "noValue": "No discards in range",
+          "unit": "s",
+          "min": 0,
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "fillOpacity": 8,
+            "spanNulls": false,
+            "showPoints": "always",
+            "pointSize": 6,
+            "axisPlacement": "auto",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "max",
+            "lastNotNull"
+          ],
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
     }
   ],
   "refresh": "1m",
@@ -1568,9 +1811,9 @@
           "type": "prometheus",
           "uid": "${DS_PROMETHEUS}"
         },
-        "definition": "label_values(node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}, mountpoint)",
+        "definition": "label_values(node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}, mountpoint)",
         "query": {
-          "query": "label_values(node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs\"}, mountpoint)",
+          "query": "label_values(node_filesystem_size_bytes{job=\"$job\",instance=\"$instance\",fstype!~\"tmpfs|fuse|fuse[.].*|cifs|smb3|nfs|nfs4|iso9660|autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|pstore|ramfs|rpc_pipefs|securityfs|squashfs|sysfs|tracefs|rootfs\"}, mountpoint)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery",
           "qryType": 1
         },
