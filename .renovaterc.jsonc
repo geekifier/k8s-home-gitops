@@ -346,12 +346,14 @@
       ]
     },
     {
-      "description": "Offer Cilium updates per minor stream for sequential upgrades",
-      "matchDatasources": [
-        "helm"
-      ],
+      "description": "Offer infrastructure updates per minor stream for sequential upgrades",
+      // Helm repository charts match by name, OCI charts by repository path.
       "matchPackageNames": [
-        "cilium"
+        "cilium",
+        "longhorn",
+        "/(^|/)cert-manager$/",
+        "/(^|/)cloudnative-pg$/",
+        "/(^|/)gateway-helm$/"
       ],
       "separateMajorMinor": true,
       "separateMinorPatch": true,

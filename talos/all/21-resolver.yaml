@@ -6,3 +6,7 @@ nameservers:
   - address: 192.168.1.25
 searchDomains:
   disableDefault: true
+hostDNS:
+  enabled: true
+  # compat issue with Cilium
+  forwardKubeDNSToHost: false
