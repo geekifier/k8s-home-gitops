@@ -28,7 +28,7 @@ helm-diff = "latest"
 "aqua:cue-lang/cue" = "0.17.1"
 "aqua:FiloSottile/age" = "1.3.2"
 # Renovate: the Flux release bundled in the FluxInstance artifact, mirrored here.
-# oci://ghcr.io/controlplaneio-fluxcd/flux-operator-manifests:v0.62.1
+# oci://ghcr.io/controlplaneio-fluxcd/flux-operator-manifests:v0.63.1
 "aqua:fluxcd/flux2" = "2.10.0"
 "aqua:getsops/sops" = "3.13.3"
 "aqua:go-task/task" = "3.54.0"

@@ -6,7 +6,7 @@ metadata:
   namespace: longhorn-system
 spec:
   task: filesystem-trim
-  cron: "0 3 */3 * *"
+  cron: "0 3 * * *"
   retain: 1
   concurrency: 1
   groups:

@@ -10,7 +10,9 @@
     "github>home-operations/renovate-presets//apps/talosFactory.json5#12.0.0",
     "local>geekifier/xenu-ng//.renovate/minecraft.json5"
   ],
-  "dependencyDashboardTitle": "Renovate Dashboard 🤖",
+  "dependencyDashboard": {
+    "title": "Renovate Dashboard 🤖"
+  },
   "minimumReleaseAgeBehaviour": "timestamp-optional",
   "ignorePaths": [
     "**/*.sops.*"

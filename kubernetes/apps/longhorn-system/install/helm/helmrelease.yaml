@@ -34,6 +34,7 @@ spec:
       nodeDrainPolicy: allow-if-replica-is-stopped
       disableSchedulingOnCordonedNode: true
       storageReservedPercentageForDefaultDisk: 0
+      autoCleanupSnapshotAfterOnDemandBackupCompleted: true
     persistence:
       defaultClassReplicaCount: 2
   postRenderers:
