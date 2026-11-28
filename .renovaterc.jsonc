@@ -513,6 +513,19 @@
       "sourceUrl": "https://github.com/kubernetes-csi/csi-driver-smb"
     },
     {
+      "description": "Use Longhorn application release notes and link chart changes",
+      "matchDatasources": [
+        "helm"
+      ],
+      "matchPackageNames": [
+        "longhorn"
+      ],
+      "sourceUrl": "https://github.com/longhorn/longhorn",
+      "prBodyNotes": [
+        "Chart changes: [longhorn-{{{currentVersion}}}...longhorn-{{{newVersion}}}](https://github.com/longhorn/charts/compare/longhorn-{{{currentVersion}}}...longhorn-{{{newVersion}}}) · [chart release notes](https://github.com/longhorn/charts/releases/tag/longhorn-{{{newVersion}}})."
+      ]
+    },
+    {
       "description": "Link prometheus-community OCI charts to the helm-charts repo",
       "matchDatasources": [
         "docker"
